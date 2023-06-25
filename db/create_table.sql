@@ -87,6 +87,7 @@ CREATE TABLE "student_class" (
 	"oct" BOOLEAN,
 	"nov" BOOLEAN,
 	"dec" BOOLEAN,
+	"is_active" BOOLEAN NOT NULL DEFAULT TRUE,
 	PRIMARY KEY ("student_id", "class_id"),
 	FOREIGN KEY("student_id") REFERENCES "student"("id"),
 	FOREIGN KEY("class_id") REFERENCES "class_registration"("id")

@@ -103,6 +103,7 @@ model student_class {
   oct          Boolean?
   nov          Boolean?
   dec          Boolean?
+  is_active    Boolean            @default(true)
   Renamedclass class_registration @relation(fields: [class_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   student      student            @relation(fields: [student_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
