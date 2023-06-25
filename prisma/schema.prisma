@@ -10,6 +10,7 @@ datasource db {
 model form {
   id                 Int                  @id @default(autoincrement()) @db.SmallInt
   form_name          String               @db.VarChar(100)
+  is_active          Boolean              @default(true)
   class_registration class_registration[]
   package_discount   package_discount[]
   student            student[]

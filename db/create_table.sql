@@ -1,6 +1,7 @@
 CREATE TABLE "form" (
 	"id" SMALLSERIAL PRIMARY KEY,
-	"form_name" VARCHAR(100) NOT NULL
+	"form_name" VARCHAR(100) NOT NULL,
+	"is_active" BOOLEAN NOT NULL DEFAULT TRUE
 );
 
 CREATE TABLE "subject" (
