@@ -3,6 +3,7 @@ import Head from "next/head";
 import Link from "next/link";
 import { useGet } from "../hooks/use-get";
 import { useQuery } from "@tanstack/react-query";
+import { Header } from "../components/header";
 
 function Home() {
 	const getHelloWorld = useGet("/api/hello-world");
@@ -23,6 +24,7 @@ function Home() {
 			<Head>
 				<title>Home - Nextron (with-typescript-tailwindcss)</title>
 			</Head>
+			<Header />
 			<div className="grid grid-col-1 text-2xl w-full text-center">
 				<img className="ml-auto mr-auto" src="/images/logo.png" />
 				<span>⚡ Electron ⚡</span>

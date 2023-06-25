@@ -1,0 +1,188 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model form {
+  id                 Int                  @id @default(autoincrement()) @db.SmallInt
+  form_name          String               @db.VarChar(100)
+  class_registration class_registration[]
+  package_discount   package_discount[]
+  student            student[]
+  subject            subject[]
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model receipt {
+  id               Int             @id @default(autoincrement())
+  student_id       Int
+  date             DateTime        @default(dbgenerated("CURRENT_DATE")) @db.Date
+  payment_year     Int
+  jan              Float           @default(0) @db.Real
+  feb              Float           @default(0) @db.Real
+  mar              Float           @default(0) @db.Real
+  apr              Float           @default(0) @db.Real
+  may              Float           @default(0) @db.Real
+  jun              Float           @default(0) @db.Real
+  jul              Float           @default(0) @db.Real
+  aug              Float           @default(0) @db.Real
+  sep              Float           @default(0) @db.Real
+  oct              Float           @default(0) @db.Real
+  nov              Float           @default(0) @db.Real
+  dec              Float           @default(0) @db.Real
+  package_discount Float           @db.Real
+  reg_fees         Float           @db.Real
+  incentive        Float           @db.Real
+  voucher_id       String?         @db.VarChar(255)
+  voucher_discount Float           @db.Real
+  tax              Float           @db.Real
+  remarks          String?         @db.VarChar(255)
+  status           String          @db.VarChar(20)
+  student          student         @relation(fields: [student_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  receipt_class    receipt_class[]
+}
+
+model receipt_class {
+  receipt_id   Int
+  class_id     Int
+  fees         Float              @db.Real
+  is_package   Boolean
+  Renamedclass class_registration @relation(fields: [class_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  receipt      receipt            @relation(fields: [receipt_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([receipt_id, class_id])
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model session {
+  id          String   @id @db.VarChar(255)
+  username    String   @db.VarChar(255)
+  login_time  DateTime @db.Timestamptz(6)
+  last_active DateTime @db.Timestamptz(6)
+  expired_at  DateTime @db.Timestamptz(6)
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model student {
+  id                  Int             @id @default(autoincrement())
+  student_name        String          @db.VarChar(255)
+  form_id             Int             @db.SmallInt
+  reg_date            DateTime        @default(dbgenerated("CURRENT_DATE")) @db.Date
+  reg_year            Int             @db.SmallInt
+  gender              String?         @db.VarChar(20)
+  ic                  String?         @db.VarChar(20)
+  school              String?         @db.VarChar(100)
+  phone_number        String?         @db.VarChar(20)
+  parent_phone_number String?         @db.VarChar(20)
+  email               String?         @db.VarChar(255)
+  address             String?         @db.VarChar(255)
+  is_active           Boolean         @default(true)
+  receipt             receipt[]
+  form                form            @relation(fields: [form_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  student_class       student_class[]
+  voucher             voucher[]
+}
+
+model student_class {
+  student_id   Int
+  class_id     Int
+  jan          Boolean?
+  feb          Boolean?
+  mar          Boolean?
+  apr          Boolean?
+  may          Boolean?
+  jun          Boolean?
+  jul          Boolean?
+  aug          Boolean?
+  sep          Boolean?
+  oct          Boolean?
+  nov          Boolean?
+  dec          Boolean?
+  Renamedclass class_registration @relation(fields: [class_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  student      student            @relation(fields: [student_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([student_id, class_id])
+}
+
+model subject {
+  id                 Int                  @id @default(autoincrement())
+  form_id            Int                  @db.SmallInt
+  subject_name       String               @db.VarChar(100)
+  is_active          Boolean              @default(true)
+  class_registration class_registration[]
+  form               form                 @relation(fields: [form_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model teacher {
+  id                 Int                  @id @default(autoincrement())
+  teacher_name       String               @db.VarChar(255)
+  ic                 String?              @db.VarChar(20)
+  phone_number       String               @db.VarChar(20)
+  email              String?              @db.VarChar(255)
+  address            String?              @db.VarChar(255)
+  start_date         DateTime             @default(dbgenerated("CURRENT_DATE")) @db.Date
+  end_date           DateTime?            @db.Date
+  is_active          Boolean              @default(true)
+  class_registration class_registration[]
+}
+
+model user {
+  id       String @id @db.Uuid
+  username String @unique @db.VarChar(255)
+  password String @db.VarChar(255)
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model class_registration {
+  id            Int             @id @default(autoincrement())
+  teacher_id    Int
+  subject_id    Int
+  start_date    DateTime        @default(dbgenerated("CURRENT_DATE")) @db.Date
+  end_date      DateTime?       @db.Date
+  class_year    Int             @db.SmallInt
+  form_id       Int             @db.SmallInt
+  day           Int?
+  time          DateTime?       @db.Time(6)
+  fees          Float           @db.Real
+  is_package    Boolean
+  form          form            @relation(fields: [form_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  subject       subject         @relation(fields: [subject_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  teacher       teacher         @relation(fields: [teacher_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  receipt_class receipt_class[]
+  student_class student_class[]
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model package_discount {
+  id                   Int       @id @default(autoincrement())
+  start_date           DateTime  @default(dbgenerated("CURRENT_DATE")) @db.Date
+  end_date             DateTime? @db.Date
+  form_id              Int       @db.SmallInt
+  subject_count_from   Int       @db.SmallInt
+  subject_count_to     Int?      @db.SmallInt
+  discount_per_subject Float     @db.Real
+  form                 form      @relation(fields: [form_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model tax {
+  id         Int       @id @default(autoincrement()) @db.SmallInt
+  percentage Float     @db.Real
+  start_date DateTime  @default(dbgenerated("CURRENT_DATE")) @db.Date
+  end_date   DateTime? @db.Date
+}
+
+model voucher {
+  id            String   @id @db.VarChar(255)
+  student_id    Int?
+  discount      Float    @db.Real
+  is_percentage Boolean  @default(false)
+  start_date    DateTime @default(dbgenerated("CURRENT_DATE")) @db.Date
+  expired_at    DateTime @db.Date
+  used          Boolean  @default(false)
+  student       student? @relation(fields: [student_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
