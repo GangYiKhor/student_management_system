@@ -97,7 +97,8 @@ CREATE TABLE "tax" (
 	"id" SMALLSERIAL PRIMARY KEY,
 	"percentage" REAL NOT NULL,
 	"start_date" DATE NOT NULL DEFAULT CURRENT_DATE,
-	"end_date" DATE CHECK("end_date" > "start_date")
+	"end_date" DATE CHECK("end_date" > "start_date"),
+	"inclusive" BOOLEAN NOT NULL
 );
 
 CREATE TABLE "voucher" (

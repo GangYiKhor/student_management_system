@@ -176,6 +176,7 @@ model tax {
   percentage Float     @db.Real
   start_date DateTime  @default(dbgenerated("CURRENT_DATE")) @db.Date
   end_date   DateTime? @db.Date
+  inclusive  Boolean
 }
 
 model voucher {
