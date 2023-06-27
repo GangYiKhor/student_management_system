@@ -9,7 +9,7 @@ CREATE TABLE "subject" (
 	"form_id" SMALLINT NOT NULL,
 	"subject_name" VARCHAR(100) NOT NULL,
 	"is_active" BOOLEAN NOT NULL DEFAULT TRUE,
-	FOREIGN KEY("form_id") REFERENCES "form"("id")
+	FOREIGN KEY ("form_id") REFERENCES "form"("id")
 );
 
 CREATE TABLE "teacher" (
@@ -32,7 +32,7 @@ CREATE TABLE "package_discount" (
 	"subject_count_from" SMALLINT NOT NULL,
 	"subject_count_to" SMALLINT,
 	"discount_per_subject" REAL NOT NULL,
-	FOREIGN KEY("form_id") REFERENCES "form"("id")
+	FOREIGN KEY ("form_id") REFERENCES "form"("id")
 );
 
 CREATE TABLE "class_registration" (
@@ -50,9 +50,9 @@ CREATE TABLE "class_registration" (
 	"time" TIME,
 	"fees" REAL NOT NULL,
 	"is_package" BOOLEAN NOT NULL,
-	FOREIGN KEY("teacher_id") REFERENCES "teacher"("id"),
-	FOREIGN KEY("subject_id") REFERENCES "subject"("id"),
-	FOREIGN KEY("form_id") REFERENCES "form"("id")
+	FOREIGN KEY ("teacher_id") REFERENCES "teacher"("id"),
+	FOREIGN KEY ("subject_id") REFERENCES "subject"("id"),
+	FOREIGN KEY ("form_id") REFERENCES "form"("id")
 );
 
 CREATE TABLE "student" (
@@ -69,7 +69,7 @@ CREATE TABLE "student" (
 	"email" VARCHAR(255),
 	"address" VARCHAR(255),
 	"is_active" BOOLEAN NOT NULL DEFAULT TRUE,
-	FOREIGN KEY("form_id") REFERENCES "form"("id")
+	FOREIGN KEY ("form_id") REFERENCES "form"("id")
 );
 
 CREATE TABLE "student_class" (
@@ -89,8 +89,8 @@ CREATE TABLE "student_class" (
 	"dec" BOOLEAN,
 	"is_active" BOOLEAN NOT NULL DEFAULT TRUE,
 	PRIMARY KEY ("student_id", "class_id"),
-	FOREIGN KEY("student_id") REFERENCES "student"("id"),
-	FOREIGN KEY("class_id") REFERENCES "class_registration"("id")
+	FOREIGN KEY ("student_id") REFERENCES "student"("id"),
+	FOREIGN KEY ("class_id") REFERENCES "class_registration"("id")
 );
 
 CREATE TABLE "tax" (
@@ -109,7 +109,7 @@ CREATE TABLE "voucher" (
 	"start_date" DATE NOT NULL DEFAULT CURRENT_DATE,
 	"expired_at" DATE NOT NULL,
 	"used" BOOLEAN NOT NULL DEFAULT FALSE,
-	FOREIGN KEY("student_id") REFERENCES "student"("id")
+	FOREIGN KEY ("student_id") REFERENCES "student"("id")
 );
 
 CREATE TABLE "receipt" (
@@ -137,7 +137,7 @@ CREATE TABLE "receipt" (
 	"tax" REAL NOT NULL,
 	"remarks" VARCHAR(255),
 	"status" VARCHAR(20) NOT NULL,
-	FOREIGN KEY("student_id") REFERENCES "student"("id")
+	FOREIGN KEY ("student_id") REFERENCES "student"("id")
 );
 
 CREATE TABLE "receipt_class" (
@@ -147,14 +147,16 @@ CREATE TABLE "receipt_class" (
 	"is_package" BOOLEAN NOT NULL,
 	"package_discount" REAL NOT NULL,
 	PRIMARY KEY ("receipt_id", "class_id"),
-	FOREIGN KEY("receipt_id") REFERENCES "receipt"("id"),
-	FOREIGN KEY("class_id") REFERENCES "class_registration"("id")
+	FOREIGN KEY ("receipt_id") REFERENCES "receipt"("id"),
+	FOREIGN KEY ("class_id") REFERENCES "class_registration"("id")
 );
 
 CREATE TABLE "user" (
 	"id" UUID PRIMARY KEY,
 	"username" VARCHAR(255) NOT NULL UNIQUE,
-	"password" VARCHAR(255) NOT NULL
+	"password" VARCHAR(255) NOT NULL,
+	"given_name" VARCHAR(255) NOT NULL,
+	"family_name" VARCHAR(255) NOT NULL
 );
 
 CREATE TABLE "session" (
@@ -162,7 +164,8 @@ CREATE TABLE "session" (
 	"username" VARCHAR(255) NOT NULL,
 	"login_time" TIMESTAMP WITH TIME ZONE NOT NULL,
 	"last_active" TIMESTAMP WITH TIME ZONE NOT NULL CHECK("last_active" < "expired_at"),
-	"expired_at" TIMESTAMP WITH TIME ZONE NOT NULL CHECK("expired_at" > "last_active")
+	"expired_at" TIMESTAMP WITH TIME ZONE NOT NULL CHECK("expired_at" > "last_active"),
+	FOREIGN KEY ("username") REFERENCES "user"("username")
 );
 
 CREATE TABLE "holiday" (
