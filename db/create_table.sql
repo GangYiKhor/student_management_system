@@ -163,3 +163,9 @@ CREATE TABLE "session" (
 	"last_active" TIMESTAMP WITH TIME ZONE NOT NULL CHECK("last_active" < "expired_at"),
 	"expired_at" TIMESTAMP WITH TIME ZONE NOT NULL CHECK("expired_at" > "last_active")
 );
+
+CREATE TABLE "holiday" (
+	"id" SERIAL PRIMARY KEY,
+	"date" DATE NOT NULL,
+	"description" VARCHAR(255) NOT NULL
+);

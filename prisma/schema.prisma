@@ -189,3 +189,9 @@ model voucher {
   used          Boolean  @default(false)
   student       student? @relation(fields: [student_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
+
+model holiday {
+  id          Int      @id @default(autoincrement())
+  date        DateTime @db.Date
+  description String   @db.VarChar(255)
+}
