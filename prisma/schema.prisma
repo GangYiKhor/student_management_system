@@ -48,12 +48,13 @@ model receipt {
 }
 
 model receipt_class {
-  receipt_id   Int
-  class_id     Int
-  fees         Float              @db.Real
-  is_package   Boolean
-  Renamedclass class_registration @relation(fields: [class_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  receipt      receipt            @relation(fields: [receipt_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  receipt_id       Int
+  class_id         Int
+  fees             Float              @db.Real
+  is_package       Boolean
+  package_discount Float              @db.Real
+  Renamedclass     class_registration @relation(fields: [class_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  receipt          receipt            @relation(fields: [receipt_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@id([receipt_id, class_id])
 }

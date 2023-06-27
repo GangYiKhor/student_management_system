@@ -145,6 +145,7 @@ CREATE TABLE "receipt_class" (
 	"class_id" INT,
 	"fees" REAL NOT NULL,
 	"is_package" BOOLEAN NOT NULL,
+	"package_discount" REAL NOT NULL,
 	PRIMARY KEY ("receipt_id", "class_id"),
 	FOREIGN KEY("receipt_id") REFERENCES "receipt"("id"),
 	FOREIGN KEY("class_id") REFERENCES "class_registration"("id")
