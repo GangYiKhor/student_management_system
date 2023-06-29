@@ -1,9 +1,14 @@
 module.exports = {
-  webpack: (config, { isServer }) => {
-    if (!isServer) {
-      config.target = 'electron-renderer';
-    }
+	experimental: {
+		images: {
+			layoutRaw: true,
+		},
+	},
+	webpack: (config, { isServer }) => {
+		if (!isServer) {
+			config.target = 'electron-renderer';
+		}
 
-    return config;
-  },
+		return config;
+	},
 };

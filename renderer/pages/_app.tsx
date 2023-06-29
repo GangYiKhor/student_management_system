@@ -10,7 +10,9 @@ function MyApp({ Component, pageProps }: AppProps) {
 	return (
 		<QueryClientProvider client={queryClient}>
 			<ThemeProvider attribute="class">
-				<Component {...pageProps} />
+				<div className="transition-colors">
+					<Component {...pageProps} />
+				</div>
 			</ThemeProvider>
 		</QueryClientProvider>
 	);
