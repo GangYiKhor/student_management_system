@@ -7,7 +7,12 @@ module.exports = {
 		'./renderer/utils/class/*.{js,ts,jsx,tsx}',
 	],
 	theme: {
-		extend: {},
+		extend: {
+			colors: {
+				bglight: '#FAFAFA',
+				bgdark: '#2A2E32',
+			},
+		},
 	},
 	plugins: [],
 };

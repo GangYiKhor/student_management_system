@@ -1,6 +1,6 @@
 import clsx from 'clsx';
 import { ThemeToggle } from './theme-toggle';
-import { BlueButtonClass, ButtonSmallClass, GrayButtonClass } from '../utils/class/button_class';
+import { ButtonSmallClass } from '../utils/class/button';
 
 const headerClass = clsx(
 	'flex',
