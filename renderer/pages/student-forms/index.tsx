@@ -39,11 +39,6 @@ function StudentForm() {
 				{ status },
 			);
 			await refetch();
-			setNotification({
-				title: 'Status Updated!',
-				message: 'Status Updated Successfully!',
-				type: 'INFO',
-			});
 		} catch (error: any) {
 			if (error instanceof AxiosError) {
 				setNotification({
