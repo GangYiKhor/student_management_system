@@ -10,6 +10,7 @@ import {
 import clsx from 'clsx';
 import { GreenButtonClass, RedButtonClass } from '../../../utils/class/button';
 import React from 'react';
+import { useNotificationContext } from '../../../components/providers/notification-providers';
 
 type PropType = {
 	closeModal: CallableFunction;
@@ -17,6 +18,7 @@ type PropType = {
 };
 
 export function StudentFormCreateModal({ closeModal, handleAdd }: PropType) {
+	const { setNotification } = useNotificationContext();
 	const formNameRef = useRef<HTMLInputElement>();
 	const [formValid, setFormValid] = useState(true);
 	const [confirmation, setConfirmation] = useState(false);
@@ -27,7 +29,12 @@ export function StudentFormCreateModal({ closeModal, handleAdd }: PropType) {
 			formNameRef.current.value = '';
 			formNameRef.current.focus();
 			formNameRef.current.classList.add(ErrorTextBoxClass);
-			setTimeout(() => formNameRef.current.classList.remove(ErrorTextBoxClass), 500);
+			setNotification({
+				title: 'Invalid Form Name!',
+				message: 'Please enter a valid form name',
+				type: 'ERROR',
+			});
+			setTimeout(() => formNameRef.current?.classList?.remove(ErrorTextBoxClass), 500);
 		} else {
 			setConfirmation(true);
 		}
