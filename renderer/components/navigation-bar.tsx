@@ -75,6 +75,7 @@ export function NavigationBar() {
 								width={30}
 								height={30}
 								alt=""
+								// This is OK! The error message is incorrect!
 								layout="raw"
 								className={clsx(imageClass, 'dark:invert')}
 							/>

@@ -37,7 +37,6 @@ const headerContainerClass = clsx(
 	'p-5',
 	'border-b',
 	'border-slate-300',
-	'rounded-t',
 );
 const headerClass = clsx('text-3xl', 'font-bold');
 
@@ -65,7 +64,6 @@ const footerContainerClass = clsx(
 	'p-5',
 	'border-t',
 	'border-slate-300',
-	'rounded-b',
 );
 
 const clickShieldClass = clsx('opacity-25', 'fixed', 'inset-0', 'z-40', 'bg-black');
