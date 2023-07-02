@@ -2,7 +2,7 @@ import clsx from 'clsx';
 import Image from 'next/future/image';
 import Link from 'next/link';
 import React, { useState } from 'react';
-import { EmptyLightButtonClass } from '../utils/class/button_class';
+import { EmptyLightButtonClass } from '../utils/class/button';
 import { Menu } from 'lucide-react';
 
 const navigationClass = clsx(
@@ -48,7 +48,7 @@ const buttons = [
 	{ image: '/images/voucher.png', href: '#', text: 'Vouchers' },
 	{ image: '/images/holiday.png', href: '#', text: 'Holidays' },
 	{ image: '/images/tax.png', href: '#', text: 'Tax' },
-	{ image: '/images/student_year.png', href: '#', text: 'Form' },
+	{ image: '/images/student_year.png', href: '/student-forms', text: 'Form' },
 	{ image: '/images/setting.png', href: '#', text: 'Settings' },
 	{ image: '/images/logout.png', href: '#', text: 'Logout' },
 ];
