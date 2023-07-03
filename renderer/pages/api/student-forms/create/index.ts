@@ -16,6 +16,16 @@ async function createFormsHandler(
 		try {
 			res.status(200).json(await createForms(body.formName));
 		} catch (err) {
+			if (err.message === 'Duplicates Found!') {
+				res.status(406).json({
+					error: {
+						title: 'Duplicate Form Name Found!',
+						message: 'Please use a unique form name!',
+						source: 'Create Student Forms',
+					},
+				});
+			}
+
 			res.status(503).json({
 				error: {
 					title: 'Server Internal Connection Error!',
