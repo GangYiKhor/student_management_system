@@ -17,7 +17,7 @@ async function getSubjectsHandler(
 		try {
 			res.status(200).json(await getSubjects(body));
 		} catch (err) {
-			res.status(503).send({
+			res.status(503).json({
 				error: {
 					title: 'Server Internal Connection Error!',
 					message: 'Unable to connect to database!',
@@ -26,7 +26,7 @@ async function getSubjectsHandler(
 			});
 		}
 	} else {
-		res.status(400).send({
+		res.status(400).json({
 			error: {
 				title: 'Invalid Request!',
 				message: `Get Request Expected! Received: ${req.method}`,
@@ -35,3 +35,5 @@ async function getSubjectsHandler(
 		});
 	}
 }
+
+export default getSubjectsHandler;
