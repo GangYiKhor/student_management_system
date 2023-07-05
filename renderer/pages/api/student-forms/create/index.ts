@@ -14,7 +14,7 @@ async function createFormsHandler(
 	const body: StudentFormsCreateDto = req.body;
 	if (req.method === 'POST') {
 		try {
-			res.status(200).json(await createForms(body.formName));
+			res.status(201).json(await createForms(body.formName));
 		} catch (err) {
 			res.status(503).json({
 				error: {

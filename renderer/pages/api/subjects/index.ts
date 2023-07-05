@@ -1,24 +1,27 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { getForms } from './services';
-import { StudentFormsGetResponse } from '../../../responses/student-forms/get';
+import { SubjectsGetResponse } from '../../../responses/subjects/get';
 import { ErrorResponse } from '../../../responses/error';
+import { getSubjects } from './services';
+import { SubjectsGetDto } from '../../../dtos/subjects/get';
 
-async function getFormsHandler(
+async function getSubjectsHandler(
 	req: NextApiRequest,
-	res: NextApiResponse<StudentFormsGetResponse | ErrorResponse>,
+	res: NextApiResponse<SubjectsGetResponse | ErrorResponse>,
 ) {
 	if (process.env.NODE_ENV === 'development') {
-		console.log('Get Form Handler', req.query);
+		console.log('Get Subjects Handler', req.query);
 	}
+
+	const body: SubjectsGetDto = req.body;
 	if (req.method === 'GET') {
 		try {
-			res.status(200).json(await getForms());
+			res.status(200).json(await getSubjects(body));
 		} catch (err) {
 			res.status(503).send({
 				error: {
 					title: 'Server Internal Connection Error!',
 					message: 'Unable to connect to database!',
-					source: 'Get Student Forms',
+					source: 'Get Subjects',
 				},
 			});
 		}
@@ -27,10 +30,8 @@ async function getFormsHandler(
 			error: {
 				title: 'Invalid Request!',
 				message: `Get Request Expected! Received: ${req.method}`,
-				source: 'Get Student Forms',
+				source: 'Get Subjects',
 			},
 		});
 	}
 }
-
-export default getFormsHandler;
