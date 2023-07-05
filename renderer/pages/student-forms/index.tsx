@@ -5,7 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Layout } from '../../layouts/basic_layout';
 import { StudentFormsGetResponse } from '../../responses/student-forms/get';
 import { Loader } from '../../components/loader';
-import { StudentFormsTable } from './components/student-forms-table';
+import { StudentFormsTable } from './components/table';
 import clsx from 'clsx';
 import axios, { AxiosError, AxiosResponse } from 'axios';
 import { StudentFormsCreateDto } from '../../dtos/student-forms/create';
@@ -23,7 +23,7 @@ function StudentForm() {
 		StudentFormsGetResponse,
 		AxiosError<ErrorResponse>
 	>({
-		queryKey: [],
+		queryKey: ['forms'],
 		queryFn: () => getForms(),
 		enabled: true,
 	});

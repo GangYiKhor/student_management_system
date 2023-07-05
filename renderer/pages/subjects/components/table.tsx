@@ -1,5 +1,4 @@
 import clsx from 'clsx';
-import { StudentFormsGetResponse } from '../../../responses/student-forms/get';
 import {
 	AlternateRowClass,
 	CellClass,
@@ -9,23 +8,57 @@ import {
 	TableClass,
 } from '../../../utils/class/table';
 import { GreenButtonClass, RedButtonClass } from '../../../utils/class/button';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { SubjectsGetResponse } from '../../../responses/subjects/get';
+import axios, { AxiosError, AxiosResponse } from 'axios';
+import { SubjectsUpdateDto } from '../../../dtos/subjects/update';
+import { useNotificationContext } from '../../../components/providers/notification-providers';
 
 type PropType = {
-	data: StudentFormsGetResponse;
+	data: SubjectsGetResponse;
 	search?: string;
 	status?: boolean;
-	handleAction: CallableFunction;
+	refetch: CallableFunction;
 };
 
-export function StudentFormsTable({ data, search, status, handleAction }: PropType) {
-	const [tableData, setTableData] = useState<StudentFormsGetResponse>([]);
+export function SubjectsTable({ data, search, status, refetch }: PropType) {
+	const { setNotification } = useNotificationContext();
+	const [tableData, setTableData] = useState<SubjectsGetResponse>([]);
+
+	const handleAction = useCallback(
+		async (id: number, status: boolean) => {
+			try {
+				await axios.post<any, AxiosResponse<any, any>, SubjectsUpdateDto>('/api/subjects/update', {
+					id,
+					is_active: status,
+				});
+
+				await refetch();
+			} catch (error: any) {
+				if (error instanceof AxiosError) {
+					setNotification({
+						title: error.response.data.error.title,
+						message: error.response.data.error.message,
+						source: error.response.data.error.source,
+						type: 'ERROR',
+					});
+				} else {
+					setNotification({ title: 'Server Error', message: error.message });
+				}
+			}
+		},
+		[refetch],
+	);
 
 	useEffect(() => {
 		let filteredData = data;
 		if (search) {
 			search = search.trim().toLowerCase();
-			filteredData = filteredData.filter(value => value.form_name.toLowerCase().includes(search));
+			filteredData = filteredData.filter(
+				value =>
+					value.subject_name.toLowerCase().includes(search) ||
+					value.form.form_name.toLowerCase().includes(search),
+			);
 		}
 
 		if (status !== undefined) {
@@ -39,13 +72,13 @@ export function StudentFormsTable({ data, search, status, handleAction }: PropTy
 		setTableData(filteredData);
 	}, [data, search, status]);
 
-	// TODO: PUT
 	return (
 		<table className={TableClass}>
 			<thead className={clsx(THeadClass, THeadStickyClass)}>
 				<tr>
 					<th className={clsx(THeadCellClass, 'w-[5rem]')}>No</th>
 					<th className={THeadCellClass}>Form</th>
+					<th className={THeadCellClass}>Subject Name</th>
 					<th className={THeadCellClass}>Status</th>
 					<th className={THeadCellClass}>Action</th>
 				</tr>
@@ -60,7 +93,8 @@ export function StudentFormsTable({ data, search, status, handleAction }: PropTy
 						return (
 							<tr key={value.id} className={rowClass}>
 								<td className={CellClass}>{index + 1}</td>
-								<td className={CellClass}>{value.form_name}</td>
+								<td className={CellClass}>{value.form?.form_name}</td>
+								<td className={CellClass}>{value.subject_name}</td>
 								<td
 									className={clsx(
 										CellClass,
@@ -85,6 +119,7 @@ export function StudentFormsTable({ data, search, status, handleAction }: PropTy
 					})
 				) : (
 					<tr className={AlternateRowClass}>
+						<td className={CellClass}>-</td>
 						<td className={CellClass}>-</td>
 						<td className={CellClass}>-</td>
 						<td className={CellClass}>-</td>

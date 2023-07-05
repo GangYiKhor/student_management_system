@@ -15,7 +15,13 @@ async function createSubjectsHandler(
 	const body: SubjectsCreateDto = req.body;
 	if (req.method === 'POST') {
 		try {
-			res.status(201).json(await createSubjects(body));
+			const result = await createSubjects(body);
+
+			if (process.env.NODE_ENV === 'development') {
+				console.log('Create Subjects Handler: Responding', result);
+			}
+
+			res.status(201).json(result);
 		} catch (err) {
 			res.status(503).json({
 				error: {

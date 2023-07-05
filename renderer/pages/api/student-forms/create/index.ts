@@ -14,7 +14,13 @@ async function createFormsHandler(
 	const body: StudentFormsCreateDto = req.body;
 	if (req.method === 'POST') {
 		try {
-			res.status(201).json(await createForms(body.formName));
+			const result = await createForms(body.formName);
+
+			if (process.env.NODE_ENV === 'development') {
+				console.log('Create Form Handler: Responding', result);
+			}
+
+			res.status(201).json(result);
 		} catch (err) {
 			res.status(503).json({
 				error: {

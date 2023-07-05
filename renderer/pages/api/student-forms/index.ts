@@ -2,6 +2,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import { getForms } from './services';
 import { StudentFormsGetResponse } from '../../../responses/student-forms/get';
 import { ErrorResponse } from '../../../responses/error';
+import { StudentFormsGetDto } from '../../../dtos/student-forms/get';
 
 async function getFormsHandler(
 	req: NextApiRequest,
@@ -10,9 +11,19 @@ async function getFormsHandler(
 	if (process.env.NODE_ENV === 'development') {
 		console.log('Get Form Handler', req.query);
 	}
+
+	const body: StudentFormsGetDto = req.query;
 	if (req.method === 'GET') {
 		try {
-			res.status(200).json(await getForms());
+			body.is_active = req.query.is_active ? req.query.is_active === 'true' : undefined;
+
+			const result = await getForms(body);
+
+			if (process.env.NODE_ENV === 'development') {
+				console.log('Get Form Handler: Responding', result);
+			}
+
+			res.status(200).json(result);
 		} catch (err) {
 			res.status(503).json({
 				error: {

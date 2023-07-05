@@ -14,7 +14,13 @@ async function updateSubjectsHandler(
 	const body: SubjectsUpdateDto = req.body;
 	if (req.method === 'POST') {
 		try {
-			res.status(201).json(await updateSubjects(body));
+			const result = await updateSubjects(body);
+
+			if (process.env.NODE_ENV === 'development') {
+				console.log('Update Subjects Handler: Responding', result);
+			}
+
+			res.status(200).json(result);
 		} catch (err) {
 			res.status(503).json({
 				error: {

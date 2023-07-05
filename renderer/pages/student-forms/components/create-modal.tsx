@@ -5,7 +5,7 @@ import {
 	ErrorTextBoxClass,
 	InvalidTextBoxClass,
 	LabelLeftClass,
-	TextBoxClass,
+	TextBoxRightClass,
 } from '../../../utils/class/inputs';
 import clsx from 'clsx';
 import { GreenButtonClass, RedButtonClass } from '../../../utils/class/button';
@@ -80,7 +80,7 @@ export function StudentFormCreateModal({ closeModal, handleAdd }: PropType) {
 					<input
 						type="text"
 						id="formName"
-						className={clsx(TextBoxClass, formValid || InvalidTextBoxClass)}
+						className={clsx(TextBoxRightClass, formValid || InvalidTextBoxClass)}
 						placeholder="E.g. F1 / Std. 4"
 						maxLength={50}
 						required
