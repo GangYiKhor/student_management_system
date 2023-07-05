@@ -45,7 +45,11 @@ export function Header({ title, buttons }: PropType) {
 			</div>
 			<div className={buttonClass}>
 				{buttons?.map(({ action, text, buttonDesignClass }) => (
-					<button onClick={() => action()} className={clsx(buttonDesignClass, ButtonSmallClass)}>
+					<button
+						key={text}
+						onClick={() => action()}
+						className={clsx(buttonDesignClass, ButtonSmallClass)}
+					>
 						{text}
 					</button>
 				))}

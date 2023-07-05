@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import Modal, { ModalButtons } from '../../../components/modal';
 import {
 	DisabledTextBoxClass,
@@ -9,7 +9,6 @@ import {
 } from '../../../utils/class/inputs';
 import clsx from 'clsx';
 import { GreenButtonClass, RedButtonClass } from '../../../utils/class/button';
-import React from 'react';
 import { useNotificationContext } from '../../../components/providers/notification-providers';
 
 type PropType = {
