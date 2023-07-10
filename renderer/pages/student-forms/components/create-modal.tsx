@@ -1,15 +1,14 @@
-import { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import Modal, { ModalButtons } from '../../../components/modal';
 import {
 	DisabledTextBoxClass,
 	ErrorTextBoxClass,
 	InvalidTextBoxClass,
 	LabelLeftClass,
-	TextBoxClass,
+	TextBoxRightClass,
 } from '../../../utils/class/inputs';
 import clsx from 'clsx';
 import { GreenButtonClass, RedButtonClass } from '../../../utils/class/button';
-import React from 'react';
 import { useNotificationContext } from '../../../components/providers/notification-providers';
 
 type PropType = {
@@ -80,7 +79,7 @@ export function StudentFormCreateModal({ closeModal, handleAdd }: PropType) {
 					<input
 						type="text"
 						id="formName"
-						className={clsx(TextBoxClass, formValid || InvalidTextBoxClass)}
+						className={clsx(TextBoxRightClass, formValid || InvalidTextBoxClass)}
 						placeholder="E.g. F1 / Std. 4"
 						maxLength={50}
 						required

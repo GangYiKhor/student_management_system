@@ -1,6 +1,6 @@
 import clsx from 'clsx';
-import { BlueButtonClass, GrayButtonClass } from '../../../utils/class/button';
-import { LabelLeftClass, TextBoxClass } from '../../../utils/class/inputs';
+import { BlueButtonClass } from '../../../utils/class/button';
+import { LabelLeftClass, TextBoxRightClass } from '../../../utils/class/inputs';
 import { useState } from 'react';
 import { StudentFormCreateModal } from './create-modal';
 
@@ -27,7 +27,7 @@ export function StudentFormsSearchAdd({ setSearch, setStatus, handleAdd }: PropT
 					<input
 						type="text"
 						id="search"
-						className={TextBoxClass}
+						className={TextBoxRightClass}
 						placeholder="Type to search.."
 						onChange={e => setSearch(e.target.value)}
 					/>
@@ -35,7 +35,7 @@ export function StudentFormsSearchAdd({ setSearch, setStatus, handleAdd }: PropT
 				<div>
 					<label className={LabelLeftClass}>Status:</label>
 					<select
-						className={TextBoxClass}
+						className={TextBoxRightClass}
 						onChange={e =>
 							setStatus(e.target.value === 'All' ? undefined : e.target.value === 'Active')
 						}

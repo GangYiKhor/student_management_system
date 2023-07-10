@@ -2,19 +2,30 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import { getForms } from './services';
 import { StudentFormsGetResponse } from '../../../responses/student-forms/get';
 import { ErrorResponse } from '../../../responses/error';
+import { StudentFormsGetDto } from '../../../dtos/student-forms/get';
 
 async function getFormsHandler(
 	req: NextApiRequest,
 	res: NextApiResponse<StudentFormsGetResponse | ErrorResponse>,
 ) {
 	if (process.env.NODE_ENV === 'development') {
-		console.log('Create Form Handler', req.query);
+		console.log('Get Form Handler', req.query);
 	}
+
+	const body: StudentFormsGetDto = req.query;
 	if (req.method === 'GET') {
 		try {
-			res.status(200).json(await getForms());
+			body.is_active = req.query.is_active ? req.query.is_active === 'true' : undefined;
+
+			const result = await getForms(body);
+
+			if (process.env.NODE_ENV === 'development') {
+				console.log('Get Form Handler: Responding', result);
+			}
+
+			res.status(200).json(result);
 		} catch (err) {
-			res.status(503).send({
+			res.status(503).json({
 				error: {
 					title: 'Server Internal Connection Error!',
 					message: 'Unable to connect to database!',
@@ -23,7 +34,7 @@ async function getFormsHandler(
 			});
 		}
 	} else {
-		res.status(400).send({
+		res.status(400).json({
 			error: {
 				title: 'Invalid Request!',
 				message: `Get Request Expected! Received: ${req.method}`,

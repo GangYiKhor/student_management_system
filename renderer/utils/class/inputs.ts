@@ -10,13 +10,13 @@ export const LabelLeftClass = clsx(
 	'mr-2',
 );
 
+export const LabelTopClass = clsx('text-left', 'pt-[4px]', 'pb-[4px]', 'pl-[2px]', 'pr-[2px]');
+
 export const TextBoxClass = clsx(
 	'pt-[4px]',
 	'pb-[4px]',
 	'pl-[8px]',
 	'pr-[8px]',
-	'ml-2',
-	'mr-2',
 	'border-2',
 	'border-gray-300',
 	'hover:border-gray-500',
@@ -29,6 +29,10 @@ export const TextBoxClass = clsx(
 	'transition-[border-color]',
 	'rounded-md',
 );
+
+export const TextBoxRightClass = clsx(TextBoxClass, 'ml-2', 'mr-2');
+
+export const TextBoxBottomClass = clsx(TextBoxClass, 'mb-3');
 
 export const DisabledTextBoxClass = clsx(
 	'pt-[4px]',

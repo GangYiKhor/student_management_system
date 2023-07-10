@@ -14,7 +14,13 @@ async function updateFormsHandler(
 	const body: StudentFormsUpdateDto = req.body;
 	if (req.method === 'PUT') {
 		try {
-			res.status(200).json(await updateForms(req.query.id[0], body.status));
+			const result = await updateForms(req.query.id[0], body.status);
+
+			if (process.env.NODE_ENV === 'development') {
+				console.log('Update Form Handler: Responding', result);
+			}
+
+			res.status(200).json(result);
 		} catch (err: any) {
 			if (err?.message === 'Invalid ID') {
 				res.status(400).json({

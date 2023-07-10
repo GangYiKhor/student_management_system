@@ -44,7 +44,7 @@ const buttons = [
 	{ image: '/images/class.png', href: '#', text: 'Classes' },
 	{ image: '/images/package.png', href: '#', text: 'Packages' },
 	{ image: '/images/teacher.png', href: '#', text: 'Teachers' },
-	{ image: '/images/subject.png', href: '#', text: 'Subjects' },
+	{ image: '/images/subject.png', href: '/subjects', text: 'Subjects' },
 	{ image: '/images/voucher.png', href: '#', text: 'Vouchers' },
 	{ image: '/images/holiday.png', href: '#', text: 'Holidays' },
 	{ image: '/images/tax.png', href: '#', text: 'Tax' },
