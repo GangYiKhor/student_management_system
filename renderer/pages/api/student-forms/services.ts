@@ -2,12 +2,12 @@ import { StudentFormsGetDto } from '../../../dtos/student-forms/get';
 import prisma from '../../../utils/prisma-client';
 
 export async function getForms(getFormsDto: StudentFormsGetDto) {
+	const { orderBy, ...where } = getFormsDto;
+
 	return await prisma.form.findMany({
-		where: {
-			is_active: getFormsDto.is_active,
-		},
+		where,
 		orderBy: {
-			form_name: 'asc',
+			[orderBy?.split(' ')[0]]: orderBy?.split(' ')[1] !== 'desc' ? 'asc' : 'desc',
 		},
 	});
 }

@@ -14,17 +14,18 @@ import { StudentFormsSearchAdd } from './components/search-add';
 import { LastUpdatedAt } from '../../components/last-updated';
 import { ErrorResponse } from '../../responses/error';
 import { useNotificationContext } from '../../components/providers/notification-providers';
+import { StudentFormsGetDto } from '../../dtos/student-forms/get';
 
 const layoutClass = clsx('flex', 'flex-col', 'gap-4');
 
 function StudentForm() {
-	const getForms = useGet('/api/student-forms');
+	const getForms = useGet<StudentFormsGetDto>('/api/student-forms');
 	const { data, isLoading, error, isError, dataUpdatedAt, refetch } = useQuery<
 		StudentFormsGetResponse,
 		AxiosError<ErrorResponse>
 	>({
 		queryKey: ['forms'],
-		queryFn: () => getForms(),
+		queryFn: () => getForms({ orderBy: 'form_name asc' }),
 		enabled: true,
 	});
 	const [lastUpdated, setLastUpdated] = useState<Date>();
