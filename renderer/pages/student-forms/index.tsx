@@ -14,21 +14,23 @@ import { StudentFormsSearchAdd } from './components/search-add';
 import { LastUpdatedAt } from '../../components/last-updated';
 import { ErrorResponse } from '../../responses/error';
 import { useNotificationContext } from '../../components/providers/notification-providers';
+import { StudentFormsGetDto } from '../../dtos/student-forms/get';
 
 const layoutClass = clsx('flex', 'flex-col', 'gap-4');
 
 function StudentForm() {
-	const getForms = useGet('/api/student-forms');
+	const getForms = useGet<StudentFormsGetDto>('/api/student-forms');
 	const { data, isLoading, error, isError, dataUpdatedAt, refetch } = useQuery<
 		StudentFormsGetResponse,
 		AxiosError<ErrorResponse>
 	>({
 		queryKey: ['forms'],
-		queryFn: () => getForms(),
+		queryFn: () => getForms({ orderBy }),
 		enabled: true,
 	});
 	const [lastUpdated, setLastUpdated] = useState<Date>();
 	const [search, setSearch] = useState<string>('');
+	const [orderBy, setOrderBy] = useState<string>('form_name asc');
 	const [status, setStatus] = useState<boolean>(undefined);
 	const { setNotification } = useNotificationContext();
 
@@ -107,6 +109,10 @@ function StudentForm() {
 		}
 	}, [isError]);
 
+	useEffect(() => {
+		refetch();
+	}, [orderBy]);
+
 	return (
 		<React.Fragment>
 			<Head>
@@ -127,6 +133,7 @@ function StudentForm() {
 							search={search}
 							status={status}
 							handleAction={handleAction}
+							setOrderBy={setOrderBy}
 						/>
 						<LastUpdatedAt lastUpdatedAt={lastUpdated} refetch={refetch} />
 					</div>

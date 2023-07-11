@@ -10,16 +10,25 @@ import {
 } from '../../../utils/class/table';
 import { GreenButtonClass, RedButtonClass } from '../../../utils/class/button';
 import { useEffect, useState } from 'react';
+import { Sorter } from '../../../components/sorter';
 
 type PropType = {
 	data: StudentFormsGetResponse;
 	search?: string;
 	status?: boolean;
 	handleAction: CallableFunction;
+	setOrderBy: CallableFunction;
 };
 
-export function StudentFormsTable({ data, search, status, handleAction }: PropType) {
+export function StudentFormsTable({ data, search, status, handleAction, setOrderBy }: PropType) {
 	const [tableData, setTableData] = useState<StudentFormsGetResponse>([]);
+	const [sortBy, setSortBy] = useState<{
+		field: 'id' | 'form_name' | 'is_active';
+		asc: boolean;
+	}>({
+		field: 'form_name',
+		asc: true,
+	});
 
 	useEffect(() => {
 		let filteredData = data;
@@ -39,13 +48,41 @@ export function StudentFormsTable({ data, search, status, handleAction }: PropTy
 		setTableData(filteredData);
 	}, [data, search, status]);
 
+	useEffect(() => {
+		setOrderBy(`${sortBy.field} ${sortBy.asc ? 'asc' : 'desc'}`);
+	}, [sortBy]);
+
 	return (
 		<table className={TableClass}>
 			<thead className={clsx(THeadClass, THeadStickyClass)}>
 				<tr>
-					<th className={clsx(THeadCellClass, 'w-[5rem]')}>No</th>
-					<th className={THeadCellClass}>Form</th>
-					<th className={THeadCellClass}>Status</th>
+					<th className={clsx(THeadCellClass, 'w-[5rem]')}>
+						<Sorter
+							title="ID"
+							asc={sortBy.field === 'id' ? sortBy.asc : undefined}
+							sortHandler={(asc: boolean) => {
+								setSortBy({ field: 'id', asc });
+							}}
+						/>
+					</th>
+					<th className={THeadCellClass}>
+						<Sorter
+							title="Form"
+							asc={sortBy.field === 'form_name' ? sortBy.asc : undefined}
+							sortHandler={(asc: boolean) => {
+								setSortBy({ field: 'form_name', asc });
+							}}
+						/>
+					</th>
+					<th className={THeadCellClass}>
+						<Sorter
+							title="Status"
+							asc={sortBy.field === 'is_active' ? sortBy.asc : undefined}
+							sortHandler={(asc: boolean) => {
+								setSortBy({ field: 'is_active', asc });
+							}}
+						/>
+					</th>
 					<th className={THeadCellClass}>Action</th>
 				</tr>
 			</thead>
@@ -58,7 +95,7 @@ export function StudentFormsTable({ data, search, status, handleAction }: PropTy
 
 						return (
 							<tr key={value.id} className={rowClass}>
-								<td className={CellClass}>{index + 1}</td>
+								<td className={CellClass}>{value.id}</td>
 								<td className={CellClass}>{value.form_name}</td>
 								<td
 									className={clsx(
