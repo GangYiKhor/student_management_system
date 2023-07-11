@@ -25,11 +25,12 @@ function StudentForm() {
 		AxiosError<ErrorResponse>
 	>({
 		queryKey: ['forms'],
-		queryFn: () => getForms({ orderBy: 'form_name asc' }),
+		queryFn: () => getForms({ orderBy }),
 		enabled: true,
 	});
 	const [lastUpdated, setLastUpdated] = useState<Date>();
 	const [search, setSearch] = useState<string>('');
+	const [orderBy, setOrderBy] = useState<string>('form_name asc');
 	const [status, setStatus] = useState<boolean>(undefined);
 	const { setNotification } = useNotificationContext();
 
@@ -108,6 +109,10 @@ function StudentForm() {
 		}
 	}, [isError]);
 
+	useEffect(() => {
+		refetch();
+	}, [orderBy]);
+
 	return (
 		<React.Fragment>
 			<Head>
@@ -128,6 +133,7 @@ function StudentForm() {
 							search={search}
 							status={status}
 							handleAction={handleAction}
+							setOrderBy={setOrderBy}
 						/>
 						<LastUpdatedAt lastUpdatedAt={lastUpdated} refetch={refetch} />
 					</div>
