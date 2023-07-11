@@ -70,14 +70,6 @@ export function SubjectsTable({ data, search, status, refetch, setOrderBy }: Pro
 			);
 		}
 
-		if (status !== undefined) {
-			if (status) {
-				filteredData = filteredData.filter(value => value.is_active);
-			} else {
-				filteredData = filteredData.filter(value => !value.is_active);
-			}
-		}
-
 		setTableData(filteredData);
 	}, [data, search, status]);
 
