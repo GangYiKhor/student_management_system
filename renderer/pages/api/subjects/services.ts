@@ -3,15 +3,16 @@ import { SubjectsGetResponse } from '../../../responses/subjects/get';
 import prisma from '../../../utils/prisma-client';
 
 export async function getSubjects(getSubjectDto: SubjectsGetDto): Promise<SubjectsGetResponse> {
-	const { orderBy, ...where } = getSubjectDto;
+	const { orderBy: order, ...where } = getSubjectDto;
 
-	return await prisma.subject.findMany({
-		where,
-		include: {
-			form: true,
-		},
-		orderBy: {
-			[orderBy?.split(' ')[0]]: orderBy?.split(' ')[1] !== 'desc' ? 'asc' : 'desc',
-		},
-	});
+	let orderBy: object = undefined;
+	if (order) {
+		if (order.includes('form_name')) {
+			orderBy = { form: { form_name: order.split(' ')[1] !== 'desc' ? 'asc' : 'desc' } };
+		} else {
+			orderBy = { [order.split(' ')[0]]: order.split(' ')[1] !== 'desc' ? 'asc' : 'desc' };
+		}
+	}
+
+	return await prisma.subject.findMany({ where, include: { form: true }, orderBy });
 }

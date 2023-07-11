@@ -13,17 +13,26 @@ import { SubjectsGetResponse } from '../../../responses/subjects/get';
 import axios, { AxiosError, AxiosResponse } from 'axios';
 import { SubjectsUpdateDto } from '../../../dtos/subjects/update';
 import { useNotificationContext } from '../../../components/providers/notification-providers';
+import { Sorter } from '../../../components/sorter';
 
 type PropType = {
 	data: SubjectsGetResponse;
 	search?: string;
 	status?: boolean;
 	refetch: CallableFunction;
+	setOrderBy: CallableFunction;
 };
 
-export function SubjectsTable({ data, search, status, refetch }: PropType) {
+export function SubjectsTable({ data, search, status, refetch, setOrderBy }: PropType) {
 	const { setNotification } = useNotificationContext();
 	const [tableData, setTableData] = useState<SubjectsGetResponse>([]);
+	const [sortBy, setSortBy] = useState<{
+		field: 'id' | 'form_name' | 'subject_name' | 'is_active';
+		asc: boolean;
+	}>({
+		field: 'form_name',
+		asc: true,
+	});
 
 	const handleAction = useCallback(
 		async (id: number, status: boolean) => {
@@ -72,14 +81,50 @@ export function SubjectsTable({ data, search, status, refetch }: PropType) {
 		setTableData(filteredData);
 	}, [data, search, status]);
 
+	useEffect(() => {
+		setOrderBy(`${sortBy.field} ${sortBy.asc ? 'asc' : 'desc'}`);
+	}, [sortBy]);
+
 	return (
 		<table className={TableClass}>
 			<thead className={clsx(THeadClass, THeadStickyClass)}>
 				<tr>
-					<th className={clsx(THeadCellClass, 'w-[5rem]')}>No</th>
-					<th className={THeadCellClass}>Form</th>
-					<th className={THeadCellClass}>Subject Name</th>
-					<th className={THeadCellClass}>Status</th>
+					<th className={clsx(THeadCellClass, 'w-[5rem]')}>
+						<Sorter
+							title="ID"
+							asc={sortBy.field === 'id' ? sortBy.asc : undefined}
+							sortHandler={(asc: boolean) => {
+								setSortBy({ field: 'id', asc });
+							}}
+						/>
+					</th>
+					<th className={THeadCellClass}>
+						<Sorter
+							title="Form"
+							asc={sortBy.field === 'form_name' ? sortBy.asc : undefined}
+							sortHandler={(asc: boolean) => {
+								setSortBy({ field: 'form_name', asc });
+							}}
+						/>
+					</th>
+					<th className={THeadCellClass}>
+						<Sorter
+							title="Subject Name"
+							asc={sortBy.field === 'subject_name' ? sortBy.asc : undefined}
+							sortHandler={(asc: boolean) => {
+								setSortBy({ field: 'subject_name', asc });
+							}}
+						/>
+					</th>
+					<th className={THeadCellClass}>
+						<Sorter
+							title="Status"
+							asc={sortBy.field === 'is_active' ? sortBy.asc : undefined}
+							sortHandler={(asc: boolean) => {
+								setSortBy({ field: 'is_active', asc });
+							}}
+						/>
+					</th>
 					<th className={THeadCellClass}>Action</th>
 				</tr>
 			</thead>
@@ -92,7 +137,7 @@ export function SubjectsTable({ data, search, status, refetch }: PropType) {
 
 						return (
 							<tr key={value.id} className={rowClass}>
-								<td className={CellClass}>{index + 1}</td>
+								<td className={CellClass}>{value.id}</td>
 								<td className={CellClass}>{value.form?.form_name}</td>
 								<td className={CellClass}>{value.subject_name}</td>
 								<td

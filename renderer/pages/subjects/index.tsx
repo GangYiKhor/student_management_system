@@ -21,6 +21,7 @@ function Subjects() {
 	const [search, setSearch] = useState<string>('');
 	const [form, setForm] = useState<number | undefined>();
 	const [status, setStatus] = useState<boolean>(true);
+	const [orderBy, setOrderBy] = useState<string>('subject_name asc');
 
 	const getSubjects = useGet('/api/subjects');
 	const { data, isLoading, error, isError, dataUpdatedAt, refetch } = useQuery<
@@ -28,13 +29,13 @@ function Subjects() {
 		AxiosError<ErrorResponse>
 	>({
 		queryKey: ['subjects'],
-		queryFn: () => getSubjects({ form_id: form, is_active: status } as SubjectsGetDto),
+		queryFn: () => getSubjects({ form_id: form, is_active: status, orderBy } as SubjectsGetDto),
 		enabled: true,
 	});
 
 	useEffect(() => {
 		void refetch();
-	}, [form, status]);
+	}, [form, status, orderBy]);
 
 	useEffect(() => {
 		if (isError) {
@@ -73,7 +74,13 @@ function Subjects() {
 							setStatus={setStatus}
 							refetch={refetch}
 						/>
-						<SubjectsTable data={data} search={search} status={status} refetch={refetch} />
+						<SubjectsTable
+							data={data}
+							search={search}
+							status={status}
+							refetch={refetch}
+							setOrderBy={setOrderBy}
+						/>
 						<LastUpdatedAt
 							lastUpdatedAt={dataUpdatedAt ?? new Date(dataUpdatedAt)}
 							refetch={refetch}
