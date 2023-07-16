@@ -89,6 +89,7 @@ export function TeachersTable({ data, search, status, refetch, setOrderBy }: Pro
 			search = search.trim().toLowerCase();
 			filteredData = filteredData.filter(
 				value =>
+					'#' + value.id.toString() === search ||
 					value.teacher_name.toLowerCase().includes(search) ||
 					value.phone_number.includes(search) ||
 					value.phone_number.replace(/-/g, '').replace(/\s/g, '').includes(search) ||

@@ -62,7 +62,7 @@ export function TeachersSearchAdd({ setSearch, setStatus, refetch }: PropType) {
 						type="text"
 						id="search"
 						className={TextBoxRightClass}
-						placeholder="Type to search.."
+						placeholder="Search... (#1 to search ID)"
 						onChange={e => setSearch(e.target.value)}
 					/>
 				</div>
