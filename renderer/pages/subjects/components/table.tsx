@@ -65,6 +65,7 @@ export function SubjectsTable({ data, search, status, refetch, setOrderBy }: Pro
 			search = search.trim().toLowerCase();
 			filteredData = filteredData.filter(
 				value =>
+					'#' + value.id.toString() === search ||
 					value.subject_name.toLowerCase().includes(search) ||
 					value.form.form_name.toLowerCase().includes(search),
 			);

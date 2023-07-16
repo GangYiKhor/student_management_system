@@ -34,7 +34,10 @@ export function StudentFormsTable({ data, search, status, handleAction, setOrder
 		let filteredData = data;
 		if (search) {
 			search = search.trim().toLowerCase();
-			filteredData = filteredData.filter(value => value.form_name.toLowerCase().includes(search));
+			filteredData = filteredData.filter(
+				value =>
+					'#' + value.id.toString() === search || value.form_name.toLowerCase().includes(search),
+			);
 		}
 
 		if (status !== undefined) {

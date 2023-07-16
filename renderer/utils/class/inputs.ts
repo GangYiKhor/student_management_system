@@ -61,3 +61,5 @@ export const InvalidTextBoxClass = clsx(
 );
 
 export const ErrorTextBoxClass = clsx('error');
+
+export const TextAreaNoResizeClass = clsx('resize-none');

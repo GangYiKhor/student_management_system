@@ -25,7 +25,7 @@ async function getSubjectsHandler(
 
 	const id = parseInt(req.query.id as string) || undefined;
 	const form_id = parseInt(req.query.form_id as string) || undefined;
-	const subject_name = req.query.subject_name as string | undefined;
+	const subject_name = (req.query.subject_name as string) || undefined;
 	const is_active = req.query.is_active ? req.query.is_active === 'true' : undefined;
 	const orderBy = req.query.orderBy as string;
 

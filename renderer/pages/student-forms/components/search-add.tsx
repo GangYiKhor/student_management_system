@@ -28,7 +28,7 @@ export function StudentFormsSearchAdd({ setSearch, setStatus, handleAdd }: PropT
 						type="text"
 						id="search"
 						className={TextBoxRightClass}
-						placeholder="Type to search.."
+						placeholder="Search... (#1 to search ID)"
 						onChange={e => setSearch(e.target.value)}
 					/>
 				</div>
