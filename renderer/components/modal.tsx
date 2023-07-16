@@ -13,6 +13,7 @@ const backgroundClass = clsx(
 	'inset-0',
 	'z-50',
 	'p-5',
+	'bg-[rgba(0,0,0,0.2)]',
 );
 
 const containerClass = clsx(

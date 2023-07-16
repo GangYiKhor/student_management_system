@@ -14,7 +14,6 @@ type PropType = {
 export function Sorter({ title, asc, sortHandler }: PropType) {
 	const clickHandler = useCallback(() => {
 		const result = asc !== undefined ? !asc : true;
-		console.log(result);
 		sortHandler(result);
 	}, [sortHandler]);
 

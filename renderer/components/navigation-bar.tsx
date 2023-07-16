@@ -43,7 +43,7 @@ const buttons = [
 	{ image: '/images/collection.png', href: '#', text: 'Collections' },
 	{ image: '/images/class.png', href: '#', text: 'Classes' },
 	{ image: '/images/package.png', href: '#', text: 'Packages' },
-	{ image: '/images/teacher.png', href: '#', text: 'Teachers' },
+	{ image: '/images/teacher.png', href: '/teachers', text: 'Teachers' },
 	{ image: '/images/subject.png', href: '/subjects', text: 'Subjects' },
 	{ image: '/images/voucher.png', href: '#', text: 'Vouchers' },
 	{ image: '/images/holiday.png', href: '#', text: 'Holidays' },
