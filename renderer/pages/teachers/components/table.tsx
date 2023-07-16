@@ -17,7 +17,7 @@ import { TeachersGetResponse } from '../../../responses/teachers/get';
 import { TeachersUpdateDto } from '../../../dtos/teachers/update';
 import { TeachersEditModal } from './edit-modal';
 
-type EditData = {
+export type EditData = {
 	id: number;
 	teacher_name?: string;
 	ic?: string;
@@ -175,7 +175,9 @@ export function TeachersTable({ data, search, status, refetch, setOrderBy }: Pro
 									<td className={CellClass}>{value.id}</td>
 									<td className={CellClass}>{value.teacher_name}</td>
 									<td className={CellClass}>{value.phone_number}</td>
-									<td className={CellClass}>{'XXXXXX-XX-' + value.ic.slice(10)}</td>
+									<td className={CellClass}>
+										{value.ic?.length === 14 ? 'XXXXXX-XX-' + value.ic.slice(10) : value.ic}
+									</td>
 									<td
 										className={clsx(
 											CellClass,
@@ -206,6 +208,7 @@ export function TeachersTable({ data, search, status, refetch, setOrderBy }: Pro
 					closeModal={() => setEdit(false)}
 					handleUpdate={handleUpdate}
 					data={selected}
+					setData={setSelected}
 				/>
 			) : null}
 		</React.Fragment>

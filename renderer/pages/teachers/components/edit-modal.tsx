@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import Modal, { ModalButtons } from '../../../components/modal';
 import {
+	DisabledTextBoxClass,
 	ErrorTextBoxClass,
 	InvalidTextBoxClass,
 	LabelTopClass,
@@ -9,13 +10,15 @@ import {
 import clsx from 'clsx';
 import { GrayButtonClass, GreenButtonClass, RedButtonClass } from '../../../utils/class/button';
 import { useNotificationContext } from '../../../components/providers/notification-providers';
-import { TeachersCreateDto } from '../../../dtos/teachers/create';
 import { verifyEmail, verifyPhoneNumber } from '../../../utils/verifications';
 import { RequiredIcon } from '../../../components/required';
+import { TeachersUpdateDto } from '../../../dtos/teachers/update';
+import { EditData } from './table';
 
 type PropType = {
 	closeModal: CallableFunction;
 	handleUpdate: CallableFunction;
+	setData: CallableFunction;
 	data: {
 		id: number;
 		teacher_name?: string;
@@ -29,7 +32,7 @@ type PropType = {
 	};
 };
 
-export function TeachersEditModal({ closeModal, handleUpdate, data }: PropType) {
+export function TeachersEditModal({ closeModal, handleUpdate, setData, data }: PropType) {
 	const { setNotification } = useNotificationContext();
 	const teacherNameRef = useRef<HTMLInputElement>();
 	const icRef = useRef<HTMLInputElement>();
@@ -51,7 +54,13 @@ export function TeachersEditModal({ closeModal, handleUpdate, data }: PropType) 
 		addressRef.current.value = data.address || '';
 	}, [data]);
 
-	const handleSubmit = useCallback(async () => {
+	const handleActivate = useCallback(async () => {
+		const newStatus = !data.is_active;
+		await handleUpdate(data.id, { ...data, is_active: newStatus } as TeachersUpdateDto);
+		setData((prev: EditData) => ({ ...prev, is_active: newStatus }));
+	}, [handleUpdate, data]);
+
+	const handleSubmit = useCallback(() => {
 		let valid = true;
 		if (teacherNameRef.current.value.trim() === '') {
 			valid = false;
@@ -128,6 +137,11 @@ export function TeachersEditModal({ closeModal, handleUpdate, data }: PropType) 
 
 	const modalButtons: ModalButtons = [
 		{
+			text: data.is_active ? 'Deactivate' : 'Activate',
+			class: data.is_active ? RedButtonClass : GreenButtonClass,
+			action: () => handleActivate(),
+		},
+		{
 			text: 'Create',
 			class: GreenButtonClass,
 			action: () => handleSubmit(),
@@ -150,7 +164,7 @@ export function TeachersEditModal({ closeModal, handleUpdate, data }: PropType) 
 					phone_number: phoneNumberRef.current.value,
 					email: emailRef.current?.value || '',
 					address: addressRef.current?.value || '',
-				} as TeachersCreateDto);
+				} as TeachersUpdateDto);
 				setConfirmation(false);
 				closeModal();
 			},
@@ -242,7 +256,6 @@ export function TeachersEditModal({ closeModal, handleUpdate, data }: PropType) 
 							className={clsx(TextBoxBottomClass, icValid || InvalidTextBoxClass)}
 							placeholder="E.g. XXXXXX-XX-XXXX"
 							maxLength={50}
-							required
 							ref={icRef}
 							onChange={() => setIcValid(true)}
 							onFocus={() => icOnFocusFormat()}
@@ -277,7 +290,6 @@ export function TeachersEditModal({ closeModal, handleUpdate, data }: PropType) 
 							className={clsx(TextBoxBottomClass, emailValid || InvalidTextBoxClass)}
 							placeholder="E.g. example@example.com"
 							maxLength={50}
-							required
 							ref={emailRef}
 							onChange={() => setEmailValid(true)}
 						/>
@@ -291,9 +303,20 @@ export function TeachersEditModal({ closeModal, handleUpdate, data }: PropType) 
 							className={clsx(TextBoxBottomClass, 'min-h-[80px]', 'max-h-[300px]')}
 							placeholder="Home Address"
 							maxLength={50}
-							required
 							ref={addressRef}
 						></textarea>
+					</div>
+					<div className={clsx('flex', 'flex-col')}>
+						<label htmlFor="status" className={LabelTopClass}>
+							Status:
+						</label>
+						<input
+							type="text"
+							id="status"
+							className={clsx(TextBoxBottomClass, DisabledTextBoxClass)}
+							value={data.is_active ? 'Active' : 'Inactive'}
+							disabled
+						/>
 					</div>
 				</div>
 			</Modal>

@@ -27,7 +27,7 @@ function Teachers() {
 		TeachersGetResponse,
 		AxiosError<ErrorResponse>
 	>({
-		queryKey: ['subjects'],
+		queryKey: ['teachers'],
 		queryFn: () => getTeachers({ is_active: status, orderBy } as TeachersGetDto),
 		enabled: true,
 	});
