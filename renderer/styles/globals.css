@@ -2,6 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+	--x: 0px;
+	--y: 0px;
+}
+
 .hide-scrollbar::-webkit-scrollbar {
 	display: none;
 }
@@ -30,4 +35,9 @@
 	100% {
 		transform: translateX(0px);
 	}
+}
+
+.tooltip {
+	left: var(--x);
+	top: var(--y);
 }
