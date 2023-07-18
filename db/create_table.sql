@@ -4,14 +4,6 @@ CREATE TABLE "form" (
 	"is_active" BOOLEAN NOT NULL DEFAULT TRUE
 );
 
-CREATE TABLE "subject" (
-	"id" SERIAL PRIMARY KEY,
-	"form_id" SMALLINT NOT NULL,
-	"subject_name" VARCHAR(100) NOT NULL,
-	"is_active" BOOLEAN NOT NULL DEFAULT TRUE,
-	FOREIGN KEY ("form_id") REFERENCES "form"("id")
-);
-
 CREATE TABLE "teacher" (
 	"id" SERIAL PRIMARY KEY,
 	"teacher_name" VARCHAR(255) NOT NULL,
@@ -38,7 +30,7 @@ CREATE TABLE "package_discount" (
 CREATE TABLE "class_registration" (
 	"id" SERIAL PRIMARY KEY,
 	"teacher_id" INT NOT NULL,
-	"subject_id" INT NOT NULL,
+	"class_name" VARCHAR(50) NOT NULL,
 	"start_date" DATE NOT NULL DEFAULT CURRENT_DATE,
 	"end_date" DATE CHECK("end_date" > "start_date"),
 	"class_year" SMALLINT NOT NULL CHECK("class_year" > 2000),
@@ -51,7 +43,6 @@ CREATE TABLE "class_registration" (
 	"fees" REAL NOT NULL,
 	"is_package" BOOLEAN NOT NULL,
 	FOREIGN KEY ("teacher_id") REFERENCES "teacher"("id"),
-	FOREIGN KEY ("subject_id") REFERENCES "subject"("id"),
 	FOREIGN KEY ("form_id") REFERENCES "form"("id")
 );
 

@@ -14,7 +14,6 @@ model form {
   class_registration class_registration[]
   package_discount   package_discount[]
   student            student[]
-  subject            subject[]
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
@@ -112,15 +111,6 @@ model student_class {
   @@id([student_id, class_id])
 }
 
-model subject {
-  id                 Int                  @id @default(autoincrement())
-  form_id            Int                  @db.SmallInt
-  subject_name       String               @db.VarChar(100)
-  is_active          Boolean              @default(true)
-  class_registration class_registration[]
-  form               form                 @relation(fields: [form_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-}
-
 model teacher {
   id                 Int                  @id @default(autoincrement())
   teacher_name       String               @db.VarChar(255)
@@ -147,7 +137,6 @@ model user {
 model class_registration {
   id            Int             @id @default(autoincrement())
   teacher_id    Int
-  subject_id    Int
   start_date    DateTime        @default(dbgenerated("CURRENT_DATE")) @db.Date
   end_date      DateTime?       @db.Date
   class_year    Int             @db.SmallInt
@@ -156,8 +145,8 @@ model class_registration {
   time          DateTime?       @db.Time(6)
   fees          Float           @db.Real
   is_package    Boolean
+  class_name    String          @db.VarChar(50)
   form          form            @relation(fields: [form_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  subject       subject         @relation(fields: [subject_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   teacher       teacher         @relation(fields: [teacher_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   receipt_class receipt_class[]
   student_class student_class[]
