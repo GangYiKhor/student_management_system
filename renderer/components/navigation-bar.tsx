@@ -4,6 +4,7 @@ import Link from 'next/link';
 import React, { useState } from 'react';
 import { EmptyLightButtonClass } from '../utils/class/button';
 import { Menu } from 'lucide-react';
+import { useTooltip } from '../hooks/use-tooltip';
 
 const navigationClass = clsx(
 	'bg-[rgb(203,227,245)]',
@@ -54,6 +55,7 @@ const buttons = [
 ];
 
 export function NavigationBar() {
+	const { tooltip } = useTooltip();
 	const [collapse, setCollapse] = useState(true);
 
 	return (
@@ -61,6 +63,7 @@ export function NavigationBar() {
 			<div
 				className={clsx(buttonClass, collapse ? 'pr-3' : 'pr-8')}
 				onClick={() => setCollapse(!collapse)}
+				{...tooltip(collapse ? 'Expand' : 'Collapse')}
 			>
 				<Menu width={30} height={30} className={imageClass} />
 				<p className={textClass}>Menu</p>
@@ -69,7 +72,7 @@ export function NavigationBar() {
 			<div>
 				{buttons.map(({ image, href, text }) => (
 					<Link href={href} key={text}>
-						<div className={clsx(buttonClass, collapse ? 'pr-3' : 'pr-8')}>
+						<div className={clsx(buttonClass, collapse ? 'pr-3' : 'pr-8')} {...tooltip(text)}>
 							<Image
 								src={image}
 								width={30}

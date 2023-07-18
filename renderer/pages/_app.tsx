@@ -5,6 +5,8 @@ import '../styles/globals.css';
 import { ThemeProvider } from 'next-themes';
 import { NotificationProvider } from '../components/providers/notification-providers';
 import { CustomNotification } from '../components/notification';
+import { TooltipProvider } from '../components/providers/tooltip-providers';
+import { Tooltip } from '../components/tooltip';
 
 const queryClient = new QueryClient();
 
@@ -12,12 +14,15 @@ function MyApp({ Component, pageProps }: AppProps) {
 	return (
 		<QueryClientProvider client={queryClient}>
 			<ThemeProvider attribute="class">
-				<NotificationProvider>
-					<div className="transition-colors">
-						<Component {...pageProps} />
-					</div>
-					<CustomNotification />
-				</NotificationProvider>
+				<TooltipProvider>
+					<NotificationProvider>
+						<Tooltip />
+						<div className="transition-colors">
+							<Component {...pageProps} />
+						</div>
+						<CustomNotification />
+					</NotificationProvider>
+				</TooltipProvider>
 			</ThemeProvider>
 		</QueryClientProvider>
 	);
