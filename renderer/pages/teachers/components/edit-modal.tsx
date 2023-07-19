@@ -57,7 +57,11 @@ export function TeachersEditModal({ closeModal, handleUpdate, setData, data }: P
 	const handleActivate = useCallback(async () => {
 		const newStatus = !data.is_active;
 		await handleUpdate(data.id, { ...data, is_active: newStatus } as TeachersUpdateDto);
-		setData((prev: EditData) => ({ ...prev, is_active: newStatus }));
+		setData((prev: EditData) => ({
+			...prev,
+			end_date: newStatus === true ? null : new Date(),
+			is_active: newStatus,
+		}));
 	}, [handleUpdate, data]);
 
 	const handleSubmit = useCallback(() => {
@@ -142,7 +146,7 @@ export function TeachersEditModal({ closeModal, handleUpdate, setData, data }: P
 			action: () => handleActivate(),
 		},
 		{
-			text: 'Create',
+			text: 'Update',
 			class: GreenButtonClass,
 			action: () => handleSubmit(),
 		},
@@ -160,10 +164,10 @@ export function TeachersEditModal({ closeModal, handleUpdate, setData, data }: P
 			action: async () => {
 				await handleUpdate(data.id, {
 					teacher_name: teacherNameRef.current.value,
-					ic: icRef.current?.value || '',
+					ic: icRef.current?.value || undefined,
 					phone_number: phoneNumberRef.current.value,
-					email: emailRef.current?.value || '',
-					address: addressRef.current?.value || '',
+					email: emailRef.current?.value || undefined,
+					address: addressRef.current?.value || undefined,
 				} as TeachersUpdateDto);
 				setConfirmation(false);
 				closeModal();

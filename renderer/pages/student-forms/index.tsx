@@ -56,7 +56,6 @@ function StudentForm() {
 	}, []);
 
 	const handleAdd = useCallback(async (formName: string) => {
-		console.log('Adding');
 		try {
 			await axios.post<any, AxiosResponse<any, any>, StudentFormsCreateDto>(
 				`/api/student-forms/create/`,

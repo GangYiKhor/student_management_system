@@ -23,7 +23,6 @@ export function TeachersSearchAdd({ setSearch, setStatus, refetch }: PropType) {
 
 	const handleAdd = useCallback(
 		async (createData: TeachersCreateDto) => {
-			console.log('Adding');
 			try {
 				await axios.post<any, AxiosResponse<any, any>, TeachersCreateDto>(
 					`/api/teachers/`,
