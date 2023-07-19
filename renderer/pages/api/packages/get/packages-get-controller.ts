@@ -1,8 +1,8 @@
 import { NextApiResponse } from 'next';
-import { PackagesGetDto, PackagesGetQueryDto } from '../../../dtos/packages/get';
-import { ExtendedNextApiRequest } from '../../../utils/extended-next-api-request';
-import { PackagesGetResponse } from '../../../responses/packages/get';
-import { ErrorResponse } from '../../../responses/error';
+import { PackagesGetDto, PackagesGetQueryDto } from '../../../../dtos/packages/get';
+import { ExtendedNextApiRequest } from '../../../../utils/extended-next-api-request';
+import { PackagesGetResponse } from '../../../../responses/packages/get';
+import { ErrorResponse } from '../../../../responses/error';
 import { packagesGetServices } from './packages-get-services';
 
 export async function packagesGetController(

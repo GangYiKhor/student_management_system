@@ -1,6 +1,6 @@
 import { NextApiResponse } from 'next';
-import { ExtendedNextApiRequest } from '../../../utils/extended-next-api-request';
-import { PackagesUpdateDto } from '../../../dtos/packages/update';
+import { ExtendedNextApiRequest } from '../../../../utils/extended-next-api-request';
+import { PackagesUpdateDto } from '../../../../dtos/packages/update';
 import { packagesGetSingleController } from './get/packages-get-single-controller';
 import { packagesUpdateController } from './update/packages-update-controller';
 

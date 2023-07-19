@@ -1,7 +1,7 @@
 import { NextApiResponse } from 'next';
-import { ExtendedNextApiRequest } from '../../../../utils/extended-next-api-request';
-import { PackagesGetResponse } from '../../../../responses/packages/get';
-import { ErrorResponse } from '../../../../responses/error';
+import { ExtendedNextApiRequest } from '../../../../../utils/extended-next-api-request';
+import { PackagesGetResponse } from '../../../../../responses/packages/get';
+import { ErrorResponse } from '../../../../../responses/error';
 import { packagesGetSingleServices } from './packages-get-single-services';
 
 export async function packagesGetSingleController(

@@ -1,6 +1,6 @@
 import { NextApiResponse } from 'next';
-import { PackagesUpdateDto } from '../../../../dtos/packages/update';
-import { ExtendedNextApiRequest } from '../../../../utils/extended-next-api-request';
+import { PackagesUpdateDto } from '../../../../../dtos/packages/update';
+import { ExtendedNextApiRequest } from '../../../../../utils/extended-next-api-request';
 import { packagesUpdateServices } from './packages.update-services';
 
 export async function packagesUpdateController(

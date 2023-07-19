@@ -1,5 +1,5 @@
-import { PackagesUpdateDto } from '../../../../dtos/packages/update';
-import prisma from '../../../../utils/prisma-client';
+import { PackagesUpdateDto } from '../../../../../dtos/packages/update';
+import prisma from '../../../../../utils/prisma-client';
 
 export async function packagesUpdateServices(
 	id: number,

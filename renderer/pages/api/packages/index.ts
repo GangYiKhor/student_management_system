@@ -1,7 +1,7 @@
 import { NextApiResponse } from 'next';
-import { PackagesCreateDto } from '../../dtos/packages/create';
-import { PackagesGetQueryDto } from '../../dtos/packages/get';
-import { ExtendedNextApiRequest } from '../../utils/extended-next-api-request';
+import { PackagesCreateDto } from '../../../dtos/packages/create';
+import { PackagesGetQueryDto } from '../../../dtos/packages/get';
+import { ExtendedNextApiRequest } from '../../../utils/extended-next-api-request';
 import { packagesGetController } from './get/packages-get-controller';
 import { packagesCreateController } from './create/packages-create-controller';
 

@@ -1,6 +1,6 @@
 import { NextApiResponse } from 'next';
-import { PackagesCreateDto } from '../../../dtos/packages/create';
-import { ExtendedNextApiRequest } from '../../../utils/extended-next-api-request';
+import { PackagesCreateDto } from '../../../../dtos/packages/create';
+import { ExtendedNextApiRequest } from '../../../../utils/extended-next-api-request';
 import { packagesCreateServices } from './packages.create-services';
 
 export async function packagesCreateController(
