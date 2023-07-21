@@ -103,11 +103,13 @@ export function PackagesSearchAdd({
 						onClick={() => refetchForm()}
 					>
 						<option value="">All</option>
-						{formData.map(({ id, form_name }) => (
-							<option key={id} value={id}>
-								{form_name}
-							</option>
-						))}
+						{formData
+							? formData.map(({ id, form_name }) => (
+									<option key={id} value={id}>
+										{form_name}
+									</option>
+							  ))
+							: null}
 					</select>
 				</div>
 				<div>

@@ -29,7 +29,7 @@ function Packages() {
 		PackagesGetResponse[],
 		AxiosError<ErrorResponse>
 	>({
-		queryKey: ['teachers'],
+		queryKey: ['packages'],
 		queryFn: () =>
 			getPackages({
 				form_id: formId,

@@ -13,7 +13,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import axios, { AxiosError, AxiosResponse } from 'axios';
 import { useNotificationContext } from '../../../components/providers/notification-providers';
 import { Sorter } from '../../../components/sorter';
-import { TeachersEditModal } from './edit-modal';
+import { PackagesEditModal } from './edit-modal';
 import { PackagesGetResponse } from '../../../responses/packages/get';
 import { PackagesUpdateDto } from '../../../dtos/packages/update';
 import { QueryObserverResult } from '@tanstack/react-query';
@@ -213,7 +213,7 @@ export function PackagesTable({ data, search, refetch, setOrderBy }: PropType) {
 				</tbody>
 			</table>
 			{edit ? (
-				<TeachersEditModal
+				<PackagesEditModal
 					closeModal={() => setEdit(false)}
 					handleUpdate={handleUpdate}
 					data={selected}

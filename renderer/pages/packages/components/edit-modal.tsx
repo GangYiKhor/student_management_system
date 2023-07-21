@@ -31,7 +31,7 @@ type PropType = {
 	data: EditData;
 };
 
-export function TeachersEditModal({ closeModal, handleUpdate, data }: PropType) {
+export function PackagesEditModal({ closeModal, handleUpdate, data }: PropType) {
 	const { setNotification } = useNotificationContext();
 	const startDateRef = useRef<HTMLInputElement>();
 	const endDateRef = useRef<HTMLInputElement>();
@@ -301,11 +301,13 @@ export function TeachersEditModal({ closeModal, handleUpdate, data }: PropType) 
 							<option value="" disabled>
 								Select a Form
 							</option>
-							{formData.map(({ id, form_name }) => (
-								<option key={id} value={id}>
-									{form_name}
-								</option>
-							))}
+							{formData
+								? formData.map(({ id, form_name }) => (
+										<option key={id} value={id}>
+											{form_name}
+										</option>
+								  ))
+								: null}
 						</select>
 					</div>
 					<div className={clsx('flex', 'flex-col')}>
