@@ -2,6 +2,7 @@ import { NextApiResponse } from 'next';
 import { PackagesCreateDto } from '../../../../dtos/packages/create';
 import { ExtendedNextApiRequest } from '../../../../utils/extended-next-api-request';
 import { packagesCreateServices } from './packages.create-services';
+import { ExistedError } from '../../../../utils/ExistedError';
 
 export async function packagesCreateController(
 	req: ExtendedNextApiRequest<PackagesCreateDto>,
@@ -19,9 +20,19 @@ export async function packagesCreateController(
 		}
 
 		res.status(201).json(result);
-	} catch (err) {
+	} catch (err: any) {
 		if (process.env.NODE_ENV === 'development') {
 			console.log('Create Packages Handler: ERROR', err);
+		}
+
+		if (err instanceof ExistedError) {
+			res.status(err.code).json({
+				error: {
+					title: 'Duplicate Package!',
+					message: err.message,
+					source: 'Create Packages',
+				},
+			});
 		}
 
 		res.status(503).json({
