@@ -58,7 +58,8 @@ export function PackagesCreateModal({ closeModal, handleAdd }: PropType) {
 
 	const handleSubmit = useCallback(() => {
 		let valid = true;
-		if (startDateRef.current.value.trim() === '') {
+		const isStartDateRefEmpty = startDateRef.current.value.trim() === '';
+		if (isStartDateRefEmpty) {
 			valid = false;
 			setStartDateValid(false);
 			startDateRef.current.value = '';
@@ -72,7 +73,8 @@ export function PackagesCreateModal({ closeModal, handleAdd }: PropType) {
 			setTimeout(() => startDateRef.current?.classList?.remove(ErrorTextBoxClass), 500);
 		}
 
-		if (formRef.current.value.trim() === '') {
+		const isFormRefEmpty = formRef.current.value.trim() === '';
+		if (isFormRefEmpty) {
 			valid = false;
 			setFormValid(false);
 			formRef.current.value = '';
@@ -86,7 +88,8 @@ export function PackagesCreateModal({ closeModal, handleAdd }: PropType) {
 			setTimeout(() => formRef.current?.classList?.remove(ErrorTextBoxClass), 500);
 		}
 
-		if (subjectCountFromRef.current.value.trim() === '') {
+		const isSubjectCountFromRefEmpty = subjectCountFromRef.current.value.trim() === '';
+		if (isSubjectCountFromRefEmpty) {
 			valid = false;
 			setSubjectCountFromValid(false);
 			subjectCountFromRef.current.value = '';
@@ -100,7 +103,8 @@ export function PackagesCreateModal({ closeModal, handleAdd }: PropType) {
 			setTimeout(() => subjectCountFromRef.current?.classList?.remove(ErrorTextBoxClass), 500);
 		}
 
-		if (discountPerSubjectRef.current.value.trim() === '') {
+		const isDiscountPerSubjectRefEmpty = discountPerSubjectRef.current.value.trim() === '';
+		if (isDiscountPerSubjectRefEmpty) {
 			valid = false;
 			setDiscountPerSubjectValid(false);
 			discountPerSubjectRef.current.value = '';
@@ -114,7 +118,7 @@ export function PackagesCreateModal({ closeModal, handleAdd }: PropType) {
 			setTimeout(() => discountPerSubjectRef.current?.classList?.remove(ErrorTextBoxClass), 500);
 		}
 
-		if (!parseDateOrUndefined(startDateRef.current.value)) {
+		if (startDateValid && parseDateOrUndefined(startDateRef.current.value) === undefined) {
 			valid = false;
 			setStartDateValid(false);
 			startDateRef.current.focus();
@@ -127,7 +131,10 @@ export function PackagesCreateModal({ closeModal, handleAdd }: PropType) {
 			setTimeout(() => startDateRef.current?.classList?.remove(ErrorTextBoxClass), 500);
 		}
 
-		if (!parseDateOrUndefined(endDateRef.current.value)) {
+		if (
+			endDateRef.current.value.trim() &&
+			parseDateOrUndefined(endDateRef.current.value) === undefined
+		) {
 			valid = false;
 			setEndDateValid(false);
 			endDateRef.current.focus();
@@ -140,7 +147,11 @@ export function PackagesCreateModal({ closeModal, handleAdd }: PropType) {
 			setTimeout(() => endDateRef.current?.classList?.remove(ErrorTextBoxClass), 500);
 		}
 
-		if (!parseIntOrUndefined(subjectCountFromRef.current.value)) {
+		const subjectCountFromRefInt = parseIntOrUndefined(subjectCountFromRef.current.value);
+		if (
+			!isSubjectCountFromRefEmpty &&
+			(subjectCountFromRefInt === undefined || (subjectCountFromRefInt as number) < 0)
+		) {
 			valid = false;
 			setSubjectCountFromValid(false);
 			subjectCountFromRef.current.focus();
@@ -153,7 +164,13 @@ export function PackagesCreateModal({ closeModal, handleAdd }: PropType) {
 			setTimeout(() => subjectCountFromRef.current?.classList?.remove(ErrorTextBoxClass), 500);
 		}
 
-		if (!parseIntOrUndefined(subjectCountToRef.current.value)) {
+		const subjectCountToRefInt = parseIntOrUndefined(subjectCountToRef.current.value);
+		if (
+			subjectCountToRef.current.value.trim() &&
+			(!subjectCountToRefInt ||
+				(subjectCountFromRef &&
+					(subjectCountToRefInt as number) < (subjectCountFromRefInt as number)))
+		) {
 			valid = false;
 			setSubjectCountToValid(false);
 			subjectCountToRef.current.focus();
@@ -166,7 +183,11 @@ export function PackagesCreateModal({ closeModal, handleAdd }: PropType) {
 			setTimeout(() => subjectCountToRef.current?.classList?.remove(ErrorTextBoxClass), 500);
 		}
 
-		if (!parseFloatOrUndefined(discountPerSubjectRef.current.value, 2)) {
+		if (
+			!isDiscountPerSubjectRefEmpty &&
+			parseFloatOrUndefined(discountPerSubjectRef.current.value.replace('RM', '').trim(), 2) ===
+				undefined
+		) {
 			valid = false;
 			setSubjectCountToValid(false);
 			discountPerSubjectRef.current.focus();
@@ -242,7 +263,10 @@ export function PackagesCreateModal({ closeModal, handleAdd }: PropType) {
 					form_id: parseIntOrUndefined(formRef.current.value),
 					subject_count_from: parseIntOrUndefined(subjectCountFromRef.current.value),
 					subject_count_to: parseIntOrUndefined(subjectCountToRef.current.value),
-					discount_per_subject: parseFloatOrUndefined(discountPerSubjectRef.current.value, 2),
+					discount_per_subject: parseFloatOrUndefined(
+						discountPerSubjectRef.current.value.replace('RM', '').trim(),
+						2,
+					),
 				} as PackagesCreateDto);
 				setConfirmation(false);
 				closeModal();
@@ -287,7 +311,7 @@ export function PackagesCreateModal({ closeModal, handleAdd }: PropType) {
 							onChange={() => setFormValid(true)}
 							onClick={() => refetchForm()}
 						>
-							<option value="" disabled>
+							<option value="" selected disabled>
 								Select a Form
 							</option>
 							{formData.map(({ id, form_name }) => (

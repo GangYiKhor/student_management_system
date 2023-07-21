@@ -14,5 +14,19 @@ export async function packagesGetServices(
 		orderBy = { form: orderBy };
 	}
 
-	return await prisma.package_discount.findMany({ include: { form: true }, where, orderBy });
+	const results = await prisma.package_discount.findMany({
+		include: { form: true },
+		where,
+		orderBy,
+	});
+
+	for (const result of results) {
+		if (typeof result.start_date === 'string') {
+			result.start_date = new Date(result.start_date);
+		}
+		if (typeof result.end_date === 'string') {
+			result.end_date = new Date(result.end_date);
+		}
+	}
+	return results;
 }

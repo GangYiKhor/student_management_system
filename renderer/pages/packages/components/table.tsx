@@ -192,9 +192,12 @@ export function PackagesTable({ data, search, refetch, setOrderBy }: PropType) {
 									<td className={CellClass}>{value.id}</td>
 									<td className={CellClass}>{value.form.form_name}</td>
 									<td className={CellClass}>{value.start_date.toLocaleDateString()}</td>
-									<td className={CellClass}>{value.end_date.toLocaleDateString()}</td>
 									<td className={CellClass}>
-										{value.subject_count_from + ' - ' + value.subject_count_to}
+										{value.end_date ? value.end_date.toLocaleDateString() : '-'}
+									</td>
+									<td className={CellClass}>
+										{value.subject_count_from +
+											(value.subject_count_to === null ? '+' : '- ' + value.subject_count_to)}
 									</td>
 									<td className={CellClass}>{'RM ' + value.discount_per_subject.toFixed(2)}</td>
 								</tr>

@@ -59,17 +59,18 @@ export function PackagesEditModal({ closeModal, handleUpdate, data }: PropType) 
 	});
 
 	useEffect(() => {
-		startDateRef.current.value = data.start_date.toLocaleDateString() || '';
-		endDateRef.current.value = data.end_date.toLocaleDateString() || '';
+		startDateRef.current.value = data.start_date.toISOString().split('T')[0] || '';
+		endDateRef.current.value = data.end_date?.toISOString().split('T')[0] || '';
 		formRef.current.value = data.form_id.toString() || '';
 		subjectCountFromRef.current.value = data.subject_count_from.toString() || '';
-		subjectCountToRef.current.value = data.subject_count_to.toString() || '';
-		discountPerSubjectRef.current.value = data.discount_per_subject.toFixed(2) || '';
+		subjectCountToRef.current.value = data.subject_count_to?.toString() || '';
+		discountPerSubjectRef.current.value = 'RM ' + data.discount_per_subject.toFixed(2) || '';
 	}, [data]);
 
 	const handleSubmit = useCallback(() => {
 		let valid = true;
-		if (startDateRef.current.value.trim() === '') {
+		const isStartDateRefEmpty = startDateRef.current.value.trim() === '';
+		if (isStartDateRefEmpty) {
 			valid = false;
 			setStartDateValid(false);
 			startDateRef.current.value = '';
@@ -83,7 +84,8 @@ export function PackagesEditModal({ closeModal, handleUpdate, data }: PropType) 
 			setTimeout(() => startDateRef.current?.classList?.remove(ErrorTextBoxClass), 500);
 		}
 
-		if (formRef.current.value.trim() === '') {
+		const isFormRefEmpty = formRef.current.value.trim() === '';
+		if (isFormRefEmpty) {
 			valid = false;
 			setFormValid(false);
 			formRef.current.value = '';
@@ -97,7 +99,8 @@ export function PackagesEditModal({ closeModal, handleUpdate, data }: PropType) 
 			setTimeout(() => formRef.current?.classList?.remove(ErrorTextBoxClass), 500);
 		}
 
-		if (subjectCountFromRef.current.value.trim() === '') {
+		const isSubjectCountFromRefEmpty = subjectCountFromRef.current.value.trim() === '';
+		if (isSubjectCountFromRefEmpty) {
 			valid = false;
 			setSubjectCountFromValid(false);
 			subjectCountFromRef.current.value = '';
@@ -111,7 +114,8 @@ export function PackagesEditModal({ closeModal, handleUpdate, data }: PropType) 
 			setTimeout(() => subjectCountFromRef.current?.classList?.remove(ErrorTextBoxClass), 500);
 		}
 
-		if (discountPerSubjectRef.current.value.trim() === '') {
+		const isDiscountPerSubjectRefEmpty = discountPerSubjectRef.current.value.trim() === '';
+		if (isDiscountPerSubjectRefEmpty) {
 			valid = false;
 			setDiscountPerSubjectValid(false);
 			discountPerSubjectRef.current.value = '';
@@ -125,7 +129,7 @@ export function PackagesEditModal({ closeModal, handleUpdate, data }: PropType) 
 			setTimeout(() => discountPerSubjectRef.current?.classList?.remove(ErrorTextBoxClass), 500);
 		}
 
-		if (!parseDateOrUndefined(startDateRef.current.value)) {
+		if (startDateValid && parseDateOrUndefined(startDateRef.current.value) === undefined) {
 			valid = false;
 			setStartDateValid(false);
 			startDateRef.current.focus();
@@ -138,7 +142,10 @@ export function PackagesEditModal({ closeModal, handleUpdate, data }: PropType) 
 			setTimeout(() => startDateRef.current?.classList?.remove(ErrorTextBoxClass), 500);
 		}
 
-		if (!parseDateOrUndefined(endDateRef.current.value)) {
+		if (
+			endDateRef.current.value.trim() &&
+			parseDateOrUndefined(endDateRef.current.value) === undefined
+		) {
 			valid = false;
 			setEndDateValid(false);
 			endDateRef.current.focus();
@@ -151,7 +158,11 @@ export function PackagesEditModal({ closeModal, handleUpdate, data }: PropType) 
 			setTimeout(() => endDateRef.current?.classList?.remove(ErrorTextBoxClass), 500);
 		}
 
-		if (!parseIntOrUndefined(subjectCountFromRef.current.value)) {
+		const subjectCountFromRefInt = parseIntOrUndefined(subjectCountFromRef.current.value);
+		if (
+			!isSubjectCountFromRefEmpty &&
+			(subjectCountFromRefInt === undefined || (subjectCountFromRefInt as number) < 0)
+		) {
 			valid = false;
 			setSubjectCountFromValid(false);
 			subjectCountFromRef.current.focus();
@@ -164,7 +175,13 @@ export function PackagesEditModal({ closeModal, handleUpdate, data }: PropType) 
 			setTimeout(() => subjectCountFromRef.current?.classList?.remove(ErrorTextBoxClass), 500);
 		}
 
-		if (!parseIntOrUndefined(subjectCountToRef.current.value)) {
+		const subjectCountToRefInt = parseIntOrUndefined(subjectCountToRef.current.value);
+		if (
+			subjectCountToRef.current.value.trim() &&
+			(!subjectCountToRefInt ||
+				(subjectCountFromRef &&
+					(subjectCountToRefInt as number) < (subjectCountFromRefInt as number)))
+		) {
 			valid = false;
 			setSubjectCountToValid(false);
 			subjectCountToRef.current.focus();
@@ -177,7 +194,11 @@ export function PackagesEditModal({ closeModal, handleUpdate, data }: PropType) 
 			setTimeout(() => subjectCountToRef.current?.classList?.remove(ErrorTextBoxClass), 500);
 		}
 
-		if (!parseFloatOrUndefined(discountPerSubjectRef.current.value, 2)) {
+		if (
+			!isDiscountPerSubjectRefEmpty &&
+			parseFloatOrUndefined(discountPerSubjectRef.current.value.replace('RM', '').trim(), 2) ===
+				undefined
+		) {
 			valid = false;
 			setSubjectCountToValid(false);
 			discountPerSubjectRef.current.focus();
@@ -209,12 +230,12 @@ export function PackagesEditModal({ closeModal, handleUpdate, data }: PropType) 
 
 	const closeHandler = useCallback(() => {
 		if (
-			startDateRef.current?.value.trim() !== data.start_date.toLocaleDateString() ||
-			endDateRef.current?.value.trim() !== data.end_date.toLocaleDateString() ||
+			startDateRef.current?.value.trim() !== data.start_date.toISOString().split('T')[0] ||
+			endDateRef.current?.value.trim() !== (data.end_date?.toISOString().split('T')[0] || '') ||
 			formRef.current?.value.trim() !== data.form_id.toString() ||
 			subjectCountFromRef.current?.value.trim() !== data.subject_count_from.toString() ||
-			subjectCountToRef.current?.value.trim() !== data.subject_count_to.toString() ||
-			discountPerSubjectRef.current?.value.trim() !== data.discount_per_subject.toFixed(2)
+			subjectCountToRef.current?.value.trim() !== (data.subject_count_to?.toString() || '') ||
+			discountPerSubjectRef.current?.value.trim() !== 'RM ' + data.discount_per_subject.toFixed(2)
 		) {
 			setCloseConfirmation(true);
 		} else {

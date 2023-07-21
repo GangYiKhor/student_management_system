@@ -24,7 +24,15 @@ function Packages() {
 	const [endDate, setEndDate] = useState<Date>(undefined);
 	const [orderBy, setOrderBy] = useState<string>('form_name asc');
 
-	const getPackages = useGet('/api/packages');
+	const parseData = (data: PackagesGetResponse[]) => {
+		for (const row of data) {
+			row.start_date = new Date(row.start_date);
+			row.end_date = row.end_date && new Date(row.end_date);
+		}
+
+		return data;
+	};
+	const getPackages = useGet<PackagesGetDto, PackagesGetResponse[]>('/api/packages', parseData);
 	const { data, isLoading, error, isError, dataUpdatedAt, refetch } = useQuery<
 		PackagesGetResponse[],
 		AxiosError<ErrorResponse>
