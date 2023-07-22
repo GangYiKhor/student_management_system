@@ -72,6 +72,7 @@ export function PackagesSearchAdd({
 				} else {
 					setNotification({ title: 'Server Error', message: error.message });
 				}
+				throw error;
 			}
 		},
 		[refetch, setNotification],

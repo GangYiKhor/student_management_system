@@ -86,6 +86,7 @@ export function PackagesTable({ data, search, refetch, setOrderBy }: PropType) {
 				} else {
 					setNotification({ title: 'Server Error', message: error.message });
 				}
+				throw error;
 			}
 		},
 		[refetch],
@@ -106,7 +107,7 @@ export function PackagesTable({ data, search, refetch, setOrderBy }: PropType) {
 		}
 
 		setTableData(filteredData);
-	}, [data, search, status]);
+	}, [data, search]);
 
 	useEffect(() => {
 		setOrderBy(`${sortBy.field} ${sortBy.asc ? 'asc' : 'desc'}`);
@@ -197,7 +198,7 @@ export function PackagesTable({ data, search, refetch, setOrderBy }: PropType) {
 									</td>
 									<td className={CellClass}>
 										{value.subject_count_from +
-											(value.subject_count_to === null ? '+' : '- ' + value.subject_count_to)}
+											(value.subject_count_to === null ? '+' : ' - ' + value.subject_count_to)}
 									</td>
 									<td className={CellClass}>{'RM ' + value.discount_per_subject.toFixed(2)}</td>
 								</tr>

@@ -7,15 +7,10 @@ export async function packagesCreateServices(createPackagesDto: PackagesCreateDt
 	const existingRecord = await prisma.package_discount.findFirst({
 		where: {
 			form_id,
-			AND: [
-				{ OR: [{ start_date: { lte: end_date } }, { end_date: { gte: start_date } }] },
-				{
-					OR: [
-						{ subject_count_from: { gte: subject_count_to } },
-						{ subject_count_to: { lte: subject_count_from } },
-					],
-				},
-			],
+			start_date: { lte: end_date },
+			end_date: { gte: start_date },
+			subject_count_from: { lte: subject_count_to },
+			subject_count_to: { gte: subject_count_from },
 		},
 	});
 

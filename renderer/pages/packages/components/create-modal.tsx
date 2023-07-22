@@ -1,21 +1,18 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import Modal, { ModalButtons } from '../../../components/modal';
 import {
-	ErrorTextBoxClass,
 	InvalidTextBoxClass,
 	LabelTopClass,
 	TextBoxBottomClass,
 } from '../../../utils/class/inputs';
 import clsx from 'clsx';
 import { GrayButtonClass, GreenButtonClass, RedButtonClass } from '../../../utils/class/button';
-import { useNotificationContext } from '../../../components/providers/notification-providers';
 import { RequiredIcon } from '../../../components/required';
 import { PackagesCreateDto } from '../../../dtos/packages/create';
 import { useGet } from '../../../hooks/use-get';
 import { StudentFormsGetDto } from '../../../dtos/student-forms/get';
 import { useQuery } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
-import { PackagesUpdateDto } from '../../../dtos/packages/update';
 import { ErrorResponse } from '../../../responses/error';
 import { StudentFormsGetResponse } from '../../../responses/student-forms/get';
 import {
@@ -23,6 +20,7 @@ import {
 	parseIntOrUndefined,
 	parseFloatOrUndefined,
 } from '../../../utils/parser';
+import { useHandleSubmit } from '../hooks/useHandleSubmit';
 
 type PropType = {
 	closeModal: () => void;
@@ -30,7 +28,6 @@ type PropType = {
 };
 
 export function PackagesCreateModal({ closeModal, handleAdd }: PropType) {
-	const { setNotification } = useNotificationContext();
 	const startDateRef = useRef<HTMLInputElement>();
 	const endDateRef = useRef<HTMLInputElement>();
 	const formRef = useRef<HTMLSelectElement>();
@@ -45,6 +42,21 @@ export function PackagesCreateModal({ closeModal, handleAdd }: PropType) {
 	const [discountPerSubjectValid, setDiscountPerSubjectValid] = useState(true);
 	const [confirmation, setConfirmation] = useState(false);
 	const [closeConfirmation, setCloseConfirmation] = useState(false);
+	const handleSubmit = useHandleSubmit({
+		startDateRef,
+		endDateRef,
+		formRef,
+		subjectCountFromRef,
+		subjectCountToRef,
+		discountPerSubjectRef,
+		setStartDateValid,
+		setEndDateValid,
+		setFormValid,
+		setSubjectCountFromValid,
+		setSubjectCountToValid,
+		setDiscountPerSubjectValid,
+		setConfirmation,
+	});
 
 	const getForms = useGet<StudentFormsGetDto>('/api/student-forms');
 	const { data: formData, refetch: refetchForm } = useQuery<
@@ -55,155 +67,6 @@ export function PackagesCreateModal({ closeModal, handleAdd }: PropType) {
 		queryFn: () => getForms({ orderBy: 'form_name asc' }),
 		enabled: true,
 	});
-
-	const handleSubmit = useCallback(() => {
-		let valid = true;
-		const isStartDateRefEmpty = startDateRef.current.value.trim() === '';
-		if (isStartDateRefEmpty) {
-			valid = false;
-			setStartDateValid(false);
-			startDateRef.current.value = '';
-			startDateRef.current.focus();
-			startDateRef.current.classList.add(ErrorTextBoxClass);
-			setNotification({
-				title: 'Empty Start Date!',
-				message: 'Please enter a start date',
-				type: 'ERROR',
-			});
-			setTimeout(() => startDateRef.current?.classList?.remove(ErrorTextBoxClass), 500);
-		}
-
-		const isFormRefEmpty = formRef.current.value.trim() === '';
-		if (isFormRefEmpty) {
-			valid = false;
-			setFormValid(false);
-			formRef.current.value = '';
-			formRef.current.focus();
-			formRef.current.classList.add(ErrorTextBoxClass);
-			setNotification({
-				title: 'Empty Form!',
-				message: 'Please select a form',
-				type: 'ERROR',
-			});
-			setTimeout(() => formRef.current?.classList?.remove(ErrorTextBoxClass), 500);
-		}
-
-		const isSubjectCountFromRefEmpty = subjectCountFromRef.current.value.trim() === '';
-		if (isSubjectCountFromRefEmpty) {
-			valid = false;
-			setSubjectCountFromValid(false);
-			subjectCountFromRef.current.value = '';
-			subjectCountFromRef.current.focus();
-			subjectCountFromRef.current.classList.add(ErrorTextBoxClass);
-			setNotification({
-				title: 'Empty Subject Count!',
-				message: 'Please enter a subject count',
-				type: 'ERROR',
-			});
-			setTimeout(() => subjectCountFromRef.current?.classList?.remove(ErrorTextBoxClass), 500);
-		}
-
-		const isDiscountPerSubjectRefEmpty = discountPerSubjectRef.current.value.trim() === '';
-		if (isDiscountPerSubjectRefEmpty) {
-			valid = false;
-			setDiscountPerSubjectValid(false);
-			discountPerSubjectRef.current.value = '';
-			discountPerSubjectRef.current.focus();
-			discountPerSubjectRef.current.classList.add(ErrorTextBoxClass);
-			setNotification({
-				title: 'Empty Discount!',
-				message: 'Please enter a discount',
-				type: 'ERROR',
-			});
-			setTimeout(() => discountPerSubjectRef.current?.classList?.remove(ErrorTextBoxClass), 500);
-		}
-
-		if (startDateValid && parseDateOrUndefined(startDateRef.current.value) === undefined) {
-			valid = false;
-			setStartDateValid(false);
-			startDateRef.current.focus();
-			startDateRef.current.classList.add(ErrorTextBoxClass);
-			setNotification({
-				title: 'Invalid Start Date!',
-				message: 'Please enter a valid date',
-				type: 'ERROR',
-			});
-			setTimeout(() => startDateRef.current?.classList?.remove(ErrorTextBoxClass), 500);
-		}
-
-		if (
-			endDateRef.current.value.trim() &&
-			parseDateOrUndefined(endDateRef.current.value) === undefined
-		) {
-			valid = false;
-			setEndDateValid(false);
-			endDateRef.current.focus();
-			endDateRef.current.classList.add(ErrorTextBoxClass);
-			setNotification({
-				title: 'Invalid End Date!',
-				message: 'Please enter a valid date',
-				type: 'ERROR',
-			});
-			setTimeout(() => endDateRef.current?.classList?.remove(ErrorTextBoxClass), 500);
-		}
-
-		const subjectCountFromRefInt = parseIntOrUndefined(subjectCountFromRef.current.value);
-		if (
-			!isSubjectCountFromRefEmpty &&
-			(subjectCountFromRefInt === undefined || (subjectCountFromRefInt as number) < 0)
-		) {
-			valid = false;
-			setSubjectCountFromValid(false);
-			subjectCountFromRef.current.focus();
-			subjectCountFromRef.current.classList.add(ErrorTextBoxClass);
-			setNotification({
-				title: 'Invalid Subject Count!',
-				message: 'Please enter a valid subject count',
-				type: 'ERROR',
-			});
-			setTimeout(() => subjectCountFromRef.current?.classList?.remove(ErrorTextBoxClass), 500);
-		}
-
-		const subjectCountToRefInt = parseIntOrUndefined(subjectCountToRef.current.value);
-		if (
-			subjectCountToRef.current.value.trim() &&
-			(!subjectCountToRefInt ||
-				(subjectCountFromRef &&
-					(subjectCountToRefInt as number) < (subjectCountFromRefInt as number)))
-		) {
-			valid = false;
-			setSubjectCountToValid(false);
-			subjectCountToRef.current.focus();
-			subjectCountToRef.current.classList.add(ErrorTextBoxClass);
-			setNotification({
-				title: 'Invalid Subject Count!',
-				message: 'Please enter a valid subject count',
-				type: 'ERROR',
-			});
-			setTimeout(() => subjectCountToRef.current?.classList?.remove(ErrorTextBoxClass), 500);
-		}
-
-		if (
-			!isDiscountPerSubjectRefEmpty &&
-			parseFloatOrUndefined(discountPerSubjectRef.current.value.replace('RM', '').trim(), 2) ===
-				undefined
-		) {
-			valid = false;
-			setSubjectCountToValid(false);
-			discountPerSubjectRef.current.focus();
-			discountPerSubjectRef.current.classList.add(ErrorTextBoxClass);
-			setNotification({
-				title: 'Invalid Discount!',
-				message: 'Please enter a valid discount',
-				type: 'ERROR',
-			});
-			setTimeout(() => discountPerSubjectRef.current?.classList?.remove(ErrorTextBoxClass), 500);
-		}
-
-		if (valid) {
-			setConfirmation(true);
-		}
-	}, [handleAdd]);
 
 	const discountOnBlurFormat = useCallback(() => {
 		const value = discountPerSubjectRef.current.value.replace('RM', '').trim();
@@ -257,19 +120,23 @@ export function PackagesCreateModal({ closeModal, handleAdd }: PropType) {
 			text: 'Confirm',
 			class: GreenButtonClass,
 			action: async () => {
-				await handleAdd({
-					start_date: parseDateOrUndefined(startDateRef.current.value),
-					end_date: parseDateOrUndefined(endDateRef.current.value),
-					form_id: parseIntOrUndefined(formRef.current.value),
-					subject_count_from: parseIntOrUndefined(subjectCountFromRef.current.value),
-					subject_count_to: parseIntOrUndefined(subjectCountToRef.current.value),
-					discount_per_subject: parseFloatOrUndefined(
-						discountPerSubjectRef.current.value.replace('RM', '').trim(),
-						2,
-					),
-				} as PackagesCreateDto);
-				setConfirmation(false);
-				closeModal();
+				try {
+					await handleAdd({
+						start_date: parseDateOrUndefined(startDateRef.current.value),
+						end_date: parseDateOrUndefined(endDateRef.current.value),
+						form_id: parseIntOrUndefined(formRef.current.value),
+						subject_count_from: parseIntOrUndefined(subjectCountFromRef.current.value),
+						subject_count_to: parseIntOrUndefined(subjectCountToRef.current.value),
+						discount_per_subject: parseFloatOrUndefined(
+							discountPerSubjectRef.current.value.replace('RM', '').trim(),
+							2,
+						),
+					} as PackagesCreateDto);
+					setConfirmation(false);
+					closeModal();
+				} catch (error) {
+					setConfirmation(false);
+				}
 			},
 		},
 	];
@@ -388,7 +255,7 @@ export function PackagesCreateModal({ closeModal, handleAdd }: PropType) {
 							type="text"
 							id="discountPerSubject"
 							className={clsx(TextBoxBottomClass, discountPerSubjectValid || InvalidTextBoxClass)}
-							placeholder="E.g. 012-345 6789"
+							placeholder="E.g. 1.00"
 							maxLength={50}
 							required
 							ref={discountPerSubjectRef}
