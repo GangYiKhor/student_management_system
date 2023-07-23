@@ -19,10 +19,10 @@ CREATE TABLE "teacher" (
 CREATE TABLE "package_discount" (
 	"id" SERIAL PRIMARY KEY,
 	"start_date" DATE NOT NULL DEFAULT CURRENT_DATE,
-	"end_date" DATE CHECK("end_date" > "start_date"),
+	"end_date" DATE NOT NULL CHECK("end_date" >= "start_date"),
 	"form_id" SMALLINT NOT NULL,
 	"subject_count_from" SMALLINT NOT NULL,
-	"subject_count_to" SMALLINT,
+	"subject_count_to" SMALLINT NOT NULL,
 	"discount_per_subject" REAL NOT NULL,
 	FOREIGN KEY ("form_id") REFERENCES "form"("id")
 );
