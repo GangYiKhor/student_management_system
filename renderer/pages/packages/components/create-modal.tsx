@@ -70,7 +70,7 @@ export function PackagesCreateModal({ closeModal, handleAdd }: PropType) {
 
 	const discountOnBlurFormat = useCallback(() => {
 		const value = discountPerSubjectRef.current.value.replace('RM', '').trim();
-		const parsed = parseFloatOrUndefined(value, 2) as number;
+		const parsed = parseFloatOrUndefined(value, 2);
 		if (parsed) {
 			discountPerSubjectRef.current.value = 'RM ' + parsed.toFixed(2);
 		}

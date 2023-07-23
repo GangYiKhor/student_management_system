@@ -100,7 +100,7 @@ export function PackagesSearchAdd({
 					<select
 						className={TextBoxRightClass}
 						id="form"
-						onChange={e => setFormId(parseIntOrUndefined(e.target.value) as number)}
+						onChange={e => setFormId(parseIntOrUndefined(e.target.value))}
 						onClick={() => refetchForm()}
 					>
 						<option value="">All</option>
@@ -122,7 +122,7 @@ export function PackagesSearchAdd({
 						id="startDate"
 						className={TextBoxRightClass}
 						placeholder=""
-						onChange={e => setStartDate(parseDateOrUndefined(e.target.value) as Date)}
+						onChange={e => setStartDate(parseDateOrUndefined(e.target.value))}
 					/>
 				</div>
 				<div>
@@ -134,7 +134,7 @@ export function PackagesSearchAdd({
 						id="endDate"
 						className={TextBoxRightClass}
 						placeholder=""
-						onChange={e => setEndDate(parseDateOrUndefined(e.target.value) as Date)}
+						onChange={e => setEndDate(parseDateOrUndefined(e.target.value))}
 					/>
 				</div>
 			</div>

@@ -4,7 +4,7 @@ import { PackagesUpdateDto } from '../../../../dtos/packages/update';
 import { packagesGetSingleController } from './get/packages-get-single-controller';
 import { packagesUpdateController } from './update/packages-update-controller';
 
-async function packagesHandler(
+async function packagesSingleHandler(
 	req: ExtendedNextApiRequest<PackagesUpdateDto, { id: string }>,
 	res: NextApiResponse,
 ) {
@@ -27,4 +27,4 @@ async function packagesHandler(
 	}
 }
 
-export default packagesHandler;
+export default packagesSingleHandler;
