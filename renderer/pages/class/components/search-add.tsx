@@ -2,17 +2,18 @@ import clsx from 'clsx';
 import { BlueButtonClass } from '../../../utils/class/button';
 import { LabelLeftClass, TextBoxRightClass } from '../../../utils/class/inputs';
 import { useCallback, useState } from 'react';
-import { PackagesCreateModal } from './create-modal';
+import { ClassCreateModal } from './create-modal';
 import axios, { AxiosError, AxiosResponse } from 'axios';
 import { useNotificationContext } from '../../../components/providers/notification-providers';
-import { PackagesCreateDto } from '../../../dtos/packages/create';
 import { useGet } from '../../../hooks/use-get';
 import { StudentFormsGetDto } from '../../../dtos/student-forms/get';
 import { StudentFormsGetResponse } from '../../../responses/student-forms/get';
 import { ErrorResponse } from '../../../responses/error';
 import { QueryObserverResult, useQuery } from '@tanstack/react-query';
-import { PackagesGetResponse } from '../../../responses/packages/get';
-import { parseDateOrUndefined, parseIntOrUndefined } from '../../../utils/parser';
+import { parseIntOrUndefined } from '../../../utils/parser';
+import { TeachersGetResponse } from '../../../responses/teachers/get';
+import { ClassGetResponse } from '../../../responses/class/get';
+import { ClassCreateDto } from '../../../dtos/class/create';
 
 const layoutClass = clsx('flex', 'justify-between');
 const searchClass = clsx('flex', 'flex-row', 'gap-8', 'items-baseline');
@@ -21,18 +22,20 @@ const buttonClass = clsx('flex', 'justify-end', 'gap-4', 'items-center');
 type PropType = {
 	setSearch: (value: string) => void;
 	setFormId: (value: number) => void;
-	setStartDate: (value: Date) => void;
-	setEndDate: (value: Date) => void;
-	refetch: () => Promise<
-		QueryObserverResult<PackagesGetResponse[], AxiosError<ErrorResponse, any>>
-	>;
+	setTeacherId: (value: number) => void;
+	setClassYear: (value: number) => void;
+	setDay: (value: number) => void;
+	setIsActive: (value: boolean) => void;
+	refetch: () => Promise<QueryObserverResult<ClassGetResponse[], AxiosError<ErrorResponse, any>>>;
 };
 
-export function PackagesSearchAdd({
+export function ClassSearchAdd({
 	setSearch,
 	setFormId,
-	setStartDate,
-	setEndDate,
+	setTeacherId,
+	setClassYear,
+	setDay,
+	setIsActive,
 	refetch,
 }: PropType) {
 	const { setNotification } = useNotificationContext();
@@ -48,17 +51,24 @@ export function PackagesSearchAdd({
 		enabled: true,
 	});
 
+	const getTeachers = useGet<StudentFormsGetDto>('/api/teachers');
+	const { data: teacherData, refetch: refetchTeacher } = useQuery<
+		TeachersGetResponse,
+		AxiosError<ErrorResponse>
+	>({
+		queryKey: ['teachers'],
+		queryFn: () => getTeachers({ is_active: true, orderBy: 'teacher_name asc' }),
+		enabled: true,
+	});
+
 	const handleAdd = useCallback(
-		async (createData: PackagesCreateDto) => {
+		async (createData: ClassCreateDto) => {
 			try {
-				await axios.post<any, AxiosResponse<any, any>, PackagesCreateDto>(
-					`/api/packages/`,
-					createData,
-				);
+				await axios.post<any, AxiosResponse<any, any>, ClassCreateDto>(`/api/class/`, createData);
 				await refetch();
 				setNotification({
-					title: 'New Package Added!',
-					message: 'Package Added Successfully!',
+					title: 'New Class Added!',
+					message: 'Class Added Successfully!',
 					type: 'INFO',
 				});
 			} catch (error: any) {
@@ -114,28 +124,51 @@ export function PackagesSearchAdd({
 					</select>
 				</div>
 				<div>
-					<label className={LabelLeftClass} htmlFor="startDate">
-						Start Date:
+					<label className={LabelLeftClass} htmlFor="teacher">
+						Teacher:
+					</label>
+					<select
+						className={TextBoxRightClass}
+						id="teacher"
+						onChange={e => setTeacherId(parseIntOrUndefined(e.target.value))}
+						onClick={() => refetchTeacher()}
+					>
+						<option value="">All</option>
+						{teacherData
+							? teacherData.map(({ id, teacher_name }) => (
+									<option key={id} value={id}>
+										{teacher_name}
+									</option>
+							  ))
+							: null}
+					</select>
+				</div>
+				<div>
+					<label className={LabelLeftClass} htmlFor="year">
+						Year:
 					</label>
 					<input
-						type="date"
-						id="startDate"
+						type="number"
+						min={2010}
+						id="year"
 						className={TextBoxRightClass}
-						placeholder=""
-						onChange={e => setStartDate(parseDateOrUndefined(e.target.value))}
+						placeholder="E.g. 2022"
+						onChange={e => setClassYear(parseIntOrUndefined(e.target.value))}
 					/>
 				</div>
 				<div>
-					<label className={LabelLeftClass} htmlFor="endDate">
-						End Date:
+					<label className={LabelLeftClass} htmlFor="active">
+						Active:
 					</label>
-					<input
-						type="date"
-						id="endDate"
+					<select
 						className={TextBoxRightClass}
-						placeholder=""
-						onChange={e => setEndDate(parseDateOrUndefined(e.target.value))}
-					/>
+						id="active"
+						onChange={e => setIsActive(e.target.value ? e.target.value === 'active' : undefined)}
+					>
+						<option value="">All</option>
+						<option value="active">Active</option>
+						<option value="inactive">Inactive</option>
+					</select>
 				</div>
 			</div>
 			<div className={buttonClass}>
@@ -144,7 +177,7 @@ export function PackagesSearchAdd({
 				</button>
 			</div>
 			{toggleModal ? (
-				<PackagesCreateModal closeModal={() => setToggleModal(false)} handleAdd={handleAdd} />
+				<ClassCreateModal closeModal={() => setToggleModal(false)} handleAdd={handleAdd} />
 			) : null}
 		</div>
 	);

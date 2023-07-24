@@ -30,6 +30,7 @@ export async function classGetController(
 		fees: parseFloatOrUndefined(req.query.fees),
 		is_package: req.query.is_package === 'true',
 		class_name: req.query.class_name,
+		is_active: req.query.is_active ? req.query.is_active === 'true' : undefined,
 		orderBy: req.query.orderBy,
 	};
 

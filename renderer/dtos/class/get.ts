@@ -1,7 +1,7 @@
 export type ClassGetDto = {
 	teacher_id?: number;
-	start_date?: Date;
-	end_date?: Date;
+	start_date?: Date | { lte?: Date; gte?: Date };
+	end_date?: Date | { lte?: Date; gte?: Date };
 	class_year?: number;
 	form_id?: number;
 	day?: number;
@@ -10,6 +10,7 @@ export type ClassGetDto = {
 	fees?: number;
 	is_package?: boolean;
 	class_name?: string;
+	is_active?: boolean;
 	orderBy?: string;
 };
 
@@ -25,5 +26,6 @@ export type ClassGetQueryDto = {
 	fees?: string;
 	is_package?: string;
 	class_name?: string;
+	is_active?: string;
 	orderBy?: string;
 };

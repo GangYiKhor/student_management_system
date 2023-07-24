@@ -3,7 +3,13 @@ import { ClassGetResponse } from '../../../../responses/class/get';
 import prisma from '../../../../utils/prisma-client';
 
 export async function classGetServices(getClassDto: ClassGetDto): Promise<ClassGetResponse[]> {
-	const { orderBy: order, ...where } = getClassDto;
+	const { orderBy: order, is_active, ...where } = getClassDto;
+
+	if (is_active) {
+		const now = new Date();
+		where.start_date = { lte: now };
+		where.end_date = { gte: now };
+	}
 
 	let orderBy: { [key: string]: string } | { [key: string]: { [key: string]: string } } = {
 		[order.split(' ')[0]]: order.split(' ')[1] !== 'desc' ? 'asc' : 'desc',

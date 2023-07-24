@@ -66,7 +66,7 @@ export function PackagesEditModal({ closeModal, handleUpdate, data }: PropType) 
 		AxiosError<ErrorResponse>
 	>({
 		queryKey: ['forms'],
-		queryFn: () => getForms({ orderBy: 'form_name asc' }),
+		queryFn: () => getForms({ is_active: true, orderBy: 'form_name asc' }),
 		enabled: true,
 	});
 

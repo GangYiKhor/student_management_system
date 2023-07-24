@@ -64,7 +64,7 @@ export function PackagesCreateModal({ closeModal, handleAdd }: PropType) {
 		AxiosError<ErrorResponse>
 	>({
 		queryKey: ['forms'],
-		queryFn: () => getForms({ orderBy: 'form_name asc' }),
+		queryFn: () => getForms({ is_active: true, orderBy: 'form_name asc' }),
 		enabled: true,
 	});
 
@@ -273,7 +273,7 @@ export function PackagesCreateModal({ closeModal, handleAdd }: PropType) {
 					closeOnBlur={false}
 					buttons={confirmationButtons}
 				>
-					<p>Confirm Update?</p>
+					<p>Confirm Create?</p>
 				</Modal>
 			) : null}
 			{closeConfirmation ? (

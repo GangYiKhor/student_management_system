@@ -12,8 +12,9 @@ export type ClassGetResponse = {
 	end_date: Date;
 	class_year: number;
 	form_id: number;
-	day?: number;
-	time?: Date;
+	day: number;
+	start_time: Date;
+	end_time: Date;
 	fees: number;
 	is_package: boolean;
 	class_name: string;
