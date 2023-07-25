@@ -3,7 +3,7 @@ import { PackagesGetResponse } from '../../../../responses/packages/get';
 import prisma from '../../../../utils/prisma-client';
 
 export async function packagesGetServices(
-	getPackagesDto: PackagesGetDto,
+	getPackagesDto: PackagesGetDto & { OR: {} },
 ): Promise<PackagesGetResponse[]> {
 	const { orderBy: order, is_active, ...where } = getPackagesDto;
 
@@ -11,6 +11,12 @@ export async function packagesGetServices(
 		const now = new Date();
 		where.start_date = { lte: now };
 		where.end_date = { gte: now };
+	} else if (is_active === false) {
+		const now = new Date();
+		where.OR = {
+			start_date: { gte: now },
+			end_date: { lte: now },
+		};
 	}
 
 	let orderBy: { [key: string]: string } | { [key: string]: { [key: string]: string } } = {
