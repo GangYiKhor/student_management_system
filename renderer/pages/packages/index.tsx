@@ -20,8 +20,7 @@ function Packages() {
 	const { setNotification } = useNotificationContext();
 	const [search, setSearch] = useState<string>('');
 	const [formId, setFormId] = useState<number>(undefined);
-	const [startDate, setStartDate] = useState<Date>(undefined);
-	const [endDate, setEndDate] = useState<Date>(undefined);
+	const [isActive, setIsActive] = useState<boolean>(undefined);
 	const [orderBy, setOrderBy] = useState<string>('form_name asc');
 
 	const parseData = (data: PackagesGetResponse[]) => {
@@ -41,8 +40,7 @@ function Packages() {
 		queryFn: () =>
 			getPackages({
 				form_id: formId,
-				start_date: startDate,
-				end_date: endDate,
+				is_active: isActive,
 				orderBy,
 			} as PackagesGetDto),
 		enabled: true,
@@ -50,7 +48,7 @@ function Packages() {
 
 	useEffect(() => {
 		void refetch();
-	}, [formId, startDate, endDate, orderBy]);
+	}, [formId, isActive, orderBy]);
 
 	useEffect(() => {
 		if (isError) {
@@ -78,7 +76,7 @@ function Packages() {
 			<Head>
 				<title>Packages</title>
 			</Head>
-			<Layout headerTitle={'Teachers'}>
+			<Layout headerTitle={'Packages'}>
 				{isLoading ? (
 					<Loader />
 				) : (
@@ -86,8 +84,7 @@ function Packages() {
 						<PackagesSearchAdd
 							setSearch={setSearch}
 							setFormId={setFormId}
-							setStartDate={setStartDate}
-							setEndDate={setEndDate}
+							setIsActive={setIsActive}
 							refetch={refetch}
 						/>
 						<PackagesTable data={data} search={search} refetch={refetch} setOrderBy={setOrderBy} />

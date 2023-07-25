@@ -12,7 +12,7 @@ import { StudentFormsGetResponse } from '../../../responses/student-forms/get';
 import { ErrorResponse } from '../../../responses/error';
 import { QueryObserverResult, useQuery } from '@tanstack/react-query';
 import { PackagesGetResponse } from '../../../responses/packages/get';
-import { parseDateOrUndefined, parseIntOrUndefined } from '../../../utils/parser';
+import { parseIntOrUndefined } from '../../../utils/parser';
 
 const layoutClass = clsx('flex', 'justify-between');
 const searchClass = clsx('flex', 'flex-row', 'gap-8', 'items-baseline');
@@ -21,20 +21,13 @@ const buttonClass = clsx('flex', 'justify-end', 'gap-4', 'items-center');
 type PropType = {
 	setSearch: (value: string) => void;
 	setFormId: (value: number) => void;
-	setStartDate: (value: Date) => void;
-	setEndDate: (value: Date) => void;
+	setIsActive: (value: boolean) => void;
 	refetch: () => Promise<
 		QueryObserverResult<PackagesGetResponse[], AxiosError<ErrorResponse, any>>
 	>;
 };
 
-export function PackagesSearchAdd({
-	setSearch,
-	setFormId,
-	setStartDate,
-	setEndDate,
-	refetch,
-}: PropType) {
+export function PackagesSearchAdd({ setSearch, setFormId, setIsActive, refetch }: PropType) {
 	const { setNotification } = useNotificationContext();
 	const [toggleModal, setToggleModal] = useState(false);
 
@@ -114,28 +107,19 @@ export function PackagesSearchAdd({
 					</select>
 				</div>
 				<div>
-					<label className={LabelLeftClass} htmlFor="startDate">
-						Start Date:
+					<label className={LabelLeftClass} htmlFor="active">
+						Active:
 					</label>
-					<input
-						type="date"
-						id="startDate"
+					<select
+						id="active"
 						className={TextBoxRightClass}
 						placeholder=""
-						onChange={e => setStartDate(parseDateOrUndefined(e.target.value))}
-					/>
-				</div>
-				<div>
-					<label className={LabelLeftClass} htmlFor="endDate">
-						End Date:
-					</label>
-					<input
-						type="date"
-						id="endDate"
-						className={TextBoxRightClass}
-						placeholder=""
-						onChange={e => setEndDate(parseDateOrUndefined(e.target.value))}
-					/>
+						onChange={e => setIsActive(e.target.value ? e.target.value === 'active' : undefined)}
+					>
+						<option value="">All</option>
+						<option value="active">Active</option>
+						<option value="inactive">Inactive</option>
+					</select>
 				</div>
 			</div>
 			<div className={buttonClass}>

@@ -82,9 +82,9 @@ function ClassRegistration() {
 	return (
 		<React.Fragment>
 			<Head>
-				<title>Packages</title>
+				<title>Class</title>
 			</Head>
-			<Layout headerTitle={'Teachers'}>
+			<Layout headerTitle={'Class'}>
 				{isLoading ? (
 					<Loader />
 				) : (

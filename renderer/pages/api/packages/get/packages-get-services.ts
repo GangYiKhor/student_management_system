@@ -5,7 +5,13 @@ import prisma from '../../../../utils/prisma-client';
 export async function packagesGetServices(
 	getPackagesDto: PackagesGetDto,
 ): Promise<PackagesGetResponse[]> {
-	const { orderBy: order, ...where } = getPackagesDto;
+	const { orderBy: order, is_active, ...where } = getPackagesDto;
+
+	if (is_active) {
+		const now = new Date();
+		where.start_date = { lte: now };
+		where.end_date = { gte: now };
+	}
 
 	let orderBy: { [key: string]: string } | { [key: string]: { [key: string]: string } } = {
 		[order.split(' ')[0]]: order.split(' ')[1] !== 'desc' ? 'asc' : 'desc',
