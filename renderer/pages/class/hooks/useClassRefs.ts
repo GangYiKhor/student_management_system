@@ -16,7 +16,7 @@ export function useClassRefs({ closeModal, data }: PropType) {
 	const [classYearRef, classYearValid] = useInputRef();
 	const [startDateRef, startDateValid] = useInputRef();
 	const [endDateRef, endDateValid] = useInputRef();
-	const [dayRef, dayValid] = useInputRef();
+	const [dayRef, dayValid] = useSelectRef();
 	const [startTimeRef, startTimeValid] = useInputRef();
 	const [endTimeRef, endTimeValid] = useInputRef();
 	const [feesRef, feesValid] = useInputRef();

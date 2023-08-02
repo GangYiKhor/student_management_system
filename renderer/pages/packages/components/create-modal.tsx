@@ -207,6 +207,7 @@ export function PackagesCreateModal({ closeModal, handleAdd }: PropType) {
 					<div className={clsx('flex', 'flex-col')}>
 						<label htmlFor="endDate" className={LabelTopClass}>
 							End Date:
+							<RequiredIcon />
 						</label>
 						<input
 							type="date"
@@ -236,6 +237,7 @@ export function PackagesCreateModal({ closeModal, handleAdd }: PropType) {
 					<div className={clsx('flex', 'flex-col')}>
 						<label htmlFor="subjectCountTo" className={LabelTopClass}>
 							Subject Count To:
+							<RequiredIcon />
 						</label>
 						<input
 							type="number"

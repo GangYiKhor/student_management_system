@@ -10,10 +10,7 @@ export function fieldCheckerRequired(
 		itemName: string;
 		setNotification: (value: SetNotification) => void;
 	},
-	setEmpty = true,
 ): boolean {
-	console.log('CHECKING', notification.itemName);
-
 	if (ref.current.value.trim() === '') {
 		setValid(false);
 		ref.current.value = '';
@@ -44,8 +41,6 @@ export function fieldCheckerValue(
 		setNotification: (value: SetNotification) => void;
 	},
 ): boolean {
-	console.log('CHECKING', notification.itemName);
-
 	if (ref.current.value.trim() !== '') {
 		let isValid = false;
 		if (typeof checkCondition === 'function') {
@@ -85,7 +80,6 @@ export function fieldCheckerRequiredValue(
 		setNotification: (value: SetNotification) => void;
 	},
 ): boolean {
-	console.log('CHECKING', notification.itemName);
 	if (fieldCheckerRequired(ref, setValid, notification)) {
 		let isValid = false;
 		if (typeof checkCondition === 'function') {
