@@ -4,7 +4,7 @@
 
 Create a `.env` file for environment variables
 
-```json
+```bash
 DATABASE_URL="POSTGRES_DATABASE_URL"
 ```
 
