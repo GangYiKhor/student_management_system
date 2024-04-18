@@ -1,38 +1,28 @@
-<p align="center"><img src="https://i.imgur.com/a9QWW0v.png"></p>
+# How to Setup
 
-## Usage
+## Environment Variables
 
-### Create an App
+Create a `.env` file for environment variables
 
-```
-# with npx
-$ npx create-nextron-app my-app --example with-tailwindcss
-
-# with yarn
-$ yarn create nextron-app my-app --example with-tailwindcss
-
-# with pnpx
-$ pnpx create-nextron-app my-app --example with-tailwindcss
+```json
+DATABASE_URL="POSTGRES_DATABASE_URL"
 ```
 
-### Install Dependencies
+## Install Dependencies
 
-```
-$ cd my-app
-
-# using yarn or npm
-$ yarn (or `npm install`)
-
-# using pnpm
-$ pnpm install --shamefully-hoist
+```bash
+npm install  # If using yarn, `yarn install`
+npx prisma generate
 ```
 
-### Use it
+## How to Run
 
+```bash
+npm run dev  # If using yarn, `yarn dev`
 ```
-# development mode
-$ yarn dev (or `npm run dev` or `pnpm run dev`)
 
-# production build
-$ yarn build (or `npm run build` or `pnpm run build`)
+## How to Build
+
+```bash
+npm run build  # If using yarn, `yarn build`
 ```
