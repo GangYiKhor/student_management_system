@@ -66,7 +66,7 @@ export function PackagesEditModal({ closeModal, handleUpdate, data }: PropType) 
 		AxiosError<ErrorResponse>
 	>({
 		queryKey: ['forms'],
-		queryFn: () => getForms({ orderBy: 'form_name asc' }),
+		queryFn: () => getForms({ is_active: true, orderBy: 'form_name asc' }),
 		enabled: true,
 	});
 
@@ -81,7 +81,7 @@ export function PackagesEditModal({ closeModal, handleUpdate, data }: PropType) 
 
 	const discountOnBlurFormat = useCallback(() => {
 		const value = discountPerSubjectRef.current.value.replace('RM', '').trim();
-		const parsed = parseFloatOrUndefined(value, 2) as number;
+		const parsed = parseFloatOrUndefined(value, 2);
 		if (parsed) {
 			discountPerSubjectRef.current.value = 'RM ' + parsed.toFixed(2);
 		}
@@ -217,6 +217,7 @@ export function PackagesEditModal({ closeModal, handleUpdate, data }: PropType) 
 					<div className={clsx('flex', 'flex-col')}>
 						<label htmlFor="endDate" className={LabelTopClass}>
 							End Date:
+							<RequiredIcon />
 						</label>
 						<input
 							type="date"
@@ -246,6 +247,7 @@ export function PackagesEditModal({ closeModal, handleUpdate, data }: PropType) 
 					<div className={clsx('flex', 'flex-col')}>
 						<label htmlFor="subjectCountTo" className={LabelTopClass}>
 							Subject Count To:
+							<RequiredIcon />
 						</label>
 						<input
 							type="number"

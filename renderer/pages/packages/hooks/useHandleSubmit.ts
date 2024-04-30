@@ -52,15 +52,14 @@ export function useHandleSubmit({
 
 		let startDateValue: number = undefined;
 		if (isStartDateValid) {
-			startDateValue = (parseDateOrUndefined(startDateRef.current.value) as Date).getTime();
+			startDateValue = parseDateOrUndefined(startDateRef.current.value).getTime();
 		}
 
 		valid =
 			fieldCheckerRequiredValue(
 				endDateRef,
 				setEndDateValid,
-				value =>
-					startDateValue ? (parseDateOrUndefined(value) as Date).getTime() >= startDateValue : true,
+				value => (startDateValue ? parseDateOrUndefined(value).getTime() >= startDateValue : true),
 				{
 					itemName: 'end date',
 					setNotification,
@@ -73,20 +72,20 @@ export function useHandleSubmit({
 		const isSubjectFromValid = fieldCheckerRequiredValue(
 			subjectCountFromRef,
 			setSubjectCountFromValid,
-			value => (parseIntOrUndefined(value) as number) >= 0,
+			value => parseIntOrUndefined(value) >= 0,
 			{ itemName: 'subject count', setNotification },
 		);
 		valid = isSubjectFromValid && valid;
 		let subjectCountFromValue = 0;
 		if (isSubjectFromValid) {
-			subjectCountFromValue = parseIntOrUndefined(subjectCountFromRef.current.value) as number;
+			subjectCountFromValue = parseIntOrUndefined(subjectCountFromRef.current.value);
 		}
 
 		valid =
 			fieldCheckerRequiredValue(
 				subjectCountToRef,
 				setSubjectCountToValid,
-				value => (parseIntOrUndefined(value) as number) > subjectCountFromValue,
+				value => parseIntOrUndefined(value) > subjectCountFromValue,
 				{ itemName: 'subject count', setNotification },
 			) && valid;
 
@@ -94,7 +93,7 @@ export function useHandleSubmit({
 			fieldCheckerRequiredValue(
 				discountPerSubjectRef,
 				setDiscountPerSubjectValid,
-				value => (parseFloatOrUndefined(value.replace('RM', '').trim()) as number) >= 0,
+				value => parseFloatOrUndefined(value.replace('RM', '').trim()) >= 0,
 				{ itemName: 'discount', setNotification },
 			) && valid;
 

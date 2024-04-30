@@ -42,7 +42,7 @@ const buttons = [
 	{ image: '/images/student.png', href: '#', text: 'Students' },
 	{ image: '/images/receipt.png', href: '#', text: 'Receipts' },
 	{ image: '/images/collection.png', href: '#', text: 'Collections' },
-	{ image: '/images/class.png', href: '#', text: 'Classes' },
+	{ image: '/images/class.png', href: '/class', text: 'Classes' },
 	{ image: '/images/package.png', href: '/packages', text: 'Packages' },
 	{ image: '/images/teacher.png', href: '/teachers', text: 'Teachers' },
 	{ image: '/images/voucher.png', href: '#', text: 'Vouchers' },

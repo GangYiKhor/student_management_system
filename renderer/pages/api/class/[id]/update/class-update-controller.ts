@@ -1,30 +1,30 @@
 import { NextApiResponse } from 'next';
 import { PackagesUpdateDto } from '../../../../../dtos/packages/update';
 import { ExtendedNextApiRequest } from '../../../../../utils/extended-next-api-request';
-import { packagesUpdateServices } from './packages-update-services';
+import { classUpdateServices } from './class-update-services';
 import { ExistedError } from '../../../../../utils/ExistedError';
 
-export async function packagesUpdateController(
+export async function classUpdateController(
 	req: ExtendedNextApiRequest<PackagesUpdateDto, { id: string }>,
 	res: NextApiResponse,
 ) {
 	if (process.env.NODE_ENV === 'development') {
-		console.log('Update Packages Handler', req.query);
+		console.log('Update Class Handler', req.query);
 	}
 
 	const id = parseInt(req.query.id);
 
 	try {
-		const result = await packagesUpdateServices(id, req.body);
+		const result = await classUpdateServices(id, req.body);
 
 		if (process.env.NODE_ENV === 'development') {
-			console.log('Update Packages Handler: Responding', result);
+			console.log('Update Class Handler: Responding', result);
 		}
 
 		res.status(200).json(result);
 	} catch (err) {
 		if (process.env.NODE_ENV === 'development') {
-			console.log('Update Packages Handler: ERROR', err);
+			console.log('Update Class Handler: ERROR', err);
 		}
 
 		if (err instanceof ExistedError) {
@@ -32,7 +32,7 @@ export async function packagesUpdateController(
 				error: {
 					title: 'Duplicate Package!',
 					message: err.message,
-					source: 'Create Packages',
+					source: 'Update Class',
 				},
 			});
 		}
@@ -41,7 +41,7 @@ export async function packagesUpdateController(
 			error: {
 				title: 'Server Internal Connection Error!',
 				message: 'Unable to connect to database!',
-				source: 'Update Packages',
+				source: 'Update Class',
 			},
 		});
 	}

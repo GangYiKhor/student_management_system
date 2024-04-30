@@ -137,15 +137,16 @@ model user {
 model class_registration {
   id            Int             @id @default(autoincrement())
   teacher_id    Int
+  class_name    String          @db.VarChar(50)
   start_date    DateTime        @default(dbgenerated("CURRENT_DATE")) @db.Date
   end_date      DateTime?       @db.Date
   class_year    Int             @db.SmallInt
   form_id       Int             @db.SmallInt
-  day           Int?
-  time          DateTime?       @db.Time(6)
+  day           Int
+  start_time    DateTime        @db.Time(6)
+  end_time      DateTime        @db.Time(6)
   fees          Float           @db.Real
   is_package    Boolean
-  class_name    String          @db.VarChar(50)
   form          form            @relation(fields: [form_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   teacher       teacher         @relation(fields: [teacher_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   receipt_class receipt_class[]
@@ -154,14 +155,14 @@ model class_registration {
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 model package_discount {
-  id                   Int       @id @default(autoincrement())
-  start_date           DateTime  @default(dbgenerated("CURRENT_DATE")) @db.Date
-  end_date             DateTime? @db.Date
-  form_id              Int       @db.SmallInt
-  subject_count_from   Int       @db.SmallInt
-  subject_count_to     Int?      @db.SmallInt
-  discount_per_subject Float     @db.Real
-  form                 form      @relation(fields: [form_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  id                   Int      @id @default(autoincrement())
+  start_date           DateTime @default(dbgenerated("CURRENT_DATE")) @db.Date
+  end_date             DateTime @db.Date
+  form_id              Int      @db.SmallInt
+  subject_count_from   Int      @db.SmallInt
+  subject_count_to     Int      @db.SmallInt
+  discount_per_subject Float    @db.Real
+  form                 form     @relation(fields: [form_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.

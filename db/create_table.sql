@@ -35,11 +35,12 @@ CREATE TABLE "class_registration" (
 	"end_date" DATE CHECK("end_date" > "start_date"),
 	"class_year" SMALLINT NOT NULL CHECK("class_year" > 2000),
 	"form_id" SMALLINT NOT NULL,
-	"day" INT CHECK(
+	"day" INT NOT NULL CHECK(
 		"day" BETWEEN 1
 		AND 7
 	),
-	"time" TIME,
+	"start_time" TIME NOT NULL,
+	"end_time" TIME NOT NULL,
 	"fees" REAL NOT NULL,
 	"is_package" BOOLEAN NOT NULL,
 	FOREIGN KEY ("teacher_id") REFERENCES "teacher"("id"),

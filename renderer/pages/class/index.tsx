@@ -4,51 +4,59 @@ import { useGet } from '../../hooks/use-get';
 import { useQuery } from '@tanstack/react-query';
 import { Layout } from '../../layouts/basic_layout';
 import { Loader } from '../../components/loader';
-import { PackagesTable } from './components/table';
+import { ClassTable } from './components/table';
 import clsx from 'clsx';
 import { AxiosError } from 'axios';
-import { PackagesSearchAdd } from './components/search-add';
+import { ClassSearchAdd } from './components/search-add';
 import { LastUpdatedAt } from '../../components/last-updated';
 import { ErrorResponse } from '../../responses/error';
 import { useNotificationContext } from '../../components/providers/notification-providers';
-import { PackagesGetDto } from '../../dtos/packages/get';
-import { PackagesGetResponse } from '../../responses/packages/get';
+import { ClassGetDto } from '../../dtos/class/get';
+import { ClassGetResponse } from '../../responses/class/get';
 
 const layoutClass = clsx('flex', 'flex-col', 'gap-4');
 
-function Packages() {
+function ClassRegistration() {
 	const { setNotification } = useNotificationContext();
 	const [search, setSearch] = useState<string>('');
 	const [formId, setFormId] = useState<number>(undefined);
-	const [isActive, setIsActive] = useState<boolean>(undefined);
-	const [orderBy, setOrderBy] = useState<string>('form_name asc');
+	const [teacherId, setTeacherId] = useState<number>(undefined);
+	const [classYear, setClassYear] = useState<number>(undefined);
+	const [day, setDay] = useState<number>(undefined);
+	const [isActive, setIsActive] = useState<boolean>(true);
+	const [orderBy, setOrderBy] = useState<string>('teacher_name asc');
 
-	const parseData = (data: PackagesGetResponse[]) => {
+	const parseData = (data: ClassGetResponse[]) => {
 		for (const row of data) {
 			row.start_date = new Date(row.start_date);
-			row.end_date = row.end_date && new Date(row.end_date);
+			row.end_date = new Date(row.end_date);
+			row.start_time = new Date(row.start_time);
+			row.end_time = new Date(row.end_time);
 		}
 
 		return data;
 	};
-	const getPackages = useGet<PackagesGetDto, PackagesGetResponse[]>('/api/packages', parseData);
+	const getClass = useGet<ClassGetDto, ClassGetResponse[]>('/api/class', parseData);
 	const { data, isLoading, error, isError, dataUpdatedAt, refetch } = useQuery<
-		PackagesGetResponse[],
+		ClassGetResponse[],
 		AxiosError<ErrorResponse>
 	>({
-		queryKey: ['packages'],
+		queryKey: ['class'],
 		queryFn: () =>
-			getPackages({
+			getClass({
 				form_id: formId,
+				teacher_id: teacherId,
+				class_year: classYear,
+				day,
 				is_active: isActive,
 				orderBy,
-			} as PackagesGetDto),
+			} as ClassGetDto),
 		enabled: true,
 	});
 
 	useEffect(() => {
 		void refetch();
-	}, [formId, isActive, orderBy]);
+	}, [formId, teacherId, day, orderBy]);
 
 	useEffect(() => {
 		if (isError) {
@@ -74,20 +82,23 @@ function Packages() {
 	return (
 		<React.Fragment>
 			<Head>
-				<title>Packages</title>
+				<title>Class</title>
 			</Head>
-			<Layout headerTitle={'Packages'}>
+			<Layout headerTitle={'Class'}>
 				{isLoading ? (
 					<Loader />
 				) : (
 					<div className={layoutClass}>
-						<PackagesSearchAdd
+						<ClassSearchAdd
 							setSearch={setSearch}
 							setFormId={setFormId}
+							setTeacherId={setTeacherId}
+							setClassYear={setClassYear}
+							setDay={setDay}
 							setIsActive={setIsActive}
 							refetch={refetch}
 						/>
-						<PackagesTable data={data} search={search} refetch={refetch} setOrderBy={setOrderBy} />
+						<ClassTable data={data} search={search} refetch={refetch} setOrderBy={setOrderBy} />
 						<LastUpdatedAt
 							lastUpdatedAt={dataUpdatedAt ?? new Date(dataUpdatedAt)}
 							refetch={refetch}
@@ -99,4 +110,4 @@ function Packages() {
 	);
 }
 
-export default Packages;
+export default ClassRegistration;

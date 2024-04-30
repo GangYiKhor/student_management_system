@@ -20,6 +20,7 @@ export async function packagesGetController(
 		subject_count_from: parseInt(req.query.subject_count_from) || undefined,
 		subject_count_to: parseInt(req.query.subject_count_to) || undefined,
 		discount_per_subject: parseFloat(req.query.discount_per_subject) || undefined,
+		is_active: req.query.is_active ? req.query.is_active === 'true' : undefined,
 		orderBy: req.query.orderBy,
 	};
 
