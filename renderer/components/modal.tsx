@@ -1,7 +1,7 @@
 import clsx from 'clsx';
 import React, { ReactNode } from 'react';
-import { ThemeToggle } from './theme-toggle';
 import { WhiteBlackButtonClass } from '../utils/class/button';
+import { ThemeToggle } from './theme-toggle';
 
 const backgroundClass = clsx(
 	'flex',
@@ -55,7 +55,7 @@ const closeButtonClass = clsx(
 	'transition-colors',
 );
 
-const contentClass = clsx('p-6');
+const contentClass = clsx('p-6', 'overflow-y-auto', 'max-h-[80vh]', 'min-w-[50vw]');
 
 const footerContainerClass = clsx(
 	'flex',
@@ -73,6 +73,7 @@ export type ModalButtons = {
 	text: string;
 	class: string;
 	action: CallableFunction;
+	disabled?: boolean;
 }[];
 
 const CloseButton = {
@@ -88,7 +89,13 @@ type PropType = {
 	children: ReactNode;
 };
 
-export default function Modal({ title, closeModal, closeOnBlur, buttons, children }: PropType) {
+export default function Modal({
+	title,
+	closeModal,
+	closeOnBlur,
+	buttons,
+	children,
+}: Readonly<PropType>) {
 	if (!buttons?.length) {
 		buttons = [
 			{
@@ -116,21 +123,19 @@ export default function Modal({ title, closeModal, closeOnBlur, buttons, childre
 					</div>
 					<div className={contentClass}>{children}</div>
 					<div className={footerContainerClass}>
-						{buttons
-							? buttons.map(value => (
-									<button
-										key={value.text}
-										className={value.class}
-										onClick={async () =>
-											value.action.constructor.name === 'AsyncFunction'
-												? await value.action()
-												: value.action()
-										}
-									>
-										{value.text}
-									</button>
-							  ))
-							: null}
+						{buttons?.map(value => (
+							<button
+								key={value.text}
+								className={value.class}
+								onClick={async () =>
+									value.action.constructor.name === 'AsyncFunction'
+										? await value.action()
+										: value.action()
+								}
+							>
+								{value.text}
+							</button>
+						)) ?? null}
 					</div>
 				</div>
 			</div>

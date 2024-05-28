@@ -1,10 +1,10 @@
 import clsx from 'clsx';
+import { Menu } from 'lucide-react';
 import Image from 'next/future/image';
 import Link from 'next/link';
-import React, { useState } from 'react';
-import { EmptyLightButtonClass } from '../utils/class/button';
-import { Menu } from 'lucide-react';
+import { useState } from 'react';
 import { useTooltip } from '../hooks/use-tooltip';
+import { EmptyLightButtonClass } from '../utils/class/button';
 
 const navigationClass = clsx(
 	'bg-[rgb(203,227,245)]',
@@ -39,18 +39,18 @@ const textClass = clsx('absolute', 'left-[55px]', 'top-[13px]');
 
 const buttons = [
 	{ image: '/images/home.png', href: '/coming-soon', text: 'Home' },
-	{ image: '/images/student.png', href: '#', text: 'Students' },
-	{ image: '/images/receipt.png', href: '#', text: 'Receipts' },
-	{ image: '/images/collection.png', href: '#', text: 'Collections' },
-	{ image: '/images/class.png', href: '/class', text: 'Classes' },
+	{ image: '/images/student.png', href: '/students', text: 'Students' },
+	{ image: '/images/receipt.png', href: '/coming-soon', text: 'Receipts' },
+	{ image: '/images/collection.png', href: '/coming-soon', text: 'Collections' },
+	{ image: '/images/class.png', href: '/classes', text: 'Classes' },
 	{ image: '/images/package.png', href: '/packages', text: 'Packages' },
 	{ image: '/images/teacher.png', href: '/teachers', text: 'Teachers' },
-	{ image: '/images/voucher.png', href: '#', text: 'Vouchers' },
-	{ image: '/images/holiday.png', href: '#', text: 'Holidays' },
-	{ image: '/images/tax.png', href: '#', text: 'Tax' },
+	{ image: '/images/voucher.png', href: '/coming-soon', text: 'Vouchers' },
+	{ image: '/images/holiday.png', href: '/holidays', text: 'Holidays' },
+	{ image: '/images/tax.png', href: '/taxes', text: 'Tax' },
 	{ image: '/images/student_year.png', href: '/student-forms', text: 'Form' },
-	{ image: '/images/setting.png', href: '#', text: 'Settings' },
-	{ image: '/images/logout.png', href: '#', text: 'Logout' },
+	{ image: '/images/setting.png', href: '/coming-soon', text: 'Settings' },
+	{ image: '/images/logout.png', href: '/coming-soon', text: 'Logout' },
 ];
 
 export function NavigationBar() {

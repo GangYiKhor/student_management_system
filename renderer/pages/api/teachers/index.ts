@@ -1,29 +1,29 @@
 import { NextApiResponse } from 'next';
-import { TeachersCreateDto } from '../../../dtos/teachers/create';
+import { INVALID_REQUEST } from '../../../utils/constants/ErrorResponses';
+import { devLog } from '../../../utils/devLog';
 import { ExtendedNextApiRequest } from '../../../utils/extended-next-api-request';
-import { getTeachersHandler } from './get/get-controller';
-import { createTeachersHandler } from './create/create-controller';
+import { TeacherCreateDto } from '../../../utils/types/dtos/teachers/create';
+import { TeachersGetQueryDto } from '../../../utils/types/dtos/teachers/get';
+import { createTeachersController } from './create/teachers-create-controller';
+import { getTeachersController } from './get/teachers-get-controller';
 
 async function teachersHandler(
-	req: ExtendedNextApiRequest<TeachersCreateDto>,
+	req: ExtendedNextApiRequest<TeacherCreateDto, TeachersGetQueryDto>,
 	res: NextApiResponse,
 ) {
-	if (process.env.NODE_ENV === 'development') {
-		console.log('Teachers Handler', req.query, req.body);
-	}
+	devLog('Teachers Handler', req.method);
 
-	if (req.method === 'GET') {
-		await getTeachersHandler(req, res);
-	} else if (req.method === 'POST') {
-		await createTeachersHandler(req, res);
-	} else {
-		res.status(400).json({
-			error: {
-				title: 'Invalid Request!',
-				message: `Get or Post Request Expected! Received: ${req.method}`,
-				source: 'Teachers Handler',
-			},
-		});
+	switch (req.method) {
+		case 'GET':
+			await getTeachersController(req, res);
+			break;
+
+		case 'POST':
+			await createTeachersController(req, res);
+			break;
+
+		default:
+			res.status(400).json(INVALID_REQUEST);
 	}
 }
 

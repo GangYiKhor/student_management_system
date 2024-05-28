@@ -1,48 +1,28 @@
 import { NextApiResponse } from 'next';
-import { PackagesUpdateDto } from '../../../../../dtos/packages/update';
+import { DATABASE_ERROR } from '../../../../../utils/constants/ErrorResponses';
+import { devLog } from '../../../../../utils/devLog';
+import { ExistedError } from '../../../../../utils/errors/ExistedError';
 import { ExtendedNextApiRequest } from '../../../../../utils/extended-next-api-request';
+import { PackageUpdateDto } from '../../../../../utils/types/dtos/packages/update';
 import { packagesUpdateServices } from './packages-update-services';
-import { ExistedError } from '../../../../../utils/ExistedError';
 
 export async function packagesUpdateController(
-	req: ExtendedNextApiRequest<PackagesUpdateDto, { id: string }>,
+	req: ExtendedNextApiRequest<PackageUpdateDto, { id: string }>,
 	res: NextApiResponse,
 ) {
-	if (process.env.NODE_ENV === 'development') {
-		console.log('Update Packages Handler', req.query);
-	}
-
-	const id = parseInt(req.query.id);
+	devLog('Update Packages Handler', req.query);
 
 	try {
-		const result = await packagesUpdateServices(id, req.body);
+		const result = await packagesUpdateServices(parseInt(req.query.id), req.body);
 
-		if (process.env.NODE_ENV === 'development') {
-			console.log('Update Packages Handler: Responding', result);
-		}
-
+		devLog('Update Packages Handler: Responding', result);
 		res.status(200).json(result);
 	} catch (err) {
-		if (process.env.NODE_ENV === 'development') {
-			console.log('Update Packages Handler: ERROR', err);
-		}
-
+		devLog('Update Packages Handler: ERROR', err);
 		if (err instanceof ExistedError) {
-			res.status(err.code).json({
-				error: {
-					title: 'Duplicate Package!',
-					message: err.message,
-					source: 'Create Packages',
-				},
-			});
+			res.status(err.code).json(err.errorResponse);
+		} else {
+			res.status(503).json(DATABASE_ERROR);
 		}
-
-		res.status(503).json({
-			error: {
-				title: 'Server Internal Connection Error!',
-				message: 'Unable to connect to database!',
-				source: 'Update Packages',
-			},
-		});
 	}
 }

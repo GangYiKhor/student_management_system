@@ -12,14 +12,14 @@ CREATE TABLE "teacher" (
 	"email" VARCHAR(255),
 	"address" VARCHAR(255),
 	"start_date" DATE NOT NULL DEFAULT CURRENT_DATE,
-	"end_date" DATE CHECK("end_date" > "start_date"),
+	"end_date" DATE CHECK("end_date" >= "start_date"),
 	"is_active" BOOLEAN NOT NULL DEFAULT TRUE
 );
 
 CREATE TABLE "package_discount" (
 	"id" SERIAL PRIMARY KEY,
 	"start_date" DATE NOT NULL DEFAULT CURRENT_DATE,
-	"end_date" DATE NOT NULL CHECK("end_date" >= "start_date"),
+	"end_date" DATE CHECK("end_date" >= "start_date"),
 	"form_id" SMALLINT NOT NULL,
 	"subject_count_from" SMALLINT NOT NULL,
 	"subject_count_to" SMALLINT NOT NULL,
@@ -32,7 +32,7 @@ CREATE TABLE "class_registration" (
 	"teacher_id" INT NOT NULL,
 	"class_name" VARCHAR(50) NOT NULL,
 	"start_date" DATE NOT NULL DEFAULT CURRENT_DATE,
-	"end_date" DATE CHECK("end_date" > "start_date"),
+	"end_date" DATE CHECK("end_date" >= "start_date"),
 	"class_year" SMALLINT NOT NULL CHECK("class_year" > 2000),
 	"form_id" SMALLINT NOT NULL,
 	"day" INT NOT NULL CHECK(
@@ -67,20 +67,8 @@ CREATE TABLE "student" (
 CREATE TABLE "student_class" (
 	"student_id" INT,
 	"class_id" INT,
-	"jan" BOOLEAN,
-	"feb" BOOLEAN,
-	"mar" BOOLEAN,
-	"apr" BOOLEAN,
-	"may" BOOLEAN,
-	"jun" BOOLEAN,
-	"jul" BOOLEAN,
-	"aug" BOOLEAN,
-	"sep" BOOLEAN,
-	"oct" BOOLEAN,
-	"nov" BOOLEAN,
-	"dec" BOOLEAN,
-	"is_active" BOOLEAN NOT NULL DEFAULT TRUE,
-	PRIMARY KEY ("student_id", "class_id"),
+	"sequence" INT,
+	PRIMARY KEY ("student_id", "sequence"),
 	FOREIGN KEY ("student_id") REFERENCES "student"("id"),
 	FOREIGN KEY ("class_id") REFERENCES "class_registration"("id")
 );
@@ -89,7 +77,7 @@ CREATE TABLE "tax" (
 	"id" SMALLSERIAL PRIMARY KEY,
 	"percentage" REAL NOT NULL,
 	"start_date" DATE NOT NULL DEFAULT CURRENT_DATE,
-	"end_date" DATE CHECK("end_date" > "start_date"),
+	"end_date" DATE CHECK("end_date" >= "start_date"),
 	"inclusive" BOOLEAN NOT NULL
 );
 

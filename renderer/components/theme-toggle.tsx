@@ -1,7 +1,6 @@
-import * as React from 'react';
-import { useTheme } from 'next-themes';
-import { Moon, SunMedium } from 'lucide-react';
 import clsx from 'clsx';
+import { Moon, SunMedium } from 'lucide-react';
+import { useTheme } from 'next-themes';
 
 const moonClass = clsx(
 	'absolute',

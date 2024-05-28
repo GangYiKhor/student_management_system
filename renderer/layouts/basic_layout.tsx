@@ -1,7 +1,6 @@
-import React from 'react';
-import { NavigationBar } from '../components/navigation-bar';
 import clsx from 'clsx';
 import { Header } from '../components/header';
+import { NavigationBar } from '../components/navigation-bar';
 
 const layoutClass = clsx('flex', 'bg-[rgb(250,250,250)]', 'dark:bg-[rgb(42,46,50)]');
 
@@ -21,7 +20,7 @@ type PropType = {
 	];
 };
 
-export function Layout({ children, headerTitle, headerButtons }: PropType) {
+export function Layout({ children, headerTitle, headerButtons }: Readonly<PropType>) {
 	return (
 		<div className={layoutClass}>
 			<NavigationBar />

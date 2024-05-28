@@ -1,4 +1,4 @@
-import { createContext, useContext, useMemo, useReducer } from 'react';
+import React, { createContext, useContext, useMemo, useReducer } from 'react';
 
 const Tooltip = createContext<{
 	tooltip: string;
@@ -9,8 +9,12 @@ function reducer(state: string, action?: string) {
 	return action ?? state;
 }
 
-export function TooltipProvider({ children }) {
-	const [tooltip, setTooltip] = useReducer(reducer, '');
+type PropType = {
+	children: React.ReactNode;
+};
+
+export function TooltipProvider({ children }: Readonly<PropType>) {
+	const [tooltip, setTooltip] = useReducer<React.Reducer<string, string>>(reducer, '');
 	const tooltipProviderValue = useMemo(() => ({ tooltip, setTooltip }), [tooltip, setTooltip]);
 
 	return <Tooltip.Provider value={tooltipProviderValue}>{children}</Tooltip.Provider>;

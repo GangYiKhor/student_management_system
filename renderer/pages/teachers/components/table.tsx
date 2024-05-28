@@ -1,87 +1,68 @@
-import clsx from 'clsx';
-import {
-	AlternateRowClass,
-	AlternateRowClassWithHover,
-	CellClass,
-	NormalRowHoverClass,
-	THeadCellClass,
-	THeadClass,
-	THeadStickyClass,
-	TableClass,
-} from '../../../utils/class/table';
-import React, { useCallback, useEffect, useState } from 'react';
-import axios, { AxiosError, AxiosResponse } from 'axios';
-import { useNotificationContext } from '../../../components/providers/notification-providers';
-import { Sorter } from '../../../components/sorter';
-import { TeachersGetResponse } from '../../../responses/teachers/get';
-import { TeachersUpdateDto } from '../../../dtos/teachers/update';
-import { TeachersEditModal } from './edit-modal';
+import { QueryObserverResult } from '@tanstack/react-query';
+import { AxiosError } from 'axios';
+import React, { useEffect, useState } from 'react';
+import { FormProvider } from '../../../components/providers/form-providers';
+import { TableColumnType, TableTemplate } from '../../../components/tables/table-template';
+import { usePost } from '../../../hooks/use-post';
+import { GreenBoldText, RedBoldText } from '../../../utils/class/text';
+import { getCurrentDateOnly } from '../../../utils/parsers/dateParsers';
+import { TeacherUpdateDto } from '../../../utils/types/dtos/teachers/update';
+import { ErrorResponse } from '../../../utils/types/responses/error';
+import { TeachersGetResponses } from '../../../utils/types/responses/teachers/get';
+import { BackendPath, defaultSort, formDefaultValueFilled } from '../constants';
+import { EditData } from '../types';
+import { TeachersModal } from './teachers-modal';
 
-export type EditData = {
-	id: number;
-	teacher_name?: string;
-	ic?: string;
-	phone_number?: string;
-	email?: string;
-	address?: string;
-	start_date?: Date;
-	end_date?: Date;
-	is_active?: boolean;
-};
+const columns: TableColumnType<EditData>[] = [
+	{ title: 'ID', columnName: 'id', addOnClass: 'w-[5rem]' },
+	{ title: 'Name', columnName: 'teacher_name' },
+	{ title: 'Phone Number', columnName: 'phone_number' },
+	{
+		title: 'IC',
+		columnName: 'ic',
+		valueParser: value =>
+			value.ic?.length === 14 ? 'XXXXXX-XX-' + value.ic?.slice(10) : value?.ic,
+	},
+	{
+		title: 'Status',
+		columnName: 'is_active',
+		valueParser: value => (
+			<span className={value.is_active ? GreenBoldText : RedBoldText}>
+				{value.is_active ? 'Active' : 'Inactive'}
+			</span>
+		),
+	},
+];
 
 type PropType = {
-	data: TeachersGetResponse;
+	data: TeachersGetResponses;
 	search?: string;
-	status?: boolean;
-	refetch: CallableFunction;
-	setOrderBy: CallableFunction;
+	refetch: () => Promise<QueryObserverResult<TeachersGetResponses, AxiosError<ErrorResponse, any>>>;
+	setOrderBy: (value: string) => void;
 };
 
-export function TeachersTable({ data, search, status, refetch, setOrderBy }: PropType) {
-	const { setNotification } = useNotificationContext();
-	const [tableData, setTableData] = useState<TeachersGetResponse>([]);
-	const [sortBy, setSortBy] = useState<{
-		field: 'id' | 'teacher_name' | 'phone_number' | 'ic' | 'is_active';
-		asc: boolean;
-	}>({
-		field: 'teacher_name',
-		asc: true,
-	});
+export function TeachersTable({ data, search, refetch, setOrderBy }: Readonly<PropType>) {
+	const [tableData, setTableData] = useState<TeachersGetResponses>([]);
 	const [selected, setSelected] = useState<EditData>(undefined);
-	const [edit, setEdit] = useState<boolean>(false);
+	const postForm = usePost<TeacherUpdateDto, void>(BackendPath);
 
-	const handleEdit = useCallback(
-		(data: EditData) => {
-			setSelected(data);
-			setEdit(true);
-		},
-		[setSelected, setEdit],
-	);
+	const handleEdit = (data: EditData) => {
+		setSelected(data);
+	};
 
-	const handleUpdate = useCallback(
-		async (id: number, data: TeachersUpdateDto) => {
-			try {
-				await axios.post<any, AxiosResponse<any, any>, TeachersUpdateDto>(
-					`/api/teachers/${id}/`,
-					data,
-				);
+	const handleUpdate = async (data: TeacherUpdateDto) => {
+		await postForm(data, selected.id.toString());
+		await refetch();
+	};
 
-				await refetch();
-			} catch (error: any) {
-				if (error instanceof AxiosError) {
-					setNotification({
-						title: error.response.data.error.title,
-						message: error.response.data.error.message,
-						source: error.response.data.error.source,
-						type: 'ERROR',
-					});
-				} else {
-					setNotification({ title: 'Server Error', message: error.message });
-				}
-			}
-		},
-		[refetch],
-	);
+	const handleActivate = async () => {
+		await handleUpdate({ is_active: !selected.is_active });
+		setSelected((prev: EditData) => ({
+			...prev,
+			end_date: !selected.is_active === true ? null : getCurrentDateOnly(),
+			is_active: !selected.is_active,
+		}));
+	};
 
 	useEffect(() => {
 		let filteredData = data;
@@ -99,118 +80,27 @@ export function TeachersTable({ data, search, status, refetch, setOrderBy }: Pro
 		}
 
 		setTableData(filteredData);
-	}, [data, search, status]);
-
-	useEffect(() => {
-		setOrderBy(`${sortBy.field} ${sortBy.asc ? 'asc' : 'desc'}`);
-	}, [sortBy]);
+	}, [data, search]);
 
 	return (
 		<React.Fragment>
-			<table className={TableClass}>
-				<thead className={clsx(THeadClass, THeadStickyClass)}>
-					<tr>
-						<th className={clsx(THeadCellClass, 'w-[5rem]')}>
-							<Sorter
-								title="ID"
-								asc={sortBy.field === 'id' ? sortBy.asc : undefined}
-								sortHandler={(asc: boolean) => {
-									setSortBy({ field: 'id', asc });
-								}}
-							/>
-						</th>
-						<th className={THeadCellClass}>
-							<Sorter
-								title="Name"
-								asc={sortBy.field === 'teacher_name' ? sortBy.asc : undefined}
-								sortHandler={(asc: boolean) => {
-									setSortBy({ field: 'teacher_name', asc });
-								}}
-							/>
-						</th>
-						<th className={THeadCellClass}>
-							<Sorter
-								title="Phone Number"
-								asc={sortBy.field === 'phone_number' ? sortBy.asc : undefined}
-								sortHandler={(asc: boolean) => {
-									setSortBy({ field: 'phone_number', asc });
-								}}
-							/>
-						</th>
-						<th className={THeadCellClass}>
-							<Sorter
-								title="IC"
-								asc={sortBy.field === 'ic' ? sortBy.asc : undefined}
-								sortHandler={(asc: boolean) => {
-									setSortBy({ field: 'ic', asc });
-								}}
-							/>
-						</th>
-						<th className={THeadCellClass}>
-							<Sorter
-								title="Status"
-								asc={sortBy.field === 'is_active' ? sortBy.asc : undefined}
-								sortHandler={(asc: boolean) => {
-									setSortBy({ field: 'is_active', asc });
-								}}
-							/>
-						</th>
-					</tr>
-				</thead>
-				<tbody>
-					{tableData?.length > 0 ? (
-						tableData.map((value, index) => {
-							const rowClass = clsx(
-								index % 2 === 0 ? AlternateRowClassWithHover : NormalRowHoverClass,
-								'hover:cursor-pointer',
-							);
+			<TableTemplate
+				columns={columns}
+				data={tableData}
+				setOrderBy={setOrderBy}
+				defaultSort={defaultSort}
+				handleEdit={handleEdit}
+			/>
 
-							return (
-								<tr
-									key={value.id}
-									className={clsx(rowClass)}
-									onClick={() => {
-										handleEdit(value);
-									}}
-								>
-									<td className={CellClass}>{value.id}</td>
-									<td className={CellClass}>{value.teacher_name}</td>
-									<td className={CellClass}>{value.phone_number}</td>
-									<td className={CellClass}>
-										{value.ic?.length === 14 ? 'XXXXXX-XX-' + value.ic.slice(10) : value.ic}
-									</td>
-									<td
-										className={clsx(
-											CellClass,
-											'font-bold',
-											value.is_active
-												? 'text-green-600 dark:text-green-400'
-												: 'text-red-600 dark:text-red-400',
-										)}
-									>
-										{value.is_active ? 'Active' : 'Inactive'}
-									</td>
-								</tr>
-							);
-						})
-					) : (
-						<tr className={AlternateRowClass}>
-							<td className={CellClass}>-</td>
-							<td className={CellClass}>-</td>
-							<td className={CellClass}>-</td>
-							<td className={CellClass}>-</td>
-							<td className={CellClass}>-</td>
-						</tr>
-					)}
-				</tbody>
-			</table>
-			{edit ? (
-				<TeachersEditModal
-					closeModal={() => setEdit(false)}
-					handleUpdate={handleUpdate}
-					data={selected}
-					setData={setSelected}
-				/>
+			{selected ? (
+				<FormProvider defaultValue={formDefaultValueFilled(selected)}>
+					<TeachersModal
+						closeModal={() => setSelected(undefined)}
+						handler={handleUpdate}
+						handleActivate={handleActivate}
+						data={selected}
+					/>
+				</FormProvider>
 			) : null}
 		</React.Fragment>
 	);

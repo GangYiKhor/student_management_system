@@ -1,136 +1,125 @@
+import { QueryObserverResult } from '@tanstack/react-query';
+import { AxiosError } from 'axios';
 import clsx from 'clsx';
-import { StudentFormsGetResponse } from '../../../responses/student-forms/get';
-import {
-	AlternateRowClass,
-	CellClass,
-	THeadCellClass,
-	THeadClass,
-	THeadStickyClass,
-	TableClass,
-} from '../../../utils/class/table';
+import React, { useEffect, useState } from 'react';
+import { FormProvider } from '../../../components/providers/form-providers';
+import { TableColumnType, TableTemplate } from '../../../components/tables/table-template';
+import { usePost } from '../../../hooks/use-post';
 import { GreenButtonClass, RedButtonClass } from '../../../utils/class/button';
-import { useEffect, useState } from 'react';
-import { Sorter } from '../../../components/sorter';
+import { GreenBoldText, RedBoldText } from '../../../utils/class/text';
+import { StudentFormUpdateDto } from '../../../utils/types/dtos/student-forms/update';
+import { ErrorResponse } from '../../../utils/types/responses/error';
+import { StudentFormsGetResponses } from '../../../utils/types/responses/student-forms/get';
+import { BackendPath, defaultSort, formDefaultValueFilled } from '../constants';
+import { EditData } from '../types';
+import { StudentFormsModal } from './student-forms-modal';
 
-type PropType = {
-	data: StudentFormsGetResponse;
-	search?: string;
-	status?: boolean;
-	handleAction: CallableFunction;
-	setOrderBy: CallableFunction;
+const columns = (handleAction: CallableFunction): TableColumnType<EditData>[] => {
+	return [
+		{ title: 'Form', columnName: 'form_name' },
+		{
+			title: 'Status',
+			columnName: 'is_active',
+			valueParser: value => (
+				<span className={value.is_active ? GreenBoldText : RedBoldText}>
+					{value.is_active ? 'Active' : 'Inactive'}
+				</span>
+			),
+		},
+		{
+			title: 'Action',
+			columnName: 'action',
+			addOnClass: 'w-[150px]',
+			valueParser: value => (
+				<button
+					onClick={() => handleAction(value.id, !value.is_active)}
+					className={clsx(value.is_active ? RedButtonClass : GreenButtonClass, 'w-[125px]')}
+				>
+					{value.is_active ? 'Deactivate' : 'Activate'}
+				</button>
+			),
+			notClickable: true,
+		},
+	];
 };
 
-export function StudentFormsTable({ data, search, status, handleAction, setOrderBy }: PropType) {
-	const [tableData, setTableData] = useState<StudentFormsGetResponse>([]);
-	const [sortBy, setSortBy] = useState<{
-		field: 'id' | 'form_name' | 'is_active';
-		asc: boolean;
-	}>({
-		field: 'form_name',
-		asc: true,
-	});
+type PropType = {
+	data: StudentFormsGetResponses;
+	search?: string;
+	status?: boolean;
+	refetch: () => Promise<
+		QueryObserverResult<StudentFormsGetResponses, AxiosError<ErrorResponse, any>>
+	>;
+	handler: (id: number, status: boolean) => Promise<void>;
+	setOrderBy: (value: string) => void;
+};
+
+export function StudentFormsTable({
+	data,
+	search,
+	status,
+	refetch,
+	handler,
+	setOrderBy,
+}: Readonly<PropType>) {
+	const [tableData, setTableData] = useState<StudentFormsGetResponses>([]);
+	const [selected, setSelected] = useState<EditData>(undefined);
+	const postForm = usePost<StudentFormUpdateDto, void>(BackendPath);
+
+	const handleEdit = (data: EditData) => {
+		setSelected(data);
+	};
+
+	const handleUpdate = async (data: StudentFormUpdateDto) => {
+		await postForm(data, selected.id.toString());
+		await refetch();
+	};
+
+	const handleActivate = async () => {
+		await handleUpdate({ is_active: !selected.is_active });
+		setSelected((prev: EditData) => ({
+			...prev,
+			is_active: !selected.is_active,
+		}));
+	};
 
 	useEffect(() => {
 		let filteredData = data;
-		if (search) {
+		if (search.trim()) {
 			search = search.trim().toLowerCase();
 			filteredData = filteredData.filter(
 				value =>
-					'#' + value.id.toString() === search || value.form_name.toLowerCase().includes(search),
+					'#' + value.id?.toString() === search || value.form_name?.toLowerCase().includes(search),
 			);
 		}
 
 		if (status !== undefined) {
-			if (status) {
-				filteredData = filteredData.filter(value => value.is_active);
-			} else {
-				filteredData = filteredData.filter(value => !value.is_active);
-			}
+			filteredData = filteredData.filter(value => value.is_active === status);
 		}
 
 		setTableData(filteredData);
 	}, [data, search, status]);
 
-	useEffect(() => {
-		setOrderBy(`${sortBy.field} ${sortBy.asc ? 'asc' : 'desc'}`);
-	}, [sortBy]);
-
 	return (
-		<table className={TableClass}>
-			<thead className={clsx(THeadClass, THeadStickyClass)}>
-				<tr>
-					<th className={clsx(THeadCellClass, 'w-[5rem]')}>
-						<Sorter
-							title="ID"
-							asc={sortBy.field === 'id' ? sortBy.asc : undefined}
-							sortHandler={(asc: boolean) => {
-								setSortBy({ field: 'id', asc });
-							}}
-						/>
-					</th>
-					<th className={THeadCellClass}>
-						<Sorter
-							title="Form"
-							asc={sortBy.field === 'form_name' ? sortBy.asc : undefined}
-							sortHandler={(asc: boolean) => {
-								setSortBy({ field: 'form_name', asc });
-							}}
-						/>
-					</th>
-					<th className={THeadCellClass}>
-						<Sorter
-							title="Status"
-							asc={sortBy.field === 'is_active' ? sortBy.asc : undefined}
-							sortHandler={(asc: boolean) => {
-								setSortBy({ field: 'is_active', asc });
-							}}
-						/>
-					</th>
-					<th className={THeadCellClass}>Action</th>
-				</tr>
-			</thead>
-			<tbody>
-				{tableData?.length > 0 ? (
-					tableData.map((value, index) => {
-						const rowClass = index % 2 === 0 ? AlternateRowClass : '';
+		<React.Fragment>
+			<TableTemplate
+				columns={columns(handler)}
+				data={tableData}
+				setOrderBy={setOrderBy}
+				defaultSort={defaultSort}
+				handleEdit={handleEdit}
+			/>
 
-						let buttonClass = value.is_active ? RedButtonClass : GreenButtonClass;
-
-						return (
-							<tr key={value.id} className={rowClass}>
-								<td className={CellClass}>{value.id}</td>
-								<td className={CellClass}>{value.form_name}</td>
-								<td
-									className={clsx(
-										CellClass,
-										'font-bold',
-										value.is_active
-											? 'text-green-600 dark:text-green-400'
-											: 'text-red-600 dark:text-red-400',
-									)}
-								>
-									{value.is_active ? 'Active' : 'Inactive'}
-								</td>
-								<td className={CellClass}>
-									<button
-										onClick={() => handleAction(value.id, !value.is_active)}
-										className={clsx(buttonClass, 'w-[125px]')}
-									>
-										{value.is_active ? 'Deactivate' : 'Activate'}
-									</button>
-								</td>
-							</tr>
-						);
-					})
-				) : (
-					<tr className={AlternateRowClass}>
-						<td className={CellClass}>-</td>
-						<td className={CellClass}>-</td>
-						<td className={CellClass}>-</td>
-						<td className={CellClass}>-</td>
-					</tr>
-				)}
-			</tbody>
-		</table>
+			{selected ? (
+				<FormProvider defaultValue={formDefaultValueFilled(selected)}>
+					<StudentFormsModal
+						closeModal={() => setSelected(undefined)}
+						handler={handleUpdate}
+						handleActivate={handleActivate}
+						data={selected}
+					/>
+				</FormProvider>
+			) : null}
+		</React.Fragment>
 	);
 }

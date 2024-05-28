@@ -1,58 +1,32 @@
 import { NextApiResponse } from 'next';
-import { getForms } from './services';
-import { StudentFormsGetResponse } from '../../../responses/student-forms/get';
-import { ErrorResponse } from '../../../responses/error';
-import { StudentFormsGetDto } from '../../../dtos/student-forms/get';
+import { INVALID_REQUEST } from '../../../utils/constants/ErrorResponses';
+import { devLog } from '../../../utils/devLog';
 import { ExtendedNextApiRequest } from '../../../utils/extended-next-api-request';
+import { StudentFormCreateDto } from '../../../utils/types/dtos/student-forms/create';
+import { StudentFormsQueryDto } from '../../../utils/types/dtos/student-forms/get';
+import { ErrorResponse } from '../../../utils/types/responses/error';
+import { StudentFormsGetResponses } from '../../../utils/types/responses/student-forms/get';
+import { formsCreateController } from './create/forms-create-controller';
+import { formsGetController } from './get/forms-get-controller';
 
-async function getFormsHandler(
-	req: ExtendedNextApiRequest,
-	res: NextApiResponse<StudentFormsGetResponse | ErrorResponse>,
+async function formsHandler(
+	req: ExtendedNextApiRequest<StudentFormCreateDto, StudentFormsQueryDto>,
+	res: NextApiResponse<StudentFormsGetResponses | ErrorResponse>,
 ) {
-	if (process.env.NODE_ENV === 'development') {
-		console.log('Get Form Handler', req.query);
-	}
+	devLog('Student Forms Handler', req.method);
 
-	if (req.method !== 'GET') {
-		res.status(400).json({
-			error: {
-				title: 'Invalid Request!',
-				message: `Get Request Expected! Received: ${req.method}`,
-				source: 'Get Student Forms',
-			},
-		});
-		return;
-	}
+	switch (req.method) {
+		case 'GET':
+			await formsGetController(req, res);
+			break;
 
-	const is_active = req.query.is_active ? req.query.is_active === 'true' : undefined;
-	const orderBy = req.query.orderBy as string;
+		case 'POST':
+			await formsCreateController(req, res);
+			break;
 
-	try {
-		const query: StudentFormsGetDto = {
-			is_active,
-			orderBy,
-		};
-
-		const result = await getForms(query);
-
-		if (process.env.NODE_ENV === 'development') {
-			console.log('Get Form Handler: Responding', result);
-		}
-
-		res.status(200).json(result);
-	} catch (err) {
-		if (process.env.NODE_ENV === 'development') {
-			console.log('Get Form Handler: ERROR', err);
-		}
-
-		res.status(503).json({
-			error: {
-				title: 'Server Internal Connection Error!',
-				message: 'Unable to connect to database!',
-				source: 'Get Student Forms',
-			},
-		});
+		default:
+			res.status(400).json(INVALID_REQUEST);
 	}
 }
 
-export default getFormsHandler;
+export default formsHandler;

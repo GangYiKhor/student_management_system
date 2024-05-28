@@ -1,86 +1,81 @@
-import React, { useEffect, useState } from 'react';
 import Head from 'next/head';
-import { useGet } from '../../hooks/use-get';
-import { useQuery } from '@tanstack/react-query';
-import { Layout } from '../../layouts/basic_layout';
-import { Loader } from '../../components/loader';
-import { TeachersTable } from './components/table';
-import clsx from 'clsx';
-import { AxiosError } from 'axios';
-import { TeachersSearchAdd } from './components/search-add';
+import React, { useState } from 'react';
 import { LastUpdatedAt } from '../../components/last-updated';
-import { ErrorResponse } from '../../responses/error';
+import { Loader } from '../../components/loader';
+import { FormProvider } from '../../components/providers/form-providers';
 import { useNotificationContext } from '../../components/providers/notification-providers';
-import { TeachersGetResponse } from '../../responses/teachers/get';
-import { TeachersGetDto } from '../../dtos/teachers/get';
-
-const layoutClass = clsx('flex', 'flex-col', 'gap-4');
+import { useCustomQuery } from '../../hooks/use-custom-query';
+import { useGet } from '../../hooks/use-get';
+import { usePost } from '../../hooks/use-post';
+import { Layout } from '../../layouts/basic_layout';
+import { ContentContainer } from '../../utils/class/containers';
+import { RecordCreatedMessage } from '../../utils/notifications/record-created';
+import { TeacherCreateDto } from '../../utils/types/dtos/teachers/create';
+import { TeachersGetDto } from '../../utils/types/dtos/teachers/get';
+import { TeachersGetResponses } from '../../utils/types/responses/teachers/get';
+import { TeachersSearchAdd } from './components/search-add';
+import { TeachersTable } from './components/table';
+import { TeachersModal } from './components/teachers-modal';
+import {
+	BackendPath,
+	PageName,
+	defaultSortString,
+	formDefaultValue,
+	searchDefaultValue,
+} from './constants';
 
 function Teachers() {
 	const { setNotification } = useNotificationContext();
 	const [search, setSearch] = useState<string>('');
-	const [status, setStatus] = useState<boolean>(true);
-	const [orderBy, setOrderBy] = useState<string>('teacher_name asc');
+	const [isActive, setIsActive] = useState<boolean>(true);
+	const [orderBy, setOrderBy] = useState<string>(defaultSortString);
+	const [toggleModal, setToggleModal] = useState(false);
 
-	const getTeachers = useGet('/api/teachers');
-	const { data, isLoading, error, isError, dataUpdatedAt, refetch } = useQuery<
-		TeachersGetResponse,
-		AxiosError<ErrorResponse>
-	>({
+	const postTeacher = usePost<TeacherCreateDto, void>(BackendPath);
+	const getTeachers = useGet<TeachersGetDto, TeachersGetResponses>('/api/teachers');
+
+	const { data, isLoading, dataUpdatedAt, refetch } = useCustomQuery<TeachersGetResponses>({
 		queryKey: ['teachers'],
-		queryFn: () => getTeachers({ is_active: status, orderBy } as TeachersGetDto),
-		enabled: true,
+		queryFn: () => getTeachers({ is_active: isActive, orderBy }),
+		fetchOnVariable: [isActive, orderBy],
 	});
 
-	useEffect(() => {
-		void refetch();
-	}, [status, orderBy]);
-
-	useEffect(() => {
-		if (isError) {
-			if (error) {
-				setNotification({
-					title: error.response.data.error.title,
-					message: error.response.data.error.message,
-					source: error.response.data.error.source,
-					type: 'ERROR',
-				});
-			} else {
-				setNotification({
-					title: 'Server Error!',
-					message: 'Unknown Error! Unable to connect to server!',
-					source: 'Server',
-					type: 'ERROR',
-				});
-			}
-			console.log(error);
-		}
-	}, [isError]);
+	const handleAdd = async (data: TeacherCreateDto) => {
+		await postTeacher(data);
+		await refetch();
+		setNotification(RecordCreatedMessage('Teacher'));
+	};
 
 	return (
 		<React.Fragment>
 			<Head>
-				<title>Teachers</title>
+				<title>{PageName}</title>
 			</Head>
-			<Layout headerTitle={'Teachers'}>
-				{isLoading ? (
-					<Loader />
-				) : (
-					<div className={layoutClass}>
-						<TeachersSearchAdd setSearch={setSearch} setStatus={setStatus} refetch={refetch} />
-						<TeachersTable
-							data={data}
-							search={search}
-							status={status}
-							refetch={refetch}
-							setOrderBy={setOrderBy}
-						/>
+			<Layout headerTitle={PageName}>
+				<Loader isLoading={isLoading}>
+					<div className={ContentContainer}>
+						<FormProvider defaultValue={searchDefaultValue}>
+							<TeachersSearchAdd
+								setSearch={setSearch}
+								setIsActive={setIsActive}
+								setToggleModal={setToggleModal}
+							/>
+						</FormProvider>
+
+						<TeachersTable data={data} search={search} refetch={refetch} setOrderBy={setOrderBy} />
+
 						<LastUpdatedAt
 							lastUpdatedAt={dataUpdatedAt ?? new Date(dataUpdatedAt)}
 							refetch={refetch}
 						/>
+
+						{toggleModal ? (
+							<FormProvider defaultValue={formDefaultValue}>
+								<TeachersModal closeModal={() => setToggleModal(false)} handler={handleAdd} />
+							</FormProvider>
+						) : null}
 					</div>
-				)}
+				</Loader>
 			</Layout>
 		</React.Fragment>
 	);

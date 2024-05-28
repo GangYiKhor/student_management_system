@@ -1,48 +1,26 @@
 import { NextApiResponse } from 'next';
-import { PackagesGetDto, PackagesGetQueryDto } from '../../../../dtos/packages/get';
+import { DATABASE_ERROR } from '../../../../utils/constants/ErrorResponses';
+import { devLog } from '../../../../utils/devLog';
 import { ExtendedNextApiRequest } from '../../../../utils/extended-next-api-request';
-import { PackagesGetResponse } from '../../../../responses/packages/get';
-import { ErrorResponse } from '../../../../responses/error';
-import { packagesGetServices } from './packages-get-services';
+import { PackagesGetQueryDto } from '../../../../utils/types/dtos/packages/get';
+import { ErrorResponse } from '../../../../utils/types/responses/error';
+import { PackagesGetResponses } from '../../../../utils/types/responses/packages/get';
+import { packagesGetParseDto, packagesGetServices } from './packages-get-services';
 
 export async function packagesGetController(
 	req: ExtendedNextApiRequest<any, PackagesGetQueryDto>,
-	res: NextApiResponse<PackagesGetResponse[] | ErrorResponse>,
+	res: NextApiResponse<PackagesGetResponses | ErrorResponse>,
 ) {
-	if (process.env.NODE_ENV === 'development') {
-		console.log('Get Packages Handler', req.query);
-	}
-
-	const getPackagesDto: PackagesGetDto = {
-		start_date: req.query.start_date ? new Date(req.query.start_date) : undefined,
-		end_date: req.query.end_date ? new Date(req.query.end_date) : undefined,
-		form_id: parseInt(req.query.form_id) || undefined,
-		subject_count_from: parseInt(req.query.subject_count_from) || undefined,
-		subject_count_to: parseInt(req.query.subject_count_to) || undefined,
-		discount_per_subject: parseFloat(req.query.discount_per_subject) || undefined,
-		is_active: req.query.is_active ? req.query.is_active === 'true' : undefined,
-		orderBy: req.query.orderBy,
-	};
+	devLog('Get Packages Handler', req.query);
 
 	try {
+		const getPackagesDto = packagesGetParseDto(req.query);
 		const result = await packagesGetServices(getPackagesDto);
 
-		if (process.env.NODE_ENV === 'development') {
-			console.log('Get Packages Handler: Responding', result);
-		}
-
+		devLog('Get Packages Handler: Responding', result);
 		res.status(200).json(result);
 	} catch (err) {
-		if (process.env.NODE_ENV === 'development') {
-			console.log('Get Packages Handler: ERROR', err);
-		}
-
-		res.status(503).json({
-			error: {
-				title: 'Server Internal Connection Error!',
-				message: 'Unable to connect to database!',
-				source: 'Get Packages',
-			},
-		});
+		devLog('Get Packages Handler: ERROR', err);
+		res.status(503).json(DATABASE_ERROR);
 	}
 }

@@ -1,6 +1,6 @@
-appId: com.example.nextron
-productName: My Nextron App
-copyright: Copyright © 2018 Yoshihide Shiono
+appId: PBI_SMS
+productName: Students Management System
+copyright: Copyright © 2024 Pusat Bimbingan Inotek
 directories:
   output: dist
   buildResources: resources

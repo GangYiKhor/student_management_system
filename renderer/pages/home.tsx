@@ -1,17 +1,17 @@
-import React, { useEffect, useState } from 'react';
-import Head from 'next/head';
-import { useGet } from '../hooks/use-get';
 import { useQuery } from '@tanstack/react-query';
-import { Layout } from '../layouts/basic_layout';
-import Modal from '../components/modal';
-import { BlueButtonClass } from '../utils/class/button';
 import { Loader } from 'lucide-react';
+import Head from 'next/head';
+import React, { useEffect, useState } from 'react';
+import Modal from '../components/modal';
+import { useGet } from '../hooks/use-get';
 import { useTooltip } from '../hooks/use-tooltip';
+import { Layout } from '../layouts/basic_layout';
+import { BlueButtonClass } from '../utils/class/button';
 
 function Home() {
 	const { tooltip } = useTooltip();
 	const getHelloWorld = useGet('/api/hello-world');
-	const { data, isLoading, isSuccess, isError, dataUpdatedAt } = useQuery({
+	const { data, isLoading } = useQuery({
 		queryKey: ['hello_world'],
 		queryFn: () => getHelloWorld(),
 		enabled: true,
@@ -27,10 +27,11 @@ function Home() {
 	return (
 		<React.Fragment>
 			<Head>
-				<title>Home - Nextron (with-typescript-tailwindcss)</title>
+				<title>Home</title>
 			</Head>
 			<Layout headerTitle={'Hello World'}>
 				{isLoading ? <Loader /> : null}
+				<h1>{getData}</h1>
 				<button
 					className={BlueButtonClass}
 					onClick={() => setModal(true)}

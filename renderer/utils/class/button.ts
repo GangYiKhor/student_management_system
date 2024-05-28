@@ -1,8 +1,9 @@
 import clsx from 'clsx';
 
 export const DefaultButtonClass = clsx('hover:cursor-pointer', 'select-none');
-export const ButtonXSmallClass = clsx('p-1', 'rounded-full');
-export const ButtonSmallClass = clsx('pt-2', 'pb-2', 'pl-4', 'pr-4', 'rounded-lg');
+export const ButtonRoundClass = clsx('p-1', 'rounded-full');
+export const ButtonXSmallClass = clsx('py-1', 'px-4', 'rounded-xl');
+export const ButtonSmallClass = clsx('py-2', 'px-4', 'rounded-lg');
 
 export const EmptyLightButtonClass = clsx(
 	'hover:bg-[rgba(0,0,0,0.1)]',
@@ -22,6 +23,18 @@ export const EmptyDarkButtonClass = clsx(
 	DefaultButtonClass,
 );
 
+export const GreenXSmallButtonClass = clsx(
+	'text-white',
+	'bg-[rgb(25,135,84)]',
+	'hover:bg-[rgb(21,115,71)]',
+	'active:bg-[rgb(20,108,67)]',
+	'hover:shadow-lg',
+	'transition-colors',
+	'duration-200',
+	DefaultButtonClass,
+	ButtonXSmallClass,
+);
+
 export const GreenButtonClass = clsx(
 	'text-white',
 	'bg-[rgb(25,135,84)]',
@@ -34,6 +47,18 @@ export const GreenButtonClass = clsx(
 	ButtonSmallClass,
 );
 
+export const BlueXSmallButtonClass = clsx(
+	'text-white',
+	'bg-[rgb(13,110,253)]',
+	'hover:bg-[rgb(11,94,215)]',
+	'active:bg-[rgb(10,88,202)]',
+	'hover:shadow-lg',
+	'transition-colors',
+	'duration-200',
+	DefaultButtonClass,
+	ButtonXSmallClass,
+);
+
 export const BlueButtonClass = clsx(
 	'text-white',
 	'bg-[rgb(13,110,253)]',
@@ -44,6 +69,18 @@ export const BlueButtonClass = clsx(
 	'duration-200',
 	DefaultButtonClass,
 	ButtonSmallClass,
+);
+
+export const GrayXSmallButtonClass = clsx(
+	'text-white',
+	'bg-[rgb(108,117,125)]',
+	'hover:bg-[rgb(92,99,106)]',
+	'active:bg-[rgb(86,94,100)]',
+	'hover:shadow-lg',
+	'transition-colors',
+	'duration-200',
+	DefaultButtonClass,
+	ButtonXSmallClass,
 );
 
 export const GrayButtonClass = clsx(

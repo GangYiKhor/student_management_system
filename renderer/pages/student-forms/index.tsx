@@ -1,145 +1,94 @@
-import React, { useCallback, useEffect, useState } from 'react';
 import Head from 'next/head';
-import { useGet } from '../../hooks/use-get';
-import { useQuery } from '@tanstack/react-query';
-import { Layout } from '../../layouts/basic_layout';
-import { StudentFormsGetResponse } from '../../responses/student-forms/get';
-import { Loader } from '../../components/loader';
-import { StudentFormsTable } from './components/table';
-import clsx from 'clsx';
-import axios, { AxiosError, AxiosResponse } from 'axios';
-import { StudentFormsCreateDto } from '../../dtos/student-forms/create';
-import { StudentFormsUpdateDto } from '../../dtos/student-forms/update';
-import { StudentFormsSearchAdd } from './components/search-add';
+import React, { useState } from 'react';
 import { LastUpdatedAt } from '../../components/last-updated';
-import { ErrorResponse } from '../../responses/error';
+import { Loader } from '../../components/loader';
+import { FormProvider } from '../../components/providers/form-providers';
 import { useNotificationContext } from '../../components/providers/notification-providers';
-import { StudentFormsGetDto } from '../../dtos/student-forms/get';
+import { useCustomQuery } from '../../hooks/use-custom-query';
+import { useGet } from '../../hooks/use-get';
+import { usePost } from '../../hooks/use-post';
+import { Layout } from '../../layouts/basic_layout';
+import { ContentContainer } from '../../utils/class/containers';
+import { RecordCreatedMessage } from '../../utils/notifications/record-created';
+import { StudentFormCreateDto } from '../../utils/types/dtos/student-forms/create';
+import { StudentFormsGetDto } from '../../utils/types/dtos/student-forms/get';
+import { StudentFormUpdateDto } from '../../utils/types/dtos/student-forms/update';
+import { StudentFormsGetResponses } from '../../utils/types/responses/student-forms/get';
+import { StudentFormsSearchAdd } from './components/search-add';
+import { StudentFormsModal } from './components/student-forms-modal';
+import { StudentFormsTable } from './components/table';
+import {
+	BackendPath,
+	PageName,
+	defaultSortString,
+	formDefaultValue,
+	searchDefaultValue,
+} from './constants';
 
-const layoutClass = clsx('flex', 'flex-col', 'gap-4');
+function StudentForms() {
+	const { setNotification } = useNotificationContext();
+	const [search, setSearch] = useState<string>('');
+	const [isActive, setIsActive] = useState<boolean>(undefined);
+	const [orderBy, setOrderBy] = useState<string>(defaultSortString);
+	const [toggleModal, setToggleModal] = useState(false);
 
-function StudentForm() {
-	const getForms = useGet<StudentFormsGetDto>('/api/student-forms');
-	const { data, isLoading, error, isError, dataUpdatedAt, refetch } = useQuery<
-		StudentFormsGetResponse,
-		AxiosError<ErrorResponse>
-	>({
+	const postForm = usePost<StudentFormCreateDto | StudentFormUpdateDto, void>(BackendPath);
+	const getForms = useGet<StudentFormsGetDto, StudentFormsGetResponses>(BackendPath);
+
+	const { data, isLoading, dataUpdatedAt, refetch } = useCustomQuery<StudentFormsGetResponses>({
 		queryKey: ['forms'],
 		queryFn: () => getForms({ orderBy }),
-		enabled: true,
+		fetchOnVariable: [orderBy],
 	});
-	const [lastUpdated, setLastUpdated] = useState<Date>();
-	const [search, setSearch] = useState<string>('');
-	const [orderBy, setOrderBy] = useState<string>('form_name asc');
-	const [status, setStatus] = useState<boolean>(undefined);
-	const { setNotification } = useNotificationContext();
 
-	const handleAction = useCallback(async (id: number, status: boolean) => {
-		try {
-			await axios.put<any, AxiosResponse<any, any>, StudentFormsUpdateDto>(
-				`/api/student-forms/update/${id}/`,
-				{ status },
-			);
-			await refetch();
-		} catch (error: any) {
-			if (error instanceof AxiosError) {
-				setNotification({
-					title: error.response.data.error.title,
-					message: error.response.data.error.message,
-					source: error.response.data.error.source,
-					type: 'ERROR',
-				});
-			} else {
-				setNotification({ title: 'Server Error', message: error.message });
-			}
-		}
-	}, []);
+	const handleUpdate = async (id: number, is_active: boolean) => {
+		await postForm({ is_active }, id.toString());
+		await refetch();
+	};
 
-	const handleAdd = useCallback(async (formName: string) => {
-		try {
-			await axios.post<any, AxiosResponse<any, any>, StudentFormsCreateDto>(
-				`/api/student-forms/create/`,
-				{ formName },
-			);
-			await refetch();
-			setNotification({
-				title: 'New Student Form Created!',
-				message: 'Student Form Created Successfully!',
-				type: 'INFO',
-			});
-		} catch (error: any) {
-			if (error instanceof AxiosError) {
-				setNotification({
-					title: error.response.data.error.title,
-					message: error.response.data.error.message,
-					source: error.response.data.error.source,
-					type: 'ERROR',
-				});
-			} else {
-				setNotification({ title: 'Server Error', message: error.message });
-			}
-		}
-	}, []);
-
-	useEffect(() => {
-		if (dataUpdatedAt) {
-			setLastUpdated(new Date(dataUpdatedAt));
-		}
-	}, [dataUpdatedAt]);
-
-	useEffect(() => {
-		if (isError) {
-			if (error) {
-				setNotification({
-					title: error.response.data.error.title,
-					message: error.response.data.error.message,
-					source: error.response.data.error.source,
-					type: 'ERROR',
-				});
-			} else {
-				setNotification({
-					title: 'Server Error!',
-					message: 'Unknown Error! Unable to connect to server!',
-					source: 'Server',
-					type: 'ERROR',
-				});
-			}
-			console.log(error);
-		}
-	}, [isError]);
-
-	useEffect(() => {
-		refetch();
-	}, [orderBy]);
+	const handleAdd = async (data: StudentFormCreateDto) => {
+		await postForm(data);
+		await refetch();
+		setNotification(RecordCreatedMessage('Student Form'));
+	};
 
 	return (
 		<React.Fragment>
 			<Head>
-				<title>Student Forms</title>
+				<title>{PageName}</title>
 			</Head>
-			<Layout headerTitle={'Student Forms'}>
-				{isLoading ? (
-					<Loader />
-				) : (
-					<div className={layoutClass}>
-						<StudentFormsSearchAdd
-							setSearch={setSearch}
-							setStatus={setStatus}
-							handleAdd={handleAdd}
-						/>
+			<Layout headerTitle={PageName}>
+				<Loader isLoading={isLoading}>
+					<div className={ContentContainer}>
+						<FormProvider defaultValue={searchDefaultValue}>
+							<StudentFormsSearchAdd
+								setSearch={setSearch}
+								setIsActive={setIsActive}
+								setToggleModal={setToggleModal}
+							/>
+						</FormProvider>
+
 						<StudentFormsTable
 							data={data}
 							search={search}
-							status={status}
-							handleAction={handleAction}
+							status={isActive}
+							refetch={refetch}
+							handler={handleUpdate}
 							setOrderBy={setOrderBy}
 						/>
-						<LastUpdatedAt lastUpdatedAt={lastUpdated} refetch={refetch} />
+
+						<LastUpdatedAt lastUpdatedAt={dataUpdatedAt} refetch={refetch} />
+
+						{toggleModal ? (
+							<FormProvider defaultValue={formDefaultValue}>
+								<StudentFormsModal closeModal={() => setToggleModal(false)} handler={handleAdd} />
+							</FormProvider>
+						) : null}
 					</div>
-				)}
+				</Loader>
 			</Layout>
 		</React.Fragment>
 	);
 }
 
-export default StudentForm;
+export default StudentForms;

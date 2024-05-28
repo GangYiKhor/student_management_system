@@ -7,7 +7,7 @@ export const LabelLeftClass = clsx(
 	'pl-[2px]',
 	'pr-[2px]',
 	'ml-2',
-	'mr-2',
+	'mr-1',
 );
 
 export const LabelTopClass = clsx('text-left', 'pt-[4px]', 'pb-[4px]', 'pl-[2px]', 'pr-[2px]');
@@ -30,7 +30,7 @@ export const TextBoxClass = clsx(
 	'rounded-md',
 );
 
-export const TextBoxRightClass = clsx(TextBoxClass, 'ml-2', 'mr-2');
+export const TextBoxRightClass = clsx(TextBoxClass, 'ml-1', 'mr-2');
 
 export const TextBoxBottomClass = clsx(TextBoxClass, 'mb-3');
 
@@ -52,6 +52,7 @@ export const DisabledTextBoxClass = clsx(
 );
 
 export const InvalidTextBoxClass = clsx(
+	'error',
 	'!text-red-600',
 	'dark:!text-red-400',
 	'!border-red-400',

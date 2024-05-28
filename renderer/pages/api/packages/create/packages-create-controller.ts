@@ -1,46 +1,29 @@
 import { NextApiResponse } from 'next';
-import { PackagesCreateDto } from '../../../../dtos/packages/create';
+import { DATABASE_ERROR } from '../../../../utils/constants/ErrorResponses';
+import { devLog } from '../../../../utils/devLog';
+import { ExistedError } from '../../../../utils/errors/ExistedError';
 import { ExtendedNextApiRequest } from '../../../../utils/extended-next-api-request';
+import { PackageCreateDto } from '../../../../utils/types/dtos/packages/create';
 import { packagesCreateServices } from './packages-create-services';
-import { ExistedError } from '../../../../utils/ExistedError';
 
 export async function packagesCreateController(
-	req: ExtendedNextApiRequest<PackagesCreateDto>,
+	req: ExtendedNextApiRequest<PackageCreateDto>,
 	res: NextApiResponse,
 ) {
-	if (process.env.NODE_ENV === 'development') {
-		console.log('Create Packages Handler', req.body);
-	}
+	devLog('Create Packages Handler', req.body);
 
 	try {
 		const result = await packagesCreateServices(req.body);
 
-		if (process.env.NODE_ENV === 'development') {
-			console.log('Create Packages Handler: Responding', result);
-		}
-
+		devLog('Create Packages Handler: Responding', result);
 		res.status(201).json(result);
 	} catch (err: any) {
-		if (process.env.NODE_ENV === 'development') {
-			console.log('Create Packages Handler: ERROR', err);
-		}
+		devLog('Create Packages Handler: ERROR', err);
 
 		if (err instanceof ExistedError) {
-			res.status(err.code).json({
-				error: {
-					title: 'Duplicate Package!',
-					message: err.message,
-					source: 'Create Packages',
-				},
-			});
+			res.status(err.code).json(err.errorResponse);
+		} else {
+			res.status(503).json(DATABASE_ERROR);
 		}
-
-		res.status(503).json({
-			error: {
-				title: 'Server Internal Connection Error!',
-				message: 'Unable to connect to database!',
-				source: 'Create Packages',
-			},
-		});
 	}
 }

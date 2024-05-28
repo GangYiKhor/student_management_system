@@ -13,6 +13,7 @@ DATABASE_URL="POSTGRES_DATABASE_URL"
 ```bash
 npm install  # If using yarn, `yarn install`
 npx prisma generate
+npx prisma db push # Build the database if it is not built
 ```
 
 ## How to Run

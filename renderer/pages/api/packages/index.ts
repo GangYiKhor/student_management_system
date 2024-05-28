@@ -1,30 +1,29 @@
 import { NextApiResponse } from 'next';
-import { PackagesCreateDto } from '../../../dtos/packages/create';
-import { PackagesGetQueryDto } from '../../../dtos/packages/get';
+import { INVALID_REQUEST } from '../../../utils/constants/ErrorResponses';
+import { devLog } from '../../../utils/devLog';
 import { ExtendedNextApiRequest } from '../../../utils/extended-next-api-request';
-import { packagesGetController } from './get/packages-get-controller';
+import { PackageCreateDto } from '../../../utils/types/dtos/packages/create';
+import { PackagesGetQueryDto } from '../../../utils/types/dtos/packages/get';
 import { packagesCreateController } from './create/packages-create-controller';
+import { packagesGetController } from './get/packages-get-controller';
 
 async function packagesHandler(
-	req: ExtendedNextApiRequest<PackagesCreateDto, PackagesGetQueryDto>,
+	req: ExtendedNextApiRequest<PackageCreateDto, PackagesGetQueryDto>,
 	res: NextApiResponse,
 ) {
-	if (process.env.NODE_ENV === 'development') {
-		console.log('Packages Handler', req.query, req.body);
-	}
+	devLog('Packages Handler', req.method);
 
-	if (req.method === 'GET') {
-		await packagesGetController(req, res);
-	} else if (req.method === 'POST') {
-		await packagesCreateController(req, res);
-	} else {
-		res.status(400).json({
-			error: {
-				title: 'Invalid Request!',
-				message: `Get or Post Request Expected! Received: ${req.method}`,
-				source: 'Packages Handler',
-			},
-		});
+	switch (req.method) {
+		case 'GET':
+			await packagesGetController(req, res);
+			break;
+
+		case 'POST':
+			await packagesCreateController(req, res);
+			break;
+
+		default:
+			res.status(400).json(INVALID_REQUEST);
 	}
 }
 

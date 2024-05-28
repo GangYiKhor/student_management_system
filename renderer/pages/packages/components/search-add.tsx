@@ -1,135 +1,67 @@
 import clsx from 'clsx';
+import { useEffect } from 'react';
+import { SelectInput } from '../../../components/inputs/select-input';
+import { useFormContext } from '../../../components/providers/form-providers';
+import { GeneralSearch } from '../../../components/searches/general-search';
+import { StatusSearch } from '../../../components/searches/status-search';
+import { useGetOptions } from '../../../hooks/use-get';
 import { BlueButtonClass } from '../../../utils/class/button';
-import { LabelLeftClass, TextBoxRightClass } from '../../../utils/class/inputs';
-import { useCallback, useState } from 'react';
-import { PackagesCreateModal } from './create-modal';
-import axios, { AxiosError, AxiosResponse } from 'axios';
-import { useNotificationContext } from '../../../components/providers/notification-providers';
-import { PackagesCreateDto } from '../../../dtos/packages/create';
-import { useGet } from '../../../hooks/use-get';
-import { StudentFormsGetDto } from '../../../dtos/student-forms/get';
-import { StudentFormsGetResponse } from '../../../responses/student-forms/get';
-import { ErrorResponse } from '../../../responses/error';
-import { QueryObserverResult, useQuery } from '@tanstack/react-query';
-import { PackagesGetResponse } from '../../../responses/packages/get';
-import { parseIntOrUndefined } from '../../../utils/parser';
-
-const layoutClass = clsx('flex', 'justify-between');
-const searchClass = clsx('flex', 'flex-row', 'gap-8', 'items-baseline');
-const buttonClass = clsx('flex', 'justify-end', 'gap-4', 'items-center');
+import { StudentFormsGetDto } from '../../../utils/types/dtos/student-forms/get';
+import { StudentFormsGetResponse } from '../../../utils/types/responses/student-forms/get';
+import { SearchDataType } from '../types';
 
 type PropType = {
 	setSearch: (value: string) => void;
 	setFormId: (value: number) => void;
 	setIsActive: (value: boolean) => void;
-	refetch: () => Promise<
-		QueryObserverResult<PackagesGetResponse[], AxiosError<ErrorResponse, any>>
-	>;
+	setToggleModal: (value: boolean) => void;
 };
 
-export function PackagesSearchAdd({ setSearch, setFormId, setIsActive, refetch }: PropType) {
-	const { setNotification } = useNotificationContext();
-	const [toggleModal, setToggleModal] = useState(false);
-
-	const getForms = useGet<StudentFormsGetDto>('/api/student-forms');
-	const { data: formData, refetch: refetchForm } = useQuery<
-		StudentFormsGetResponse,
-		AxiosError<ErrorResponse>
-	>({
-		queryKey: ['forms'],
-		queryFn: () => getForms({ is_active: true, orderBy: 'form_name asc' }),
-		enabled: true,
-	});
-
-	const handleAdd = useCallback(
-		async (createData: PackagesCreateDto) => {
-			try {
-				await axios.post<any, AxiosResponse<any, any>, PackagesCreateDto>(
-					`/api/packages/`,
-					createData,
-				);
-				await refetch();
-				setNotification({
-					title: 'New Package Added!',
-					message: 'Package Added Successfully!',
-					type: 'INFO',
-				});
-			} catch (error: any) {
-				if (error instanceof AxiosError) {
-					setNotification({
-						title: error.response.data.error.title,
-						message: error.response.data.error.message,
-						source: error.response.data.error.source,
-						type: 'ERROR',
-					});
-				} else {
-					setNotification({ title: 'Server Error', message: error.message });
-				}
-				throw error;
-			}
-		},
-		[refetch, setNotification],
+export function PackagesSearchAdd({
+	setSearch,
+	setFormId,
+	setIsActive,
+	setToggleModal,
+}: Readonly<PropType>) {
+	const { formData } = useFormContext<SearchDataType>();
+	const getForms = useGetOptions<StudentFormsGetDto, StudentFormsGetResponse>(
+		'/api/student-forms',
+		value => value.form_name,
+		value => value.id,
 	);
 
+	useEffect(() => {
+		setSearch(formData.general?.value);
+	}, [formData.general?.value]);
+
+	useEffect(() => {
+		setFormId(formData.form_id?.value);
+	}, [formData.form_id?.value]);
+
+	useEffect(() => {
+		setIsActive(formData.status?.value);
+	}, [formData.status?.value]);
+
 	return (
-		<div className={layoutClass}>
-			<div className={searchClass}>
-				<div>
-					<label className={LabelLeftClass} htmlFor="search">
-						Search:
-					</label>
-					<input
-						type="text"
-						id="search"
-						className={TextBoxRightClass}
-						placeholder="Search... (#1 to search ID)"
-						onChange={e => setSearch(e.target.value)}
-					/>
-				</div>
-				<div>
-					<label className={LabelLeftClass} htmlFor="form">
-						Form:
-					</label>
-					<select
-						className={TextBoxRightClass}
-						id="form"
-						onChange={e => setFormId(parseIntOrUndefined(e.target.value))}
-						onClick={() => refetchForm()}
-					>
-						<option value="">All</option>
-						{formData
-							? formData.map(({ id, form_name }) => (
-									<option key={id} value={id}>
-										{form_name}
-									</option>
-							  ))
-							: null}
-					</select>
-				</div>
-				<div>
-					<label className={LabelLeftClass} htmlFor="active">
-						Active:
-					</label>
-					<select
-						id="active"
-						className={TextBoxRightClass}
-						placeholder=""
-						onChange={e => setIsActive(e.target.value ? e.target.value === 'active' : undefined)}
-					>
-						<option value="">All</option>
-						<option value="active">Active</option>
-						<option value="inactive">Inactive</option>
-					</select>
-				</div>
+		<div className={clsx('flex', 'justify-between')}>
+			<div className={clsx('flex', 'flex-row', 'items-baseline')}>
+				<GeneralSearch />
+				<SelectInput
+					id="form-search"
+					label="Form"
+					name="form_id"
+					placeholder="All"
+					queryFn={() => getForms({ is_active: true, orderBy: 'form_name asc' })}
+					leftLabel
+				/>
+				<StatusSearch />
 			</div>
-			<div className={buttonClass}>
+
+			<div className={clsx('flex', 'justify-end', 'gap-4', 'items-center')}>
 				<button className={BlueButtonClass} onClick={() => setToggleModal(true)}>
 					New Package
 				</button>
 			</div>
-			{toggleModal ? (
-				<PackagesCreateModal closeModal={() => setToggleModal(false)} handleAdd={handleAdd} />
-			) : null}
 		</div>
 	);
 }

@@ -1,6 +1,6 @@
-import { createContext, useContext, useMemo, useReducer } from 'react';
-import { GeneralNotification } from '../../utils/notification-type';
 import { randomUUID } from 'crypto';
+import React, { createContext, useContext, useMemo, useReducer } from 'react';
+import { GeneralNotification } from '../../utils/types/notification-type';
 
 const Notification = createContext<{
 	notifications: GeneralNotification[];
@@ -29,15 +29,21 @@ function reducer(state: GeneralNotification[], action?: SetNotification) {
 		title: action.title ?? 'Unknown Error!',
 		message: action.message ?? 'Unknown Error!',
 		occurredAt: new Date(),
-		source: action.source,
+		source: action.source ?? '',
 		type: action.type ?? 'ERROR',
 	};
 
 	return [...state, newNotification];
 }
 
-export function NotificationProvider({ children }) {
-	const [notifications, setNotification] = useReducer(reducer, []);
+type PropType = {
+	children: React.ReactNode;
+};
+
+export function NotificationProvider({ children }: Readonly<PropType>) {
+	const [notifications, setNotification] = useReducer<
+		React.Reducer<GeneralNotification[], SetNotification>
+	>(reducer, []);
 	const notificationProviderValue = useMemo(
 		() => ({
 			notifications,

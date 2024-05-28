@@ -1,30 +1,29 @@
 import { NextApiResponse } from 'next';
+import { INVALID_REQUEST } from '../../../../utils/constants/ErrorResponses';
+import { devLog } from '../../../../utils/devLog';
 import { ExtendedNextApiRequest } from '../../../../utils/extended-next-api-request';
-import { TeachersUpdateDto } from '../../../../dtos/teachers/update';
-import { updateTeachersHandler } from './update/update-controller';
-import { getSingleTeachersHandler } from './get/get-controller';
+import { TeacherUpdateDto } from '../../../../utils/types/dtos/teachers/update';
+import { getTeacherController } from './get/teacher-get-controller';
+import { updateTeacherController } from './update/teacher-update-controller';
 
-async function teachersSingleHandler(
-	req: ExtendedNextApiRequest<TeachersUpdateDto>,
+async function teacherHandler(
+	req: ExtendedNextApiRequest<TeacherUpdateDto, { id: string }>,
 	res: NextApiResponse,
 ) {
-	if (process.env.NODE_ENV === 'development') {
-		console.log('Teachers Single Handler', req.query, req.body);
-	}
+	devLog('Teacher Single Handler', req.method);
 
-	if (req.method === 'GET') {
-		await getSingleTeachersHandler(req, res);
-	} else if (req.method === 'POST') {
-		await updateTeachersHandler(req, res);
-	} else {
-		res.status(400).json({
-			error: {
-				title: 'Invalid Request!',
-				message: `Get or Post Request Expected! Received: ${req.method}`,
-				source: 'Teachers Single Handler',
-			},
-		});
+	switch (req.method) {
+		case 'GET':
+			await getTeacherController(req, res);
+			break;
+
+		case 'POST':
+			await updateTeacherController(req, res);
+			break;
+
+		default:
+			res.status(400).json(INVALID_REQUEST);
 	}
 }
 
-export default teachersSingleHandler;
+export default teacherHandler;

@@ -1,6 +1,6 @@
 import clsx from 'clsx';
-import { ThemeToggle } from './theme-toggle';
 import { ButtonSmallClass } from '../utils/class/button';
+import { ThemeToggle } from './theme-toggle';
 
 const headerClass = clsx(
 	'flex',
@@ -37,7 +37,7 @@ type PropType = {
 	];
 };
 
-export function Header({ title, buttons }: PropType) {
+export function Header({ title, buttons }: Readonly<PropType>) {
 	return (
 		<header className={headerClass}>
 			<div className={titleClass}>

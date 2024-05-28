@@ -41,3 +41,7 @@
 	left: var(--x);
 	top: var(--y);
 }
+
+input[type='number']::-webkit-inner-spin-button {
+	display: none;
+}

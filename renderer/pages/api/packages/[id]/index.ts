@@ -1,29 +1,28 @@
 import { NextApiResponse } from 'next';
+import { INVALID_REQUEST } from '../../../../utils/constants/ErrorResponses';
+import { devLog } from '../../../../utils/devLog';
 import { ExtendedNextApiRequest } from '../../../../utils/extended-next-api-request';
-import { PackagesUpdateDto } from '../../../../dtos/packages/update';
-import { packagesGetSingleController } from './get/packages-get-single-controller';
+import { PackageUpdateDto } from '../../../../utils/types/dtos/packages/update';
+import { packageGetController } from './get/package-get-controller';
 import { packagesUpdateController } from './update/packages-update-controller';
 
 async function packagesSingleHandler(
-	req: ExtendedNextApiRequest<PackagesUpdateDto, { id: string }>,
+	req: ExtendedNextApiRequest<PackageUpdateDto, { id: string }>,
 	res: NextApiResponse,
 ) {
-	if (process.env.NODE_ENV === 'development') {
-		console.log('Single Packages Handler', req.query, req.body);
-	}
+	devLog('Single Package Handler', req.method);
 
-	if (req.method === 'GET') {
-		await packagesGetSingleController(req, res);
-	} else if (req.method === 'POST') {
-		await packagesUpdateController(req, res);
-	} else {
-		res.status(400).json({
-			error: {
-				title: 'Invalid Request!',
-				message: `Get or Post Request Expected! Received: ${req.method}`,
-				source: 'Single Packages Handler',
-			},
-		});
+	switch (req.method) {
+		case 'GET':
+			await packageGetController(req, res);
+			break;
+
+		case 'POST':
+			await packagesUpdateController(req, res);
+			break;
+
+		default:
+			res.status(400).json(INVALID_REQUEST);
 	}
 }
 
