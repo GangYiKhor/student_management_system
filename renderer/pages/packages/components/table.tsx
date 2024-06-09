@@ -1,43 +1,59 @@
 import { QueryObserverResult } from '@tanstack/react-query';
-import axios, { AxiosError, AxiosResponse } from 'axios';
-import clsx from 'clsx';
-import React, { useCallback, useEffect, useState } from 'react';
+import { AxiosError } from 'axios';
+import React, { useEffect, useState } from 'react';
 import { FormProvider } from '../../../components/providers/form-providers';
-import { useNotificationContext } from '../../../components/providers/notification-providers';
+import { TableColumnType, TableTemplate } from '../../../components/tables/table-template';
+import { usePost } from '../../../hooks/use-post';
 import {
-	DefaultSort,
-	TableColumnType,
-	TableTemplate,
-} from '../../../components/tables/table-template';
-import { SERVER_CONNECTION_ERROR } from '../../../utils/constants/ErrorResponses';
+	dateFormatter,
+	getToday,
+	isSameDayOrAfter,
+	isSameDayOrBefore,
+} from '../../../utils/dateOperations';
+import { GreenBoldText, RedBoldText, YellowBoldText } from '../../../utils/tailwindClass/text';
 import { PackageUpdateDto } from '../../../utils/types/dtos/packages/update';
 import { ErrorResponse } from '../../../utils/types/responses/error';
-import { PackagesGetResponses } from '../../../utils/types/responses/packages/get';
-import { formDefaultValueFilled } from '../constants';
+import {
+	PackagesGetResponse,
+	PackagesGetResponses,
+} from '../../../utils/types/responses/packages/get';
+import { BackendPath, defaultSort, formDefaultValueFilled } from '../constants';
 import { EditData } from '../types';
 import { PackagesModal } from './packages-modal';
 
-const columns: TableColumnType[] = [
+const getActiveCssClass = (start_date: Date, end_date: Date) => {
+	let textColour = '';
+	const today = getToday();
+
+	if (!isSameDayOrBefore(start_date, today)) {
+		textColour = YellowBoldText;
+	} else if (end_date === undefined || isSameDayOrAfter(end_date, today)) {
+		textColour = GreenBoldText;
+	} else {
+		textColour = RedBoldText;
+	}
+
+	return textColour;
+};
+
+const columns: TableColumnType<PackagesGetResponse>[] = [
 	{ title: 'ID', columnName: 'id', addOnClass: 'w-[5rem]' },
 	{ title: 'Form', columnName: 'form_name', valueParser: value => value.form.form_name },
 	{
 		title: 'Start Date',
 		columnName: 'start_date',
-		valueParser: value => value.start_date.toISOString().split('T')[0],
+		valueParser: value => (
+			<span className={getActiveCssClass(value.start_date, value.end_date)}>
+				{dateFormatter(value.start_date)}
+			</span>
+		),
 	},
 	{
 		title: 'End Date',
 		columnName: 'end_date',
 		valueParser: value => (
-			<span
-				className={clsx(
-					'font-bold',
-					value.end_date === null || value.end_date >= new Date().setHours(0, 0, 0, 0)
-						? 'text-green-600 dark:text-green-400'
-						: 'text-red-600 dark:text-red-400',
-				)}
-			>
-				{value.end_date?.toISOString().split('T')[0] ?? 'Active'}
+			<span className={getActiveCssClass(value.start_date, value.end_date)}>
+				{dateFormatter(value.end_date, { defaultValue: 'Active' })}
 			</span>
 		),
 	},
@@ -56,11 +72,6 @@ const columns: TableColumnType[] = [
 	},
 ];
 
-const defaultSort: DefaultSort = {
-	field: 'form_name',
-	asc: true,
-};
-
 type PropType = {
 	data: PackagesGetResponses;
 	search?: string;
@@ -69,35 +80,18 @@ type PropType = {
 };
 
 export function PackagesTable({ data, search, refetch, setOrderBy }: Readonly<PropType>) {
-	const { setNotification } = useNotificationContext();
 	const [tableData, setTableData] = useState<PackagesGetResponses>([]);
 	const [selected, setSelected] = useState<EditData>(undefined);
-	const [edit, setEdit] = useState<boolean>(false);
+	const postPackage = usePost<PackageUpdateDto, void>(BackendPath);
 
-	const handleEdit = useCallback((data: EditData) => {
+	const handleEdit = (data: EditData) => {
 		setSelected(data);
-		setEdit(true);
-	}, []);
+	};
 
-	const handleUpdate = useCallback(
-		async (data: PackageUpdateDto) => {
-			try {
-				await axios.post<any, AxiosResponse<any, any>, PackageUpdateDto>(
-					`/api/packages/${selected.id}`,
-					data,
-				);
-
-				await refetch();
-			} catch (error: any) {
-				if (error instanceof AxiosError) {
-					setNotification({ ...error?.response?.data?.error });
-				} else {
-					setNotification(SERVER_CONNECTION_ERROR);
-				}
-			}
-		},
-		[refetch, selected],
-	);
+	const handleUpdate = async (data: PackageUpdateDto) => {
+		await postPackage(data, selected.id);
+		await refetch();
+	};
 
 	useEffect(() => {
 		let filteredData = data;
@@ -105,11 +99,10 @@ export function PackagesTable({ data, search, refetch, setOrderBy }: Readonly<Pr
 			search = search.trim().toLowerCase();
 			filteredData = filteredData.filter(
 				value =>
-					'#' + value.id.toString() === search ||
-					value.form.form_name.toLowerCase().includes(search) ||
-					('RM ' + value.discount_per_subject).includes(search) ||
-					value.start_date.toLocaleDateString().includes(search) ||
-					value.end_date.toLocaleDateString().includes(search),
+					'#' + value.id === search ||
+					value.form?.form_name?.toLowerCase().includes(search) ||
+					(parseInt(search) <= value.subject_count_to &&
+						parseInt(search) >= value.subject_count_from),
 			);
 		}
 
@@ -126,9 +119,13 @@ export function PackagesTable({ data, search, refetch, setOrderBy }: Readonly<Pr
 				handleEdit={handleEdit}
 			/>
 
-			{edit ? (
+			{selected ? (
 				<FormProvider defaultValue={formDefaultValueFilled(selected)}>
-					<PackagesModal closeModal={() => setEdit(false)} handler={handleUpdate} data={selected} />
+					<PackagesModal
+						closeModal={() => setSelected(undefined)}
+						handler={handleUpdate}
+						data={selected}
+					/>
 				</FormProvider>
 			) : null}
 		</React.Fragment>

@@ -4,8 +4,11 @@ import { DateInput } from '../../../components/inputs/date-input';
 import { TextInput } from '../../../components/inputs/text-input';
 import Modal, { ModalButtons } from '../../../components/modal';
 import { useFormContext } from '../../../components/providers/form-providers';
-import { useNotificationContext } from '../../../components/providers/notification-providers';
-import { GrayButtonClass, GreenButtonClass, RedButtonClass } from '../../../utils/class/button';
+import {
+	GrayButtonClass,
+	GreenButtonClass,
+	RedButtonClass,
+} from '../../../utils/tailwindClass/button';
 import { HolidayCreateDto } from '../../../utils/types/dtos/holidays/create';
 import { HolidayUpdateDto } from '../../../utils/types/dtos/holidays/update';
 import { useIsDirty } from '../hooks/useIsDirty';
@@ -22,10 +25,9 @@ export function HolidaysModal({ closeModal, data, handler }: Readonly<PropType>)
 	const { formData, setFormData } = useFormContext<FormDataType>();
 	const [confirmation, setConfirmation] = useState(false);
 	const [closeConfirmation, setCloseConfirmation] = useState(false);
-	const { setNotification } = useNotificationContext();
 
 	const verifyInputs = useVerifyInputs({ formData, setFormData });
-	const isDirty = useIsDirty({ formData });
+	const isDirty = useIsDirty({ formData, data });
 
 	const modalButtons: ModalButtons = [
 		{
@@ -55,7 +57,6 @@ export function HolidaysModal({ closeModal, data, handler }: Readonly<PropType>)
 					setConfirmation(false);
 					closeModal();
 				} catch (error) {
-					setNotification({ message: error });
 					setConfirmation(false);
 				}
 			},

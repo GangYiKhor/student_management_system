@@ -1,4 +1,3 @@
-export type HolidayUpdateDto = {
-	date?: Date;
-	description?: string;
-};
+import { HolidayCreateDto } from './create';
+
+export type HolidayUpdateDto = Partial<HolidayCreateDto>;

@@ -1,6 +1,7 @@
 import clsx from 'clsx';
-import React, { ReactNode } from 'react';
-import { WhiteBlackButtonClass } from '../utils/class/button';
+import { ReactNode, useCallback, useEffect } from 'react';
+import { WhiteBlackButtonClass } from '../utils/tailwindClass/button';
+import { CloseButtonIcon } from './close-button-icon';
 import { ThemeToggle } from './theme-toggle';
 
 const backgroundClass = clsx(
@@ -11,10 +12,12 @@ const backgroundClass = clsx(
 	'overflow-y-auto',
 	'fixed',
 	'inset-0',
-	'z-50',
+	'z-10',
 	'p-5',
-	'bg-[rgba(0,0,0,0.2)]',
+	'bg-[rgba(0,0,0,0.3)]',
 );
+
+const blurCloseButton = clsx('w-full', 'h-full', 'fixed', '-z-10');
 
 const containerClass = clsx(
 	'w-auto',
@@ -42,18 +45,6 @@ const headerContainerClass = clsx(
 const headerClass = clsx('text-3xl', 'font-bold');
 
 const headerButtonClass = clsx('flex', 'justify-end', 'items-center', 'gap-4');
-const closeButtonClass = clsx(
-	'text-4xl',
-	'w-[36px]',
-	'pb-2',
-	'text-gray-500',
-	'hover:text-gray-700',
-	'active:text-gray-900',
-	'dark:text-gray-200',
-	'dark:hover:text-gray-400',
-	'dark:active:text-gray-600',
-	'transition-colors',
-);
 
 const contentClass = clsx('p-6', 'overflow-y-auto', 'max-h-[80vh]', 'min-w-[50vw]');
 
@@ -66,8 +57,6 @@ const footerContainerClass = clsx(
 	'border-t',
 	'border-slate-300',
 );
-
-const clickShieldClass = clsx('opacity-25', 'fixed', 'inset-0', 'z-40', 'bg-black');
 
 export type ModalButtons = {
 	text: string;
@@ -105,41 +94,52 @@ export default function Modal({
 		];
 	}
 
+	const escHandler = useCallback(
+		(e: KeyboardEvent) => (e.key === 'Escape' ? closeModal() : null),
+		[closeModal],
+	);
+
+	useEffect(() => {
+		window.addEventListener('keydown', escHandler);
+		return () => window.removeEventListener('keydown', escHandler);
+	}, [escHandler]);
+
 	return (
-		<React.Fragment>
-			<div
-				className={backgroundClass}
-				onClick={e => closeOnBlur && e.target === e.currentTarget && closeModal()}
-			>
-				<div className={containerClass}>
-					<div className={headerContainerClass}>
-						<h3 className={headerClass}>{title}</h3>
-						<div className={headerButtonClass}>
-							<ThemeToggle />
-							<button className={closeButtonClass} onClick={() => closeModal()}>
-								×
-							</button>
-						</div>
-					</div>
-					<div className={contentClass}>{children}</div>
-					<div className={footerContainerClass}>
-						{buttons?.map(value => (
-							<button
-								key={value.text}
-								className={value.class}
-								onClick={async () =>
-									value.action.constructor.name === 'AsyncFunction'
-										? await value.action()
-										: value.action()
-								}
-							>
-								{value.text}
-							</button>
-						)) ?? null}
+		<div className={backgroundClass}>
+			<button
+				className={blurCloseButton}
+				disabled={!closeOnBlur}
+				onClick={() => closeModal()}
+			></button>
+			<div className={containerClass}>
+				<div className={headerContainerClass}>
+					<h3 className={headerClass}>{title}</h3>
+					<div className={headerButtonClass}>
+						<ThemeToggle />
+						<button onClick={() => closeModal()}>
+							<CloseButtonIcon />
+						</button>
 					</div>
 				</div>
+
+				<div className={contentClass}>{children}</div>
+
+				<div className={footerContainerClass}>
+					{buttons?.map(value => (
+						<button
+							key={value.text}
+							className={value.class}
+							onClick={async () =>
+								value.action.constructor.name === 'AsyncFunction'
+									? await value.action()
+									: value.action()
+							}
+						>
+							{value.text}
+						</button>
+					)) ?? null}
+				</div>
 			</div>
-			<div className={clickShieldClass}></div>
-		</React.Fragment>
+		</div>
 	);
 }

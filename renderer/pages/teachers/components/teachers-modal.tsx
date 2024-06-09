@@ -5,12 +5,16 @@ import { TextAreaInput } from '../../../components/inputs/textarea-input';
 import Modal, { ModalButtons } from '../../../components/modal';
 import { useFormContext } from '../../../components/providers/form-providers';
 import Separator from '../../../components/separator';
-import { GrayButtonClass, GreenButtonClass, RedButtonClass } from '../../../utils/class/button';
 import { icFormat, icFormatRevert } from '../../../utils/formatting/icFormatting';
 import {
 	phoneNumberFormat,
 	phoneNumberFormatRevert,
 } from '../../../utils/formatting/phoneNumberFormatting';
+import {
+	GrayButtonClass,
+	GreenButtonClass,
+	RedButtonClass,
+} from '../../../utils/tailwindClass/button';
 import { TeacherCreateDto } from '../../../utils/types/dtos/teachers/create';
 import { TeacherUpdateDto } from '../../../utils/types/dtos/teachers/update';
 import { useIsDirty } from '../hooks/useIsDirty';
@@ -30,7 +34,7 @@ export function TeachersModal({ closeModal, handler, handleActivate, data }: Rea
 	const [closeConfirmation, setCloseConfirmation] = useState(false);
 
 	const verifyInputs = useVerifyInputs({ formData, setFormData });
-	const isDirty = useIsDirty({ formData });
+	const isDirty = useIsDirty({ formData, data });
 
 	const modalButtons: ModalButtons = [
 		{

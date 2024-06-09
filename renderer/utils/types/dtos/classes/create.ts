@@ -1,7 +1,8 @@
 export type ClassCreateDto = {
 	teacher_id: number;
+	class_name: string;
 	start_date: Date;
-	end_date: Date;
+	end_date?: Date;
 	class_year: number;
 	form_id: number;
 	day: number;
@@ -9,5 +10,4 @@ export type ClassCreateDto = {
 	end_time: Date;
 	fees: number;
 	is_package: boolean;
-	class_name: string;
 };

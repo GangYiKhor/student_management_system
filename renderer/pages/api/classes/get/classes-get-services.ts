@@ -1,11 +1,8 @@
-import {
-	parseDateOrUndefined,
-	parseFloatOrUndefined,
-	parseIntOrUndefined,
-} from '../../../../utils/parsers';
+import { getToday, parseDateTime } from '../../../../utils/dateOperations';
+import { tryParseFloat, tryParseInt } from '../../../../utils/numberParsers';
+import { parseOrderBy } from '../../../../utils/parseOrderBy';
 import prisma from '../../../../utils/prisma-client';
 import { ClassesGetDto, ClassesGetQueryDto } from '../../../../utils/types/dtos/classes/get';
-import { OrderBy } from '../../../../utils/types/orderBy';
 import { ClassesGetResponses } from '../../../../utils/types/responses/classes/get';
 
 export async function classesGetServices(
@@ -13,24 +10,20 @@ export async function classesGetServices(
 ): Promise<ClassesGetResponses> {
 	const { orderBy: order, is_active, ...where } = getClassDto;
 
+	const today = getToday();
+	const tomorrow = getToday();
+	tomorrow.setDate(tomorrow.getDate() + 1);
 	if (is_active) {
-		const now = new Date();
-		where.start_date = { lte: now };
-		where.end_date = { gte: now };
+		where.start_date = { lt: tomorrow };
+		where.OR = [{ end_date: { gte: today } }, { end_date: null }];
 	} else if (is_active === false) {
-		const now = new Date();
-		where.OR = [{ start_date: { gte: now } }, { end_date: { lte: now } }];
+		where.OR = [{ start_date: { gte: tomorrow } }, { end_date: { lt: today } }];
 	}
 
-	let orderBy: OrderBy = {
-		[order.split(' ')[0]]: order.split(' ')[1] !== 'desc' ? 'asc' : 'desc',
-	};
-
-	if (order.split(' ')[0] === 'form_name') {
-		orderBy = { form: orderBy };
-	} else if (order.split(' ')[0] === 'teacher_name') {
-		orderBy = { teacher: orderBy };
-	}
+	const orderBy = parseOrderBy(order, { form: { form_name: 'asc' } }, [
+		{ columnName: 'form_name', tableName: 'form' },
+		{ columnName: 'teacher_name', tableName: 'teacher' },
+	]);
 
 	return prisma.class_registration.findMany({
 		include: { form: true, teacher: true },
@@ -41,15 +34,15 @@ export async function classesGetServices(
 
 export function classGetParseDto(query: ClassesGetQueryDto): ClassesGetDto {
 	return {
-		teacher_id: parseIntOrUndefined(query.teacher_id),
-		start_date: parseDateOrUndefined(query.start_date),
-		end_date: parseDateOrUndefined(query.end_date),
-		class_year: parseIntOrUndefined(query.class_year),
-		form_id: parseIntOrUndefined(query.form_id),
-		day: parseIntOrUndefined(query.day),
-		start_time: parseDateOrUndefined(query.start_time),
-		end_time: parseDateOrUndefined(query.end_time),
-		fees: parseFloatOrUndefined(query.fees),
+		teacher_id: tryParseInt(query.teacher_id),
+		start_date: parseDateTime(query.start_date),
+		end_date: parseDateTime(query.end_date),
+		class_year: tryParseInt(query.class_year),
+		form_id: tryParseInt(query.form_id),
+		day: tryParseInt(query.day),
+		start_time: parseDateTime(query.start_time),
+		end_time: parseDateTime(query.end_time),
+		fees: tryParseFloat(query.fees),
 		is_package: query.is_package ? query.is_package === 'true' : undefined,
 		class_name: query.class_name,
 		is_active: query.is_active ? query.is_active === 'true' : undefined,

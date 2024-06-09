@@ -1,11 +1,10 @@
+import { QueryType } from '../../queryType';
+
 export type TaxesGetDto = {
-	start_date?: Date | { lte?: Date; gte?: Date };
-	end_date?: Date | { lte?: Date; gte?: Date };
+	start_date?: Date | { lte?: Date; gte?: Date; lt?: Date; gt?: Date };
+	end_date?: Date | { lte?: Date; gte?: Date; lt?: Date; gt?: Date };
 	is_active?: boolean;
-	orderBy?: 'start_date asc' | 'start_date desc';
+	orderBy?: string;
 };
 
-export type TaxesGetQueryDto = {
-	is_active?: string;
-	orderBy?: 'start_date asc' | 'start_date desc';
-};
+export type TaxesGetQueryDto = QueryType<TaxesGetDto>;

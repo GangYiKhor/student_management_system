@@ -19,21 +19,23 @@ export function Sorter({ title, asc, sortHandler, notSortable }: Readonly<PropTy
 
 	return (
 		<div className={containerClass}>
-			{title}
-			{!notSortable ? (
-				<div className={clsx(sorterClass, sortHandler && 'cursor-pointer')} onClick={clickHandler}>
-					<ChevronUp
-						className={clsx(asc === true ? 'opacity-100' : 'opacity-25')}
-						width={12}
-						height={12}
-					/>
-					<ChevronDown
-						className={clsx(asc === false ? 'opacity-100' : 'opacity-25')}
-						width={12}
-						height={12}
-					/>
-				</div>
-			) : null}
+			<button className={containerClass} disabled={notSortable} onClick={() => clickHandler?.()}>
+				{title}
+				{!notSortable ? (
+					<div className={clsx(sorterClass)}>
+						<ChevronUp
+							className={clsx(asc === true ? 'opacity-100' : 'opacity-50')}
+							width={12}
+							height={12}
+						/>
+						<ChevronDown
+							className={clsx(asc === false ? 'opacity-100' : 'opacity-50')}
+							width={12}
+							height={12}
+						/>
+					</div>
+				) : null}
+			</button>
 		</div>
 	);
 }

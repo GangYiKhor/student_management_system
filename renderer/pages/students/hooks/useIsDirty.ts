@@ -1,5 +1,5 @@
-import { EditData } from '../components/table';
-import { FormDataType } from '../types';
+import { isSameDay } from '../../../utils/dateOperations';
+import { EditData, FormDataType } from '../types';
 
 type PropType = {
 	formData: FormDataType;
@@ -13,7 +13,7 @@ export function useIsDirty({ formData, data }: Readonly<PropType>) {
 		if (data) {
 			isDirty ||= formData.student_name?.value?.trim() !== data.student_name;
 			isDirty ||= formData.form_id?.value !== data.form_id;
-			isDirty ||= formData.reg_date?.value?.getTime() !== data.reg_date?.getTime();
+			isDirty ||= !isSameDay(formData.reg_date?.value, data.reg_date);
 			isDirty ||= formData.reg_year?.value !== data.reg_year;
 			isDirty ||= formData.gender?.value?.trim() !== data.gender;
 			isDirty ||= formData.ic?.value?.trim() !== data.ic;

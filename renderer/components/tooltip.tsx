@@ -1,5 +1,6 @@
 import clsx from 'clsx';
-import { useCallback, useEffect, useState } from 'react';
+import { debounce } from 'lodash';
+import { useEffect, useState } from 'react';
 import { useTooltipContext } from './providers/tooltip-providers';
 
 const tooltipClass = clsx(
@@ -21,26 +22,28 @@ const tooltipClass = clsx(
 export function Tooltip() {
 	const { tooltip } = useTooltipContext();
 	const [visible, setVisible] = useState(false);
+	const callback = debounce(() => {
+		setVisible(true);
+	}, 500);
 
-	const handleMouseMove = useCallback(
-		(e: MouseEvent) => {
-			document.documentElement.style.setProperty('--x', (e.clientX + 10).toString() + 'px');
-			document.documentElement.style.setProperty('--y', (e.clientY - 30).toString() + 'px');
-
-			if (!visible) {
-				setVisible(true);
-			}
-		},
-		[visible, setVisible],
-	);
+	const handleMouseMove = (e: MouseEvent) => {
+		setVisible(false);
+		document.documentElement.style.setProperty('--x', (e.clientX + 10).toString() + 'px');
+		document.documentElement.style.setProperty('--y', (e.clientY - 30).toString() + 'px');
+		callback();
+	};
 
 	useEffect(() => {
 		if (tooltip) {
 			window.addEventListener('mousemove', handleMouseMove);
 			return () => window.removeEventListener('mousemove', handleMouseMove);
+		} else {
+			callback.cancel();
 		}
 		setVisible(false);
 	}, [tooltip]);
 
-	return <div className={clsx(tooltipClass, visible ? '' : 'invisible')}>{tooltip}</div>;
+	return tooltip ? (
+		<div className={clsx(tooltipClass, visible ? '' : 'invisible')}>{tooltip}</div>
+	) : null;
 }

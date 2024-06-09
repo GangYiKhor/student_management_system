@@ -5,7 +5,7 @@ import { SERVER_CONNECTION_ERROR } from '../utils/constants/ErrorResponses';
 export function usePost<T = any, Res = any>(url: string, parseFunc?: (value: Res) => Res) {
 	const { setNotification } = useNotificationContext();
 
-	return async (body: T, path?: string): Promise<Res> => {
+	return async (body: T, path?: string | number): Promise<Res> => {
 		try {
 			if (path) {
 				if (url.endsWith('/')) {

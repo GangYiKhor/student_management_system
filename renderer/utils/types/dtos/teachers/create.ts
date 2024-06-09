@@ -4,4 +4,7 @@ export type TeacherCreateDto = {
 	phone_number: string;
 	email?: string;
 	address?: string;
+	start_date?: Date;
+	end_date?: Date;
+	is_active?: boolean;
 };

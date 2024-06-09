@@ -1,15 +1,15 @@
 import clsx from 'clsx';
 import { kebabCase } from 'lodash';
 import { useEffect, useState } from 'react';
-import { ContainerFlexColGrow, ContainerFlexRowGrow } from '../../utils/class/containers';
+import { tryParseFloat } from '../../utils/numberParsers';
+import { ContainerFlexColGrow, ContainerFlexRowGrow } from '../../utils/tailwindClass/containers';
 import {
 	InvalidTextBoxClass,
 	LabelLeftClass,
 	LabelTopClass,
 	TextBoxBottomClass,
 	TextBoxRightClass,
-} from '../../utils/class/inputs';
-import { parseFloatOrNull } from '../../utils/parsers';
+} from '../../utils/tailwindClass/inputs';
 import { useFormContext } from '../providers/form-providers';
 import { RequiredIcon } from '../required';
 
@@ -18,7 +18,6 @@ type PropType = {
 	label: string;
 	name: string;
 	placeholder?: string;
-	defaultValue?: number;
 	prefix?: string;
 	suffix?: string;
 	min?: number;
@@ -33,7 +32,6 @@ export function NumberInput({
 	label,
 	name,
 	placeholder,
-	defaultValue,
 	prefix,
 	suffix,
 	min,
@@ -51,12 +49,15 @@ export function NumberInput({
 	const [input, setInput] = useState<string>('');
 
 	const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		setFormData({ name, value: parseFloatOrNull(e.target.value), valid: true });
+		setFormData({ name, value: tryParseFloat(e.target.value, undefined, null), valid: true });
 		setInput(e.target.value);
 	};
 
 	useEffect(() => {
-		setInput(formData?.[name]?.value?.toString());
+		const newData = formData?.[name]?.value?.toString() ?? '';
+		if (newData !== input) {
+			setInput(newData);
+		}
 	}, [formData?.[name]?.value]);
 
 	return (
@@ -75,12 +76,11 @@ export function NumberInput({
 					value={input}
 					onChange={onChange}
 					placeholder={placeholder}
-					defaultValue={defaultValue}
 					min={min}
 					max={max}
 					step={step}
 					required={required}
-					className={clsx('flex-1', 'px-1', 'bg-transparent')}
+					className={clsx('flex-1', 'px-1', 'bg-transparent', 'focus:outline-none')}
 				/>
 
 				{suffix ? <span className="pl-1">{suffix}</span> : null}

@@ -10,4 +10,5 @@ export type StudentCreateDto = {
 	parent_phone_number?: string;
 	email?: string;
 	address?: string;
+	is_active?: boolean;
 };

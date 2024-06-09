@@ -1,15 +1,16 @@
 import { useQuery } from '@tanstack/react-query';
 import clsx from 'clsx';
-import { kebabCase } from 'lodash';
+import { isEqual, kebabCase } from 'lodash';
 import { useEffect, useState } from 'react';
-import { ContainerFlexColGrow, ContainerFlexRowGrow } from '../../utils/class/containers';
+import { tryParseInt } from '../../utils/numberParsers';
+import { ContainerFlexColGrow, ContainerFlexRowGrow } from '../../utils/tailwindClass/containers';
 import {
 	InvalidTextBoxClass,
 	LabelLeftClass,
 	LabelTopClass,
 	TextBoxBottomClass,
 	TextBoxRightClass,
-} from '../../utils/class/inputs';
+} from '../../utils/tailwindClass/inputs';
 import { CloseButtonIcon } from '../close-button-icon';
 import { useFormContext } from '../providers/form-providers';
 import { RequiredIcon } from '../required';
@@ -20,7 +21,6 @@ type PropType = {
 	name: string;
 	placeholder?: string;
 	placeholderValue?: any;
-	defaultSelectionIndex?: number;
 	queryFn?: () => Promise<{ value: any; label: string }[]>;
 	options?: { value: any; label: string }[];
 	onUpdate?: () => any;
@@ -33,7 +33,6 @@ export function SelectInput({
 	label,
 	name,
 	placeholder,
-	defaultSelectionIndex,
 	placeholderValue = null,
 	queryFn,
 	options,
@@ -47,7 +46,7 @@ export function SelectInput({
 	const inputClass = leftLabel ? TextBoxRightClass : TextBoxBottomClass;
 
 	const { formData, setFormData } = useFormContext();
-	const [input, setInput] = useState<string>(defaultSelectionIndex?.toString() ?? '');
+	const [input, setInput] = useState<string>('');
 
 	const { data, refetch } = useQuery({
 		queryKey: [id],
@@ -55,14 +54,20 @@ export function SelectInput({
 		enabled: false,
 	});
 
+	useEffect(() => {
+		if (queryFn) {
+			refetch();
+		}
+	}, []);
+
 	const onChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
 		if (e.target.value === '') {
-			setFormData({ name, value: placeholderValue ?? null, valid: true });
+			setFormData({ name, value: placeholderValue, valid: true });
 			setInput(e.target.value);
 		} else {
 			const newData = {
 				name,
-				value: (options ?? data)?.[parseInt(e.target.value)].value,
+				value: (options ?? data)?.[tryParseInt(e.target.value, 0)]?.value,
 				valid: true,
 			};
 			setFormData(newData);
@@ -78,16 +83,15 @@ export function SelectInput({
 
 	useEffect(() => {
 		const foundIndex = (options ?? data)?.findIndex(record => {
-			return record.value === formData?.[name]?.value;
+			return isEqual(record.value, formData?.[name]?.value);
 		});
 
-		if (foundIndex > -1) {
+		const newData = foundIndex > -1 ? foundIndex.toString() : '';
+		if (newData !== input) {
 			setInput(foundIndex.toString());
-		} else {
-			setInput('');
 		}
 		onUpdate?.();
-	}, [formData[name]]);
+	}, [formData?.[name]?.value]);
 
 	return (
 		<div className={containerClass}>
@@ -109,27 +113,27 @@ export function SelectInput({
 					value={input}
 					onChange={onChange}
 					onClick={() => (queryFn ? refetch() : null)}
-					placeholder={placeholder ?? `Select a ${label}`}
-					defaultValue={defaultSelectionIndex?.toString()}
 					required={required}
-					className={clsx('flex-1', 'px-1', 'bg-transparent')}
+					className={clsx('flex-1', 'px-1', 'bg-transparent', 'focus:outline-none')}
 				>
-					<option value="" disabled={required}>
+					<option value="" disabled={required} className={clsx('bg-bglight', 'dark:bg-bgdark')}>
 						{placeholder ?? `Select a ${label}`}
 					</option>
 
 					{(options ?? data)?.map((value: { label: string }, index) => (
-						<option key={value.label} value={index}>
+						<option
+							key={`${value.label}_${index}`}
+							value={index}
+							className={clsx('bg-bglight', 'dark:bg-bgdark')}
+						>
 							{value.label}
 						</option>
 					))}
 				</select>
 
-				{!required ? (
-					<button onClick={onClear}>
-						<CloseButtonIcon />
-					</button>
-				) : null}
+				<button onClick={onClear}>
+					<CloseButtonIcon />
+				</button>
 			</div>
 		</div>
 	);

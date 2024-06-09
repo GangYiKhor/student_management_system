@@ -1,3 +1,4 @@
+import { isSameDay } from '../../../utils/dateOperations';
 import { EditData, FormDataType } from '../types';
 
 type PropType = {
@@ -11,11 +12,11 @@ export function useIsDirty({ formData, data }: Readonly<PropType>) {
 
 		if (data) {
 			isDirty ||= formData.percentage?.value !== data.percentage;
-			isDirty ||= formData.start_date?.value?.getTime() !== data.start_date?.getTime();
-			isDirty ||= formData.end_date?.value?.getTime() !== data.end_date?.getTime();
+			isDirty ||= !isSameDay(formData.start_date?.value, data.start_date);
+			isDirty ||= !isSameDay(formData.end_date?.value, data.end_date);
 			isDirty ||= formData.inclusive?.value !== data.inclusive;
 		} else {
-			isDirty ||= formData.percentage?.value !== 0;
+			isDirty ||= formData.percentage?.value !== undefined;
 			isDirty ||= formData.start_date?.value !== undefined;
 			isDirty ||= formData.end_date?.value !== undefined;
 			isDirty ||= formData.inclusive?.value !== undefined;

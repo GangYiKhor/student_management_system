@@ -6,7 +6,7 @@ import Modal from '../components/modal';
 import { useGet } from '../hooks/use-get';
 import { useTooltip } from '../hooks/use-tooltip';
 import { Layout } from '../layouts/basic_layout';
-import { BlueButtonClass } from '../utils/class/button';
+import { BlueButtonClass } from '../utils/tailwindClass/button';
 
 function Home() {
 	const { tooltip } = useTooltip();

@@ -1,5 +1,5 @@
 import { createContext, useContext, useMemo, useReducer } from 'react';
-import { parseIntOrUndefined } from '../../utils/parsers';
+import { tryParseInt } from '../../utils/numberParsers';
 
 type SingularFormData = { value: any; valid: boolean };
 export type GenericFormDataType = {
@@ -21,16 +21,15 @@ function reducer(
 	}
 
 	if (typeof action.name === 'object') {
-		state = action.name;
-		return state;
+		return action.name;
 	}
 
 	const [name, index] = action.name.split('.');
 	if (!name) {
-		state = action.value;
-		return state;
+		return action.value;
 	}
 
+	state = { ...state };
 	const newObj: { value?: any; valid?: boolean } = {};
 	switch (action.value) {
 		case null:
@@ -48,15 +47,14 @@ function reducer(
 		newObj.valid = action.valid;
 	}
 
-	if (!index) {
+	const indexValue = tryParseInt(index);
+	if (!indexValue) {
 		state[name] = { ...state[name], ...newObj };
-	} else if (parseIntOrUndefined(index) !== undefined) {
-		state[name][parseInt(index)] = { ...state[name][parseInt(index)], ...newObj };
 	} else {
-		console.error('Invalid Form Data!');
+		state[name][indexValue] = { ...state[name][indexValue], ...newObj };
 	}
 
-	return { ...state };
+	return state;
 }
 
 type PropType = {

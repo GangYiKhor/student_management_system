@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import { ButtonSmallClass } from '../utils/class/button';
+import { ButtonSmallClass } from '../utils/tailwindClass/button';
 import { ThemeToggle } from './theme-toggle';
 
 const headerClass = clsx(

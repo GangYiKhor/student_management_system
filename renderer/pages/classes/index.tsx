@@ -1,52 +1,47 @@
-import { useQuery } from '@tanstack/react-query';
-import axios, { AxiosError, AxiosResponse } from 'axios';
 import clsx from 'clsx';
 import Head from 'next/head';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { LastUpdatedAt } from '../../components/last-updated';
 import { Loader } from '../../components/loader';
 import { FormProvider } from '../../components/providers/form-providers';
 import { useNotificationContext } from '../../components/providers/notification-providers';
+import { useCustomQuery } from '../../hooks/use-custom-query';
 import { useGet } from '../../hooks/use-get';
+import { usePost } from '../../hooks/use-post';
 import { Layout } from '../../layouts/basic_layout';
-import { SERVER_CONNECTION_ERROR } from '../../utils/constants/ErrorResponses';
+import { RecordCreatedMessage } from '../../utils/notifications/record-created';
 import { ClassCreateDto } from '../../utils/types/dtos/classes/create';
 import { ClassesGetDto } from '../../utils/types/dtos/classes/get';
 import { ClassesGetResponses } from '../../utils/types/responses/classes/get';
-import { ErrorResponse } from '../../utils/types/responses/error';
 import { ClassesModal } from './components/classes-modal';
 import { ClassesSearchAdd } from './components/search-add';
 import { ClassTable } from './components/table';
-import { formDefaultValue, searchDefaultValue } from './constants';
+import {
+	BackendPath,
+	PageName,
+	defaultSortString,
+	formDefaultValue,
+	parseGetData,
+	searchDefaultValue,
+} from './constants';
 
 function ClassRegistration() {
 	const { setNotification } = useNotificationContext();
-	const [search, setSearch] = useState<string>('');
-	const [formId, setFormId] = useState<number>(undefined);
-	const [teacherId, setTeacherId] = useState<number>(undefined);
-	const [classYear, setClassYear] = useState<number>(undefined);
-	const [day, setDay] = useState<number>(undefined);
+	const [search, setSearch] = useState<string>(searchDefaultValue.general.value);
+	const [formId, setFormId] = useState<number>(searchDefaultValue.form_id.value);
+	const [teacherId, setTeacherId] = useState<number>(searchDefaultValue.teacher_id.value);
+	const [classYear, setClassYear] = useState<number>(searchDefaultValue.class_year.value);
+	const [day, setDay] = useState<number>(searchDefaultValue.day.value);
 	const [isActive, setIsActive] = useState<boolean>(true);
-	const [orderBy, setOrderBy] = useState<string>('teacher_name asc');
+	const [orderBy, setOrderBy] = useState<string>(defaultSortString);
 	const [toggleModal, setToggleModal] = useState(false);
 
-	const parseData = (data: ClassesGetResponses) =>
-		data.map(value => {
-			value.start_date = new Date(value.start_date);
-			value.end_date = new Date(value.end_date);
-			value.start_time = new Date(value.start_time);
-			value.end_time = new Date(value.end_time);
-			return value;
-		});
-
-	const getClass = useGet<ClassesGetDto, ClassesGetResponses>('/api/classes', parseData);
-	const { data, isLoading, error, isError, dataUpdatedAt, refetch } = useQuery<
-		ClassesGetResponses,
-		AxiosError<ErrorResponse>
-	>({
+	const getClasses = useGet<ClassesGetDto, ClassesGetResponses>(BackendPath, parseGetData);
+	const postClass = usePost<ClassCreateDto, void>(BackendPath);
+	const { data, isLoading, dataUpdatedAt, refetch } = useCustomQuery<ClassesGetResponses>({
 		queryKey: ['class'],
 		queryFn: () =>
-			getClass({
+			getClasses({
 				form_id: formId,
 				teacher_id: teacherId,
 				class_year: classYear,
@@ -54,55 +49,22 @@ function ClassRegistration() {
 				is_active: isActive,
 				orderBy,
 			}),
-		enabled: true,
+		fetchOnVariable: [formId, teacherId, classYear, day, isActive, orderBy],
 	});
 
-	const handleAdd = useCallback(
-		async (createData: ClassCreateDto) => {
-			try {
-				await axios.post<any, AxiosResponse<any, any>, ClassCreateDto>(`/api/classes`, createData);
-				await refetch();
-				setNotification({
-					title: 'New Class Added!',
-					message: 'Class Added Successfully!',
-					type: 'INFO',
-				});
-			} catch (error: any) {
-				if (isError) {
-					if (error instanceof AxiosError) {
-						setNotification({ ...error?.response?.data?.error });
-					} else {
-						setNotification(SERVER_CONNECTION_ERROR);
-					}
-				}
-			}
-		},
-		[refetch, setNotification],
-	);
-
-	useEffect(() => {
-		if (isError) {
-			if (error instanceof AxiosError) {
-				setNotification({ ...error?.response?.data?.error });
-			} else {
-				setNotification(SERVER_CONNECTION_ERROR);
-			}
-		}
-	}, [isError]);
-
-	useEffect(() => {
-		void refetch();
-	}, [formId, teacherId, classYear, day, isActive, orderBy]);
+	const handleAdd = async (data: ClassCreateDto) => {
+		await postClass(data);
+		await refetch();
+		setNotification(RecordCreatedMessage('Class'));
+	};
 
 	return (
 		<React.Fragment>
 			<Head>
-				<title>Classes</title>
+				<title>{PageName}</title>
 			</Head>
-			<Layout headerTitle={'Classes'}>
-				{isLoading ? (
-					<Loader />
-				) : (
+			<Layout headerTitle={PageName}>
+				<Loader isLoading={isLoading}>
 					<div className={clsx('flex', 'flex-col', 'gap-4')}>
 						<FormProvider defaultValue={searchDefaultValue}>
 							<ClassesSearchAdd
@@ -117,6 +79,7 @@ function ClassRegistration() {
 						</FormProvider>
 
 						<ClassTable data={data} search={search} refetch={refetch} setOrderBy={setOrderBy} />
+
 						<LastUpdatedAt
 							lastUpdatedAt={dataUpdatedAt ?? new Date(dataUpdatedAt)}
 							refetch={refetch}
@@ -128,7 +91,7 @@ function ClassRegistration() {
 							</FormProvider>
 						) : null}
 					</div>
-				)}
+				</Loader>
 			</Layout>
 		</React.Fragment>
 	);

@@ -1,8 +1,9 @@
 import { DefaultSort } from '../../components/tables/table-template';
+import { STUDENT_FORM_API_PATH } from '../../utils/constants/constants';
 import { EditData, FormDataType, SearchDataType } from './types';
 
 export const PageName = 'Student Forms';
-export const BackendPath = '/api/student-forms';
+export const BackendPath = STUDENT_FORM_API_PATH;
 
 export const defaultSort: DefaultSort = {
 	field: 'form_name',
@@ -21,5 +22,5 @@ export const formDefaultValueFilled = (data: EditData): FormDataType => ({
 
 export const searchDefaultValue: SearchDataType = {
 	general: { value: '', valid: true },
-	status: { value: undefined, valid: true },
+	status: { value: true, valid: true },
 };

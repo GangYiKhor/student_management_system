@@ -5,11 +5,15 @@ import { NumberInput } from '../../../components/inputs/number-input';
 import { SelectInput } from '../../../components/inputs/select-input';
 import Modal, { ModalButtons } from '../../../components/modal';
 import { useFormContext } from '../../../components/providers/form-providers';
-import { useNotificationContext } from '../../../components/providers/notification-providers';
 import Row from '../../../components/row';
 import Separator from '../../../components/separator';
 import { useGetOptions } from '../../../hooks/use-get';
-import { GrayButtonClass, GreenButtonClass, RedButtonClass } from '../../../utils/class/button';
+import { STUDENT_FORM_API_PATH } from '../../../utils/constants/constants';
+import {
+	GrayButtonClass,
+	GreenButtonClass,
+	RedButtonClass,
+} from '../../../utils/tailwindClass/button';
 import { PackageCreateDto } from '../../../utils/types/dtos/packages/create';
 import { PackageUpdateDto } from '../../../utils/types/dtos/packages/update';
 import { StudentFormsGetDto } from '../../../utils/types/dtos/student-forms/get';
@@ -28,13 +32,12 @@ export function PackagesModal({ closeModal, handler, data }: Readonly<PropType>)
 	const { formData, setFormData } = useFormContext<FormDataType>();
 	const [confirmation, setConfirmation] = useState(false);
 	const [closeConfirmation, setCloseConfirmation] = useState(false);
-	const { setNotification } = useNotificationContext();
 
 	const verifyInputs = useVerifyInputs({ formData, setFormData });
-	const isDirty = useIsDirty({ formData });
+	const isDirty = useIsDirty({ formData, data });
 
 	const getForms = useGetOptions<StudentFormsGetDto, StudentFormsGetResponse>(
-		'/api/student-forms',
+		STUDENT_FORM_API_PATH,
 		value => value.form_name,
 		value => value.id,
 	);
@@ -71,7 +74,6 @@ export function PackagesModal({ closeModal, handler, data }: Readonly<PropType>)
 					setConfirmation(false);
 					closeModal();
 				} catch (error) {
-					setNotification({ message: error });
 					setConfirmation(false);
 				}
 			},

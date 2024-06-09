@@ -9,14 +9,14 @@ import {
 	THeadClass,
 	THeadStickyClass,
 	TableClass,
-} from '../../utils/class/table';
+} from '../../utils/tailwindClass/table';
 import { Sorter } from './sorter';
 
-export type TableColumnType<T = any> = {
+export type TableColumnType<Res = any> = {
 	title: string;
 	columnName: string;
 	addOnClass?: string;
-	valueParser?: (value: T) => string | ReactElement;
+	valueParser?: (value: Res) => string | ReactElement;
 	notSortable?: boolean;
 	notClickable?: boolean;
 };

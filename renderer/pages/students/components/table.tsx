@@ -1,39 +1,23 @@
 import { QueryObserverResult } from '@tanstack/react-query';
-import axios, { AxiosError, AxiosResponse } from 'axios';
-import clsx from 'clsx';
+import { AxiosError } from 'axios';
 import React, { useCallback, useState } from 'react';
 import { FormProvider } from '../../../components/providers/form-providers';
-import { useNotificationContext } from '../../../components/providers/notification-providers';
-import {
-	DefaultSort,
-	TableColumnType,
-	TableTemplate,
-} from '../../../components/tables/table-template';
-import { SERVER_CONNECTION_ERROR } from '../../../utils/constants/ErrorResponses';
+import { TableColumnType, TableTemplate } from '../../../components/tables/table-template';
+import { usePost } from '../../../hooks/use-post';
+import { STUDENT_CLASS_API_PATH } from '../../../utils/constants/constants';
+import { GreenBoldText, RedBoldText } from '../../../utils/tailwindClass/text';
 import { StudentClassCreateDto } from '../../../utils/types/dtos/student-classes/create';
-import { StudentsUpdateDto } from '../../../utils/types/dtos/students/update';
+import { StudentUpdateDto } from '../../../utils/types/dtos/students/update';
 import { ErrorResponse } from '../../../utils/types/responses/error';
-import { StudentsGetResponses } from '../../../utils/types/responses/students/get';
-import { formDefaultValueFilled } from '../constants';
+import {
+	StudentsGetResponse,
+	StudentsGetResponses,
+} from '../../../utils/types/responses/students/get';
+import { BackendPath, defaultSort, formDefaultValueFilled } from '../constants';
+import { EditData } from '../types';
 import { StudentsModal } from './students-modal';
 
-export type EditData = {
-	id: number;
-	student_name: string;
-	form_id: number;
-	reg_date: Date;
-	reg_year: number;
-	gender?: string;
-	ic?: string;
-	school?: string;
-	phone_number?: string;
-	parent_phone_number?: string;
-	email?: string;
-	address?: string;
-	is_active?: boolean;
-};
-
-const columns: TableColumnType[] = [
+const columns: TableColumnType<StudentsGetResponse>[] = [
 	{ title: 'ID', columnName: 'id', addOnClass: 'w-[5rem]' },
 	{ title: 'Name', columnName: 'student_name' },
 	{
@@ -46,22 +30,12 @@ const columns: TableColumnType[] = [
 		title: 'Status',
 		columnName: 'is_active',
 		valueParser: value => (
-			<span
-				className={clsx(
-					'font-bold',
-					value.is_active ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400',
-				)}
-			>
+			<span className={value.is_active ? GreenBoldText : RedBoldText}>
 				{value.is_active ? 'Active' : 'Inactive'}
 			</span>
 		),
 	},
 ];
-
-const defaultSort: DefaultSort = {
-	field: 'student_name',
-	asc: true,
-};
 
 type PropType = {
 	data: StudentsGetResponses;
@@ -70,39 +44,22 @@ type PropType = {
 };
 
 export function StudentsTable({ data, refetch, setOrderBy }: Readonly<PropType>) {
-	const { setNotification } = useNotificationContext();
 	const [selected, setSelected] = useState<EditData>(undefined);
-	const [edit, setEdit] = useState<boolean>(false);
+	const postStudent = usePost<StudentUpdateDto, void>(BackendPath);
+	const postStudentClass = usePost<StudentClassCreateDto, void>(STUDENT_CLASS_API_PATH);
 
-	const handleEdit = useCallback((data: EditData) => {
+	const handleEdit = (data: EditData) => {
 		setSelected(data);
-		setEdit(true);
-	}, []);
+	};
 
-	const handleUpdate = useCallback(
-		async (data: StudentsUpdateDto, classIds: number[]) => {
-			try {
-				await axios.post<any, AxiosResponse<any, any>, StudentsUpdateDto>(
-					`/api/students/${selected.id}`,
-					data,
-				);
-
-				await axios.post<any, AxiosResponse<any, any>, StudentClassCreateDto>(
-					`/api/student-classes/${selected.id}`,
-					classIds.map(value => ({ class_id: value })),
-				);
-
-				await refetch();
-			} catch (error: any) {
-				if (error instanceof AxiosError) {
-					setNotification({ ...error?.response?.data?.error });
-				} else {
-					setNotification(SERVER_CONNECTION_ERROR);
-				}
-			}
-		},
-		[refetch, selected?.id],
-	);
+	const handleUpdate = async (data: StudentUpdateDto, classIds: number[]) => {
+		await postStudent(data, selected.id);
+		await postStudentClass(
+			classIds.map(value => ({ class_id: value })),
+			selected.id,
+		);
+		await refetch();
+	};
 
 	const handleActivate = useCallback(async () => {
 		const newStatus = !selected.is_active;
@@ -123,10 +80,10 @@ export function StudentsTable({ data, refetch, setOrderBy }: Readonly<PropType>)
 				handleEdit={handleEdit}
 			/>
 
-			{edit ? (
+			{selected ? (
 				<FormProvider defaultValue={formDefaultValueFilled(selected)}>
 					<StudentsModal
-						closeModal={() => setEdit(false)}
+						closeModal={() => setSelected(undefined)}
 						handler={handleUpdate}
 						handleActivate={handleActivate}
 						data={selected}

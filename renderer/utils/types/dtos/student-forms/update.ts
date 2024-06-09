@@ -1,4 +1,3 @@
-export type StudentFormUpdateDto = {
-	form_name?: string;
-	is_active?: boolean;
-};
+import { StudentFormCreateDto } from './create';
+
+export type StudentFormUpdateDto = Partial<StudentFormCreateDto>;

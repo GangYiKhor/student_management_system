@@ -7,8 +7,8 @@ export function getPackageCount(formData: FormDataType): number {
 	let packageCount = 0;
 
 	for (let i = 1; i <= CLASS_COUNT; i++) {
-		const curClass = formData[`class_${i}`].value as ClassesGetResponse;
-		packageCount += curClass.is_package ? 1 : 0;
+		const curClass = formData[`class_${i}`]?.value as ClassesGetResponse;
+		packageCount += curClass?.is_package ? 1 : 0;
 	}
 
 	return packageCount;
@@ -18,10 +18,10 @@ export function getDiscountedFees(
 	value: ClassesGetResponse,
 	curPackage: PackagesGetResponse,
 ): number {
-	if (value.is_package) {
-		return value.fees - (curPackage?.discount_per_subject ?? 0);
+	if (value?.is_package) {
+		return value?.fees - (curPackage?.discount_per_subject ?? 0);
 	} else {
-		return value.fees;
+		return value?.fees;
 	}
 }
 
@@ -29,7 +29,7 @@ export function getAllFees(formData: FormDataType, curPackage: PackagesGetRespon
 	let fees = 0;
 
 	for (let i = 1; i <= CLASS_COUNT; i++) {
-		const curClass = formData[`class_${i}`].value as ClassesGetResponse;
+		const curClass = formData[`class_${i}`]?.value as ClassesGetResponse;
 		fees += getDiscountedFees(curClass, curPackage);
 	}
 

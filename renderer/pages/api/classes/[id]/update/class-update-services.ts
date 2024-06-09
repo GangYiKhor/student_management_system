@@ -10,11 +10,11 @@ export async function classUpdateServices(
 	const existingRecord = await prisma.class_registration.findFirst({
 		where: {
 			teacher_id,
-			start_date: { lte: end_date },
-			end_date: { gte: start_date },
+			start_date: { lte: end_date ?? undefined },
+			end_date: { gte: start_date ?? undefined },
 			day,
-			start_time: { lte: end_time },
-			end_time: { gte: start_time },
+			start_time: { lt: end_time ?? undefined },
+			end_time: { gt: start_time ?? undefined },
 			NOT: { id },
 		},
 	});

@@ -1,7 +1,7 @@
-import { parseDateOrUndefined } from '../../../../utils/parsers';
+import { parseDateTime } from '../../../../utils/dateOperations';
+import { parseOrderBy } from '../../../../utils/parseOrderBy';
 import prisma from '../../../../utils/prisma-client';
 import { HolidaysGetDto, HolidaysGetQueryDto } from '../../../../utils/types/dtos/holidays/get';
-import { OrderBy } from '../../../../utils/types/orderBy';
 import { HolidaysGetResponses } from '../../../../utils/types/responses/holidays/get';
 
 export async function holidaysGetServices(
@@ -14,17 +14,19 @@ export async function holidaysGetServices(
 	if (startDate && endDate) {
 		where.date = { gte: startDate, lte: endDate };
 	} else if (startDate) {
-		where.date = startDate;
+		where.date = { gte: startDate };
+	} else if (endDate) {
+		where.date = { lte: endDate };
 	}
 
-	const orderBy: OrderBy = { date: order.split(' ')[1] };
+	const orderBy = parseOrderBy(order, { date: 'asc' });
 	return prisma.holiday.findMany({ where, orderBy });
 }
 
 export function holidaysGetParseDto(query: HolidaysGetQueryDto): HolidaysGetDto {
 	return {
-		startDate: parseDateOrUndefined(query.startDate),
-		endDate: parseDateOrUndefined(query.endDate),
+		startDate: parseDateTime(query.startDate),
+		endDate: parseDateTime(query.endDate),
 		orderBy: query.orderBy,
 	};
 }

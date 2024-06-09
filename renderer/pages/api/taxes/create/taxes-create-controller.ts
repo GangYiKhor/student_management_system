@@ -3,11 +3,11 @@ import { DATABASE_ERROR } from '../../../../utils/constants/ErrorResponses';
 import { devLog } from '../../../../utils/devLog';
 import { ExistedError } from '../../../../utils/errors/ExistedError';
 import { ExtendedNextApiRequest } from '../../../../utils/extended-next-api-request';
-import { TaxesCreateDto } from '../../../../utils/types/dtos/taxes/create';
+import { TaxCreateDto } from '../../../../utils/types/dtos/taxes/create';
 import { taxesCreateServices } from './taxes-create-services';
 
 export async function taxesCreateController(
-	req: ExtendedNextApiRequest<TaxesCreateDto>,
+	req: ExtendedNextApiRequest<TaxCreateDto>,
 	res: NextApiResponse,
 ) {
 	devLog('Create Tax Handler', req.body);

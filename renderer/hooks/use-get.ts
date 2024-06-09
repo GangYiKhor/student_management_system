@@ -4,10 +4,7 @@ import { SelectOptions } from '../utils/types/select-options';
 export function useGet<T = any, Res = any>(url: string, parseFunc?: (value: Res) => Res) {
 	return async (params?: T): Promise<Res> => {
 		const { data } = await axios.get<T, AxiosResponse<Res>>(url, { params });
-		if (parseFunc) {
-			return parseFunc(data);
-		}
-		return data;
+		return parseFunc?.(data) ?? data;
 	};
 }
 

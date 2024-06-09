@@ -10,7 +10,7 @@ export async function taxUpdateController(
 	req: ExtendedNextApiRequest<TaxUpdateDto, { id: string }>,
 	res: NextApiResponse,
 ) {
-	devLog('Update Tax Handler', req.query);
+	devLog('Update Tax Handler', req.query, req.body);
 
 	try {
 		await taxUpdateServices(parseInt(req.query.id), req.body);

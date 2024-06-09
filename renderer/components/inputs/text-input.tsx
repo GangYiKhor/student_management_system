@@ -1,14 +1,14 @@
 import clsx from 'clsx';
 import { kebabCase } from 'lodash';
 import { useEffect, useState } from 'react';
-import { ContainerFlexColGrow, ContainerFlexRowGrow } from '../../utils/class/containers';
+import { ContainerFlexColGrow, ContainerFlexRowGrow } from '../../utils/tailwindClass/containers';
 import {
 	InvalidTextBoxClass,
 	LabelLeftClass,
 	LabelTopClass,
 	TextBoxBottomClass,
 	TextBoxRightClass,
-} from '../../utils/class/inputs';
+} from '../../utils/tailwindClass/inputs';
 import { useFormContext } from '../providers/form-providers';
 import { RequiredIcon } from '../required';
 
@@ -17,7 +17,6 @@ type PropType = {
 	label: string;
 	name: string;
 	placeholder?: string;
-	defaultValue?: string;
 	prefix?: string;
 	suffix?: string;
 	onFocusFormat?: (input: string) => string;
@@ -33,7 +32,6 @@ export function TextInput({
 	label,
 	name,
 	placeholder,
-	defaultValue,
 	prefix,
 	suffix,
 	onFocusFormat,
@@ -52,7 +50,16 @@ export function TextInput({
 	const [input, setInput] = useState<string>('');
 
 	const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		setFormData({ name, value: e.target.value, valid: true });
+		let value = e.target.value;
+		if (value === '') {
+			value = null;
+		}
+
+		setFormData({
+			name,
+			value: onBlurFormat?.(value) ?? value,
+			valid: true,
+		});
 		setInput(e.target.value);
 	};
 
@@ -64,7 +71,10 @@ export function TextInput({
 	};
 
 	useEffect(() => {
-		setInput(onBlurFormat?.(formData?.[name]?.value) ?? formData?.[name]?.value);
+		const newData = formData?.[name]?.value ?? '';
+		if (newData !== input) {
+			setInput(formData[name].value);
+		}
 	}, [formData?.[name]?.value]);
 
 	return (
@@ -83,12 +93,11 @@ export function TextInput({
 					value={input}
 					onChange={onChange}
 					placeholder={placeholder}
-					defaultValue={defaultValue}
 					maxLength={maxLength}
 					onFocus={onFocus}
 					onBlur={onBlur}
 					required={required}
-					className={clsx('flex-1', 'px-1', 'bg-transparent')}
+					className={clsx('flex-1', 'px-1', 'bg-transparent', 'focus:outline-none')}
 				/>
 
 				{suffix ? <span className="pl-1">{suffix}</span> : null}

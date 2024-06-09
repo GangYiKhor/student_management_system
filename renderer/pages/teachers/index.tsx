@@ -8,8 +8,8 @@ import { useCustomQuery } from '../../hooks/use-custom-query';
 import { useGet } from '../../hooks/use-get';
 import { usePost } from '../../hooks/use-post';
 import { Layout } from '../../layouts/basic_layout';
-import { ContentContainer } from '../../utils/class/containers';
 import { RecordCreatedMessage } from '../../utils/notifications/record-created';
+import { ContentContainer } from '../../utils/tailwindClass/containers';
 import { TeacherCreateDto } from '../../utils/types/dtos/teachers/create';
 import { TeachersGetDto } from '../../utils/types/dtos/teachers/get';
 import { TeachersGetResponses } from '../../utils/types/responses/teachers/get';
@@ -26,13 +26,13 @@ import {
 
 function Teachers() {
 	const { setNotification } = useNotificationContext();
-	const [search, setSearch] = useState<string>('');
-	const [isActive, setIsActive] = useState<boolean>(true);
+	const [search, setSearch] = useState<string>(searchDefaultValue.general.value);
+	const [isActive, setIsActive] = useState<boolean>(searchDefaultValue.status.value);
 	const [orderBy, setOrderBy] = useState<string>(defaultSortString);
 	const [toggleModal, setToggleModal] = useState(false);
 
+	const getTeachers = useGet<TeachersGetDto, TeachersGetResponses>(BackendPath);
 	const postTeacher = usePost<TeacherCreateDto, void>(BackendPath);
-	const getTeachers = useGet<TeachersGetDto, TeachersGetResponses>('/api/teachers');
 
 	const { data, isLoading, dataUpdatedAt, refetch } = useCustomQuery<TeachersGetResponses>({
 		queryKey: ['teachers'],

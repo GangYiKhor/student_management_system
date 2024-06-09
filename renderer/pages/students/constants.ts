@@ -1,10 +1,24 @@
+import { DefaultSort } from '../../components/tables/table-template';
+import { STUDENT_API_PATH } from '../../utils/constants/constants';
+import { getToday } from '../../utils/dateOperations';
+import { StudentsGetResponses } from '../../utils/types/responses/students/get';
 import { EditData, FormDataType, SearchDataType } from './types';
+
+export const PageName = 'Students';
+export const BackendPath = STUDENT_API_PATH;
+
+export const defaultSort: DefaultSort = {
+	field: 'student_name',
+	asc: true,
+};
+
+export const defaultSortString: string = `${defaultSort.field} ${defaultSort.asc ? 'asc' : 'desc'}`;
 
 export const formDefaultValue: FormDataType = {
 	student_name: { value: '', valid: true },
 	form_id: { value: undefined, valid: true },
-	reg_date: { value: undefined, valid: true },
-	reg_year: { value: undefined, valid: true },
+	reg_date: { value: getToday(), valid: true },
+	reg_year: { value: new Date().getFullYear(), valid: true },
 	gender: { value: '', valid: true },
 	ic: { value: '', valid: true },
 	school: { value: '', valid: true },
@@ -36,3 +50,9 @@ export const searchDefaultValue: SearchDataType = {
 	reg_year: { value: undefined, valid: true },
 	status: { value: undefined, valid: true },
 };
+
+export const parseGetData = (data: StudentsGetResponses) =>
+	data.map(value => {
+		value.reg_date = new Date(value.reg_date);
+		return value;
+	});

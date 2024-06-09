@@ -3,7 +3,8 @@ import { useFormContext } from '../../../components/providers/form-providers';
 import { SearchBar } from '../../../components/search-bar';
 import { GeneralSearch } from '../../../components/searches/general-search';
 import { StatusSearch } from '../../../components/searches/status-search';
-import { BlueButtonClass } from '../../../utils/class/button';
+import { BlueButtonClass } from '../../../utils/tailwindClass/button';
+import { SearchBarButtons } from '../../../utils/types/search-bar-button';
 import { SearchDataType } from '../types';
 
 type PropType = {
@@ -15,7 +16,7 @@ type PropType = {
 export function TeachersSearchAdd({ setSearch, setIsActive, setToggleModal }: Readonly<PropType>) {
 	const { formData } = useFormContext<SearchDataType>();
 
-	const buttons = [
+	const buttons: SearchBarButtons = [
 		{
 			text: 'Register',
 			className: BlueButtonClass,

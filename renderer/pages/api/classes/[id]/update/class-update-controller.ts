@@ -10,7 +10,7 @@ export async function classUpdateController(
 	req: ExtendedNextApiRequest<ClassUpdateDto, { id: string }>,
 	res: NextApiResponse,
 ) {
-	devLog('Update Class Handler', req.query);
+	devLog('Update Class Handler', req.query, req.body);
 
 	try {
 		await classUpdateServices(parseInt(req.query.id), req.body);

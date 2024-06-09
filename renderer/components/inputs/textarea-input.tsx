@@ -1,8 +1,12 @@
 import clsx from 'clsx';
 import { kebabCase } from 'lodash';
 import React, { useEffect, useState } from 'react';
-import { ContainerFlexColGrow } from '../../utils/class/containers';
-import { InvalidTextBoxClass, LabelTopClass, TextBoxBottomClass } from '../../utils/class/inputs';
+import { ContainerFlexColGrow } from '../../utils/tailwindClass/containers';
+import {
+	InvalidTextBoxClass,
+	LabelTopClass,
+	TextBoxBottomClass,
+} from '../../utils/tailwindClass/inputs';
 import { useFormContext } from '../providers/form-providers';
 import { RequiredIcon } from '../required';
 
@@ -11,7 +15,6 @@ type PropType = {
 	label: string;
 	name: string;
 	placeholder?: string;
-	defaultValue?: string;
 	maxLength?: number;
 	onFocusFormat?: (input: string) => string;
 	onBlurFormat?: (input: string) => string;
@@ -23,7 +26,6 @@ export function TextAreaInput({
 	label,
 	name,
 	placeholder,
-	defaultValue,
 	maxLength = 50,
 	onFocusFormat,
 	onBlurFormat,
@@ -47,7 +49,10 @@ export function TextAreaInput({
 	};
 
 	useEffect(() => {
-		setInput(onBlurFormat?.(formData?.[name]?.value) ?? formData?.[name]?.value);
+		const newData = onBlurFormat?.(formData?.[name]?.value) ?? formData?.[name]?.value ?? '';
+		if (newData !== input) {
+			setInput(newData);
+		}
 	}, [formData?.[name]?.value]);
 
 	return (
@@ -62,7 +67,6 @@ export function TextAreaInput({
 				value={input}
 				onChange={onChange}
 				placeholder={placeholder}
-				defaultValue={defaultValue}
 				maxLength={maxLength}
 				onFocus={onFocus}
 				onBlur={onBlur}

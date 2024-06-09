@@ -2,7 +2,11 @@ import React, { useState } from 'react';
 import { TextInput } from '../../../components/inputs/text-input';
 import Modal, { ModalButtons } from '../../../components/modal';
 import { useFormContext } from '../../../components/providers/form-providers';
-import { GrayButtonClass, GreenButtonClass, RedButtonClass } from '../../../utils/class/button';
+import {
+	GrayButtonClass,
+	GreenButtonClass,
+	RedButtonClass,
+} from '../../../utils/tailwindClass/button';
 import { StudentFormCreateDto } from '../../../utils/types/dtos/student-forms/create';
 import { StudentFormUpdateDto } from '../../../utils/types/dtos/student-forms/update';
 import { useIsDirty } from '../hooks/useIsDirty';

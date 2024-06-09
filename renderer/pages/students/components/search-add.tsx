@@ -1,15 +1,17 @@
-import clsx from 'clsx';
 import { useEffect } from 'react';
 import { DateInput } from '../../../components/inputs/date-input';
 import { NumberInput } from '../../../components/inputs/number-input';
 import { SelectInput } from '../../../components/inputs/select-input';
 import { TextInput } from '../../../components/inputs/text-input';
 import { useFormContext } from '../../../components/providers/form-providers';
+import { SearchBar } from '../../../components/search-bar';
 import { StatusSearch } from '../../../components/searches/status-search';
 import { useGetOptions } from '../../../hooks/use-get';
-import { BlueButtonClass } from '../../../utils/class/button';
+import { STUDENT_FORM_API_PATH } from '../../../utils/constants/constants';
+import { BlueButtonClass } from '../../../utils/tailwindClass/button';
 import { StudentFormsGetDto } from '../../../utils/types/dtos/student-forms/get';
 import { StudentFormsGetResponse } from '../../../utils/types/responses/student-forms/get';
+import { SearchBarButtons } from '../../../utils/types/search-bar-button';
 import { SearchDataType } from '../types';
 
 type PropType = {
@@ -32,8 +34,17 @@ export function StudentsSearchAdd({
 	setToggleModal,
 }: Readonly<PropType>) {
 	const { formData } = useFormContext<SearchDataType>();
+
+	const buttons: SearchBarButtons = [
+		{
+			text: 'New Student',
+			className: BlueButtonClass,
+			onClick: () => setToggleModal(true),
+		},
+	];
+
 	const getForms = useGetOptions<StudentFormsGetDto, StudentFormsGetResponse>(
-		'/api/student-forms',
+		STUDENT_FORM_API_PATH,
 		value => value.form_name,
 		value => value.id,
 	);
@@ -63,51 +74,43 @@ export function StudentsSearchAdd({
 	}, [formData.status?.value]);
 
 	return (
-		<div className={clsx('flex', 'justify-between')}>
-			<div className={clsx('flex', 'flex-row', 'items-baseline')}>
-				<TextInput
-					id="text-search"
-					label="Search"
-					name="search"
-					placeholder="Search any details"
-					leftLabel
-				/>
+		<SearchBar buttons={buttons}>
+			<TextInput
+				id="text-search"
+				label="Search"
+				name="search"
+				placeholder="Search any details"
+				leftLabel
+			/>
 
-				<SelectInput
-					id="form-search"
-					label="Form"
-					name="form_id"
-					placeholder="All"
-					queryFn={() => getForms({ is_active: true, orderBy: 'form_name asc' })}
-					leftLabel
-				/>
+			<SelectInput
+				id="form-search"
+				label="Form"
+				name="form_id"
+				placeholder="All"
+				queryFn={() => getForms({ is_active: true, orderBy: 'form_name asc' })}
+				leftLabel
+			/>
 
-				<DateInput id="reg-date-start-search" label="Reg From" name="reg_date_start" leftLabel />
-				<DateInput
-					id="reg-date-end-search"
-					label="To"
-					name="reg_date_end"
-					min={formData.reg_date_start?.value}
-					leftLabel
-				/>
-				<NumberInput
-					id="year-search"
-					label="Year"
-					name="reg_year"
-					min={1990}
-					max={2200}
-					step={1}
-					leftLabel
-				/>
+			<DateInput id="reg-date-start-search" label="Reg From" name="reg_date_start" leftLabel />
+			<DateInput
+				id="reg-date-end-search"
+				label="To"
+				name="reg_date_end"
+				min={formData.reg_date_start?.value}
+				leftLabel
+			/>
+			<NumberInput
+				id="year-search"
+				label="Year"
+				name="reg_year"
+				min={1990}
+				max={2200}
+				step={1}
+				leftLabel
+			/>
 
-				<StatusSearch />
-			</div>
-
-			<div className={clsx('flex', 'justify-end', 'gap-4', 'items-center')}>
-				<button className={BlueButtonClass} onClick={() => setToggleModal(true)}>
-					New Student
-				</button>
-			</div>
-		</div>
+			<StatusSearch />
+		</SearchBar>
 	);
 }

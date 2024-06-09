@@ -8,8 +8,8 @@ import { useCustomQuery } from '../../hooks/use-custom-query';
 import { useGet } from '../../hooks/use-get';
 import { usePost } from '../../hooks/use-post';
 import { Layout } from '../../layouts/basic_layout';
-import { ContentContainer } from '../../utils/class/containers';
 import { RecordCreatedMessage } from '../../utils/notifications/record-created';
+import { ContentContainer } from '../../utils/tailwindClass/containers';
 import { StudentFormCreateDto } from '../../utils/types/dtos/student-forms/create';
 import { StudentFormsGetDto } from '../../utils/types/dtos/student-forms/get';
 import { StudentFormUpdateDto } from '../../utils/types/dtos/student-forms/update';
@@ -27,8 +27,8 @@ import {
 
 function StudentForms() {
 	const { setNotification } = useNotificationContext();
-	const [search, setSearch] = useState<string>('');
-	const [isActive, setIsActive] = useState<boolean>(undefined);
+	const [search, setSearch] = useState<string>(searchDefaultValue.general.value);
+	const [isActive, setIsActive] = useState<boolean>(searchDefaultValue.status.value);
 	const [orderBy, setOrderBy] = useState<string>(defaultSortString);
 	const [toggleModal, setToggleModal] = useState(false);
 
@@ -42,7 +42,7 @@ function StudentForms() {
 	});
 
 	const handleUpdate = async (id: number, is_active: boolean) => {
-		await postForm({ is_active }, id.toString());
+		await postForm({ is_active }, id);
 		await refetch();
 	};
 

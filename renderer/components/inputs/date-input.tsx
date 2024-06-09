@@ -1,15 +1,16 @@
 import clsx from 'clsx';
 import { kebabCase } from 'lodash';
 import React, { useEffect, useState } from 'react';
-import { ContainerFlexColGrow, ContainerFlexRowGrow } from '../../utils/class/containers';
+import { dateFormatter, parseDateTime } from '../../utils/dateOperations';
+import { ContainerFlexColGrow, ContainerFlexRowGrow } from '../../utils/tailwindClass/containers';
 import {
 	InvalidTextBoxClass,
 	LabelLeftClass,
 	LabelTopClass,
 	TextBoxBottomClass,
 	TextBoxRightClass,
-} from '../../utils/class/inputs';
-import { parseDateOrNull, parseDateToString } from '../../utils/parsers';
+} from '../../utils/tailwindClass/inputs';
+import { CloseButtonIcon } from '../close-button-icon';
 import { useFormContext } from '../providers/form-providers';
 import { RequiredIcon } from '../required';
 
@@ -17,40 +18,39 @@ type PropType = {
 	id?: string;
 	label: string;
 	name: string;
-	placeholder?: string;
-	defaultValue?: Date;
 	min?: Date;
 	max?: Date;
 	required?: boolean;
 	leftLabel?: boolean;
 };
 
-export function DateInput({
-	id,
-	label,
-	name,
-	placeholder,
-	defaultValue,
-	min,
-	max,
-	required,
-	leftLabel,
-}: Readonly<PropType>) {
+export function DateInput({ id, label, name, min, max, required, leftLabel }: Readonly<PropType>) {
 	id = id ?? kebabCase(name);
 	const containerClass = leftLabel ? ContainerFlexRowGrow : ContainerFlexColGrow;
 	const labelClass = leftLabel ? LabelLeftClass : LabelTopClass;
 	const inputClass = leftLabel ? TextBoxRightClass : TextBoxBottomClass;
 
 	const { formData, setFormData } = useFormContext();
-	const [input, setInput] = useState<string>('');
+	const [input, setInput] = useState<string>(dateFormatter(formData?.[name]?.value));
 
 	const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		setFormData({ name, value: parseDateOrNull(e.target.value), valid: true });
+		if (e.target.value === '') {
+			setFormData({ name, value: null, valid: true });
+		}
+		setFormData({ name, value: parseDateTime(e.target.value), valid: true });
 		setInput(e.target.value);
 	};
 
+	const onClear = () => {
+		setFormData({ name, value: null, valid: true });
+		setInput('');
+	};
+
 	useEffect(() => {
-		setInput(parseDateToString(formData?.[name]?.value, ''));
+		const newDate = dateFormatter(formData?.[name]?.value);
+		if (newDate !== input) {
+			setInput(newDate);
+		}
 	}, [formData?.[name]?.value]);
 
 	return (
@@ -59,19 +59,29 @@ export function DateInput({
 				{label}:{required ? <RequiredIcon /> : null}
 			</label>
 
-			<input
-				type="date"
-				id={id}
-				name={name}
-				value={input}
-				onChange={onChange}
-				placeholder={placeholder}
-				defaultValue={parseDateToString(defaultValue)}
-				min={parseDateToString(min)}
-				max={parseDateToString(max)}
-				required={required}
-				className={clsx(inputClass, (formData[name]?.valid ?? true) || InvalidTextBoxClass)}
-			/>
+			<div
+				className={clsx(
+					ContainerFlexRowGrow,
+					inputClass,
+					(formData[name]?.valid ?? true) || InvalidTextBoxClass,
+					'items-center',
+				)}
+			>
+				<input
+					type="date"
+					id={id}
+					name={name}
+					value={input}
+					onChange={onChange}
+					min={dateFormatter(min)}
+					max={dateFormatter(max)}
+					required={required}
+					className={clsx('flex-1', 'px-1', 'bg-transparent', 'focus:outline-none')}
+				/>
+				<button onClick={onClear}>
+					<CloseButtonIcon />
+				</button>
+			</div>
 		</div>
 	);
 }

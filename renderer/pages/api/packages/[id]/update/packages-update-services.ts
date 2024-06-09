@@ -10,10 +10,10 @@ export async function packagesUpdateServices(
 	const existingRecord = await prisma.package_discount.findFirst({
 		where: {
 			form_id,
-			start_date: { lte: end_date },
-			end_date: { gte: start_date },
-			subject_count_from: { lte: subject_count_to },
-			subject_count_to: { gte: subject_count_from },
+			start_date: { lte: end_date ?? undefined },
+			end_date: { gte: start_date ?? undefined },
+			subject_count_from: { lte: subject_count_to ?? undefined },
+			subject_count_to: { gte: subject_count_from ?? undefined },
 			NOT: { id },
 		},
 	});

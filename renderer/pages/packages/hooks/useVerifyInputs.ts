@@ -1,4 +1,5 @@
 import { useNotificationContext } from '../../../components/providers/notification-providers';
+import { isSameDayOrAfter } from '../../../utils/dateOperations';
 import {
 	fieldCheckerRequired,
 	fieldCheckerRequiredValue,
@@ -33,7 +34,7 @@ export function useVerifyInputs({ formData, setFormData }: PropType) {
 			'End Date',
 			setFormData,
 			setNotification,
-			(value: Date) => value?.getTime() >= formData.start_date?.value?.getTime(),
+			(value: Date) => isSameDayOrAfter(value, formData.start_date?.value),
 		);
 
 		valid = fieldCheckerRequired(valid, formData, 'form_id', 'Form', setFormData, setNotification);

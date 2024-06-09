@@ -1,3 +1,5 @@
+import { QueryType } from '../../queryType';
+
 export type StudentsGetDto = {
 	search_text?: string;
 	form_id?: number;
@@ -9,12 +11,4 @@ export type StudentsGetDto = {
 	orderBy?: string;
 };
 
-export type StudentsGetQueryDto = {
-	search_text?: string;
-	form_id?: string;
-	reg_date_start?: string;
-	reg_date_end?: string;
-	reg_year?: string;
-	is_active?: string;
-	orderBy?: string;
-};
+export type StudentsGetQueryDto = QueryType<StudentsGetDto>;

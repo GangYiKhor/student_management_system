@@ -1,6 +1,3 @@
-export type TaxUpdateDto = {
-	percentage?: number;
-	start_date?: Date;
-	end_date?: Date;
-	inclusive?: boolean;
-};
+import { TaxCreateDto } from './create';
+
+export type TaxUpdateDto = Partial<TaxCreateDto>;

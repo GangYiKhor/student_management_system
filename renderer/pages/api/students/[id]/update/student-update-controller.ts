@@ -3,11 +3,11 @@ import { DATABASE_ERROR } from '../../../../../utils/constants/ErrorResponses';
 import { devLog } from '../../../../../utils/devLog';
 import { ExistedError } from '../../../../../utils/errors/ExistedError';
 import { ExtendedNextApiRequest } from '../../../../../utils/extended-next-api-request';
-import { StudentsUpdateDto } from '../../../../../utils/types/dtos/students/update';
+import { StudentUpdateDto } from '../../../../../utils/types/dtos/students/update';
 import { studentUpdateServices } from './student-update-services';
 
 export async function studentUpdateController(
-	req: ExtendedNextApiRequest<StudentsUpdateDto, { id: string }>,
+	req: ExtendedNextApiRequest<StudentUpdateDto, { id: string }>,
 	res: NextApiResponse,
 ) {
 	devLog('Update Student Handler', req.query);

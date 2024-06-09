@@ -7,9 +7,9 @@ export function verifyEmail(email: string): boolean {
 
 export function verifyPhoneNumber(phoneNumber: string): boolean {
 	const regex = [
-		new RegExp(/^01[02-9]\d{7}$/),
-		new RegExp(/^011\d{8}$/),
-		new RegExp(/^0[2-9]\d{7}$/),
+		new RegExp(/^01[02-9]-\d{3} \d{4}$/),
+		new RegExp(/^011-\d{4} \d{4}$/),
+		new RegExp(/^0[2-9]-\d{3} \d{4}$/),
 	];
 
 	return regex.reduce((valid, value) => valid || !!value.exec(phoneNumber), false);

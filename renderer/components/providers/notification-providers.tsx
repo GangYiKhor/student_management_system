@@ -26,8 +26,8 @@ function reducer(state: GeneralNotification[], action?: SetNotification) {
 
 	const newNotification: GeneralNotification = {
 		id: randomUUID(),
-		title: action.title ?? 'Unknown Error!',
-		message: action.message ?? 'Unknown Error!',
+		title: action.title ?? 'Error!',
+		message: action.message ?? '',
 		occurredAt: new Date(),
 		source: action.source ?? '',
 		type: action.type ?? 'ERROR',

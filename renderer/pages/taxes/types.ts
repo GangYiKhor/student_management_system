@@ -7,6 +7,7 @@ export type EditData = {
 };
 
 export type SearchDataType = {
+	general: { value: string; valid: boolean };
 	status: { value: boolean; valid: boolean };
 };
 

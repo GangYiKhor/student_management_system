@@ -4,7 +4,8 @@ import Image from 'next/future/image';
 import Link from 'next/link';
 import { useState } from 'react';
 import { useTooltip } from '../hooks/use-tooltip';
-import { EmptyLightButtonClass } from '../utils/class/button';
+import { MENU_ITEMS } from '../utils/constants/constants';
+import { EmptyLightButtonClass } from '../utils/tailwindClass/button';
 
 const navigationClass = clsx(
 	'bg-[rgb(203,227,245)]',
@@ -37,39 +38,25 @@ const imageClass = clsx(
 );
 const textClass = clsx('absolute', 'left-[55px]', 'top-[13px]');
 
-const buttons = [
-	{ image: '/images/home.png', href: '/coming-soon', text: 'Home' },
-	{ image: '/images/student.png', href: '/students', text: 'Students' },
-	{ image: '/images/receipt.png', href: '/coming-soon', text: 'Receipts' },
-	{ image: '/images/collection.png', href: '/coming-soon', text: 'Collections' },
-	{ image: '/images/class.png', href: '/classes', text: 'Classes' },
-	{ image: '/images/package.png', href: '/packages', text: 'Packages' },
-	{ image: '/images/teacher.png', href: '/teachers', text: 'Teachers' },
-	{ image: '/images/voucher.png', href: '/coming-soon', text: 'Vouchers' },
-	{ image: '/images/holiday.png', href: '/holidays', text: 'Holidays' },
-	{ image: '/images/tax.png', href: '/taxes', text: 'Tax' },
-	{ image: '/images/student_year.png', href: '/student-forms', text: 'Form' },
-	{ image: '/images/setting.png', href: '/coming-soon', text: 'Settings' },
-	{ image: '/images/logout.png', href: '/coming-soon', text: 'Logout' },
-];
-
 export function NavigationBar() {
 	const { tooltip } = useTooltip();
 	const [collapse, setCollapse] = useState(true);
 
 	return (
 		<nav className={clsx(navigationClass, collapse ? 'w-[54px]' : 'w-[191px]')}>
-			<div
-				className={clsx(buttonClass, collapse ? 'pr-3' : 'pr-8')}
+			<button
+				className="w-full"
 				onClick={() => setCollapse(!collapse)}
 				{...tooltip(collapse ? 'Expand' : 'Collapse')}
 			>
-				<Menu width={30} height={30} className={imageClass} />
-				<p className={textClass}>Menu</p>
-			</div>
+				<div className={clsx(buttonClass, collapse ? 'pr-3' : 'pr-8')}>
+					<Menu width={30} height={30} className={imageClass} />
+					<p className={textClass}>Menu</p>
+				</div>
+			</button>
 			<hr className={clsx(separatorClass)} />
 			<div>
-				{buttons.map(({ image, href, text }) => (
+				{MENU_ITEMS.map(({ image, href, text }) => (
 					<Link href={href} key={text}>
 						<div className={clsx(buttonClass, collapse ? 'pr-3' : 'pr-8')} {...tooltip(text)}>
 							<Image
@@ -77,8 +64,6 @@ export function NavigationBar() {
 								width={30}
 								height={30}
 								alt=""
-								// This is OK! The error message is incorrect!
-								layout="raw"
 								className={clsx(imageClass, 'dark:invert')}
 							/>
 							<p className={textClass}>{text}</p>

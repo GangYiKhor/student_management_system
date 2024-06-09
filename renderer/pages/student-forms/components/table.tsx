@@ -5,17 +5,21 @@ import React, { useEffect, useState } from 'react';
 import { FormProvider } from '../../../components/providers/form-providers';
 import { TableColumnType, TableTemplate } from '../../../components/tables/table-template';
 import { usePost } from '../../../hooks/use-post';
-import { GreenButtonClass, RedButtonClass } from '../../../utils/class/button';
-import { GreenBoldText, RedBoldText } from '../../../utils/class/text';
+import { GreenButtonClass, RedButtonClass } from '../../../utils/tailwindClass/button';
+import { GreenBoldText, RedBoldText } from '../../../utils/tailwindClass/text';
 import { StudentFormUpdateDto } from '../../../utils/types/dtos/student-forms/update';
 import { ErrorResponse } from '../../../utils/types/responses/error';
-import { StudentFormsGetResponses } from '../../../utils/types/responses/student-forms/get';
+import {
+	StudentFormsGetResponse,
+	StudentFormsGetResponses,
+} from '../../../utils/types/responses/student-forms/get';
 import { BackendPath, defaultSort, formDefaultValueFilled } from '../constants';
 import { EditData } from '../types';
 import { StudentFormsModal } from './student-forms-modal';
 
-const columns = (handleAction: CallableFunction): TableColumnType<EditData>[] => {
+const columns = (handleAction: CallableFunction): TableColumnType<StudentFormsGetResponse>[] => {
 	return [
+		{ title: 'ID', columnName: 'id', addOnClass: 'w-[5rem]' },
 		{ title: 'Form', columnName: 'form_name' },
 		{
 			title: 'Status',
@@ -39,6 +43,7 @@ const columns = (handleAction: CallableFunction): TableColumnType<EditData>[] =>
 				</button>
 			),
 			notClickable: true,
+			notSortable: true,
 		},
 	];
 };
@@ -71,7 +76,7 @@ export function StudentFormsTable({
 	};
 
 	const handleUpdate = async (data: StudentFormUpdateDto) => {
-		await postForm(data, selected.id.toString());
+		await postForm(data, selected.id);
 		await refetch();
 	};
 
@@ -88,8 +93,7 @@ export function StudentFormsTable({
 		if (search.trim()) {
 			search = search.trim().toLowerCase();
 			filteredData = filteredData.filter(
-				value =>
-					'#' + value.id?.toString() === search || value.form_name?.toLowerCase().includes(search),
+				value => '#' + value.id === search || value.form_name?.toLowerCase().includes(search),
 			);
 		}
 

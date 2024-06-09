@@ -7,11 +7,15 @@ import { TextInput } from '../../../components/inputs/text-input';
 import { TimeInput } from '../../../components/inputs/time-input';
 import Modal, { ModalButtons } from '../../../components/modal';
 import { useFormContext } from '../../../components/providers/form-providers';
-import { useNotificationContext } from '../../../components/providers/notification-providers';
 import Row from '../../../components/row';
 import Separator from '../../../components/separator';
 import { useGetOptions } from '../../../hooks/use-get';
-import { GrayButtonClass, GreenButtonClass, RedButtonClass } from '../../../utils/class/button';
+import { STUDENT_FORM_API_PATH, TEACHER_API_PATH } from '../../../utils/constants/constants';
+import {
+	GrayButtonClass,
+	GreenButtonClass,
+	RedButtonClass,
+} from '../../../utils/tailwindClass/button';
 import { ClassCreateDto } from '../../../utils/types/dtos/classes/create';
 import { ClassUpdateDto } from '../../../utils/types/dtos/classes/update';
 import { StudentFormsGetDto } from '../../../utils/types/dtos/student-forms/get';
@@ -33,18 +37,17 @@ export function ClassesModal({ closeModal, data, handler }: Readonly<PropType>) 
 	const { formData, setFormData } = useFormContext<FormDataType>();
 	const [confirmation, setConfirmation] = useState(false);
 	const [closeConfirmation, setCloseConfirmation] = useState(false);
-	const { setNotification } = useNotificationContext();
 
 	const verifyInputs = useVerifyInputs({ formData, setFormData });
-	const isDirty = useIsDirty({ formData });
+	const isDirty = useIsDirty({ formData, data });
 
 	const getForms = useGetOptions<StudentFormsGetDto, StudentFormsGetResponse>(
-		'/api/student-forms',
+		STUDENT_FORM_API_PATH,
 		value => value.form_name,
 		value => value.id,
 	);
 	const getTeachers = useGetOptions<TeachersGetDto, TeachersGetResponse>(
-		'/api/teachers',
+		TEACHER_API_PATH,
 		value => value.teacher_name,
 		value => value.id,
 	);
@@ -86,7 +89,6 @@ export function ClassesModal({ closeModal, data, handler }: Readonly<PropType>) 
 					setConfirmation(false);
 					closeModal();
 				} catch (error) {
-					setNotification({ message: error });
 					setConfirmation(false);
 				}
 			},
@@ -159,15 +161,7 @@ export function ClassesModal({ closeModal, data, handler }: Readonly<PropType>) 
 					<Separator />
 
 					<Row>
-						<NumberInput
-							label="Year"
-							name="class_year"
-							defaultValue={new Date().getFullYear()}
-							min={2000}
-							max={2200}
-							step={1}
-							required
-						/>
+						<NumberInput label="Year" name="class_year" min={2000} max={2200} step={1} required />
 
 						<DateInput label="Start Date" name="start_date" required />
 						<DateInput label="End Date" name="end_date" min={formData.start_date?.value} />

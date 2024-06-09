@@ -1,6 +1,7 @@
 import clsx from 'clsx';
 import { AlertTriangle, Ban, Info } from 'lucide-react';
 import { useEffect } from 'react';
+import { dateFormatter } from '../utils/dateOperations';
 import { CloseButtonIcon } from './close-button-icon';
 import { useNotificationContext } from './providers/notification-providers';
 
@@ -76,7 +77,7 @@ export function CustomNotification() {
 							<p className={clsx('px-5', 'pt-2', 'font-bold')}>{value.title}</p>
 							<p className={clsx('px-5')}>{value.message}</p>
 							<p className={clsx('px-5', 'py-2', 'font-mono', 'text-xs', 'text-right')}>
-								{`${value.source} [${value.occurredAt.toLocaleDateString('en-GB')} ${value.occurredAt.toLocaleTimeString('en-GB')}]`}
+								{`${value.source} [${dateFormatter(value.occurredAt, { format: 'yyyy-MM-dd hh:mm:ss a' })}]`}
 							</p>
 						</div>
 					</div>

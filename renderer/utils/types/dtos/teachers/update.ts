@@ -1,10 +1,3 @@
-export type TeacherUpdateDto = {
-	teacher_name?: string;
-	ic?: string;
-	phone_number?: string;
-	email?: string;
-	address?: string;
-	start_date?: Date;
-	end_date?: Date;
-	is_active?: boolean;
-};
+import { TeacherCreateDto } from './create';
+
+export type TeacherUpdateDto = Partial<TeacherCreateDto>;

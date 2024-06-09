@@ -5,7 +5,7 @@ import { useNotificationContext } from '../components/providers/notification-pro
 import { SERVER_CONNECTION_ERROR } from '../utils/constants/ErrorResponses';
 import { ErrorResponse } from '../utils/types/responses/error';
 
-type PropType<Res> = {
+type PropType<Res = any> = {
 	queryKey: string[];
 	queryFn: () => Promise<Res>;
 	disabled?: boolean;
@@ -35,12 +35,10 @@ export function useCustomQuery<Res = any>({
 		if (isError) {
 			if (errorHandler) {
 				errorHandler(error);
+			} else if (error) {
+				setNotification({ ...error?.response?.data?.error });
 			} else {
-				if (error) {
-					setNotification({ ...error?.response?.data?.error });
-				} else {
-					setNotification(SERVER_CONNECTION_ERROR);
-				}
+				setNotification(SERVER_CONNECTION_ERROR);
 			}
 		}
 	}, [isError]);

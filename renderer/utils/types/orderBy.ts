@@ -1,1 +1,2 @@
-export type OrderBy = { [key: string]: string | object } | { [key: string]: string | object }[];
+export type OrderBy = SingleOrderBy | SingleOrderBy[];
+export type SingleOrderBy = { [key: string]: 'asc' | 'desc' | object };

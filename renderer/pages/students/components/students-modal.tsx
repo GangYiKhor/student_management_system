@@ -1,7 +1,5 @@
-import { useQuery } from '@tanstack/react-query';
-import { AxiosError } from 'axios';
 import clsx from 'clsx';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { DateInput } from '../../../components/inputs/date-input';
 import { NumberInput } from '../../../components/inputs/number-input';
 import { SelectClass } from '../../../components/inputs/select-class';
@@ -14,31 +12,38 @@ import { useNotificationContext } from '../../../components/providers/notificati
 import Row from '../../../components/row';
 import { Section } from '../../../components/section';
 import Separator from '../../../components/separator';
+import { useCustomQuery } from '../../../hooks/use-custom-query';
 import { useGet, useGetOptions } from '../../../hooks/use-get';
-import { GrayButtonClass, GreenButtonClass, RedButtonClass } from '../../../utils/class/button';
-import { CLASS_COUNT } from '../../../utils/constants/constants';
+import {
+	CLASS_COUNT,
+	PACKAGE_API_PATH,
+	STUDENT_FORM_API_PATH,
+} from '../../../utils/constants/constants';
 import { icFormat, icFormatRevert } from '../../../utils/formatting/icFormatting';
 import {
 	phoneNumberFormat,
 	phoneNumberFormatRevert,
 } from '../../../utils/formatting/phoneNumberFormatting';
+import {
+	GrayButtonClass,
+	GreenButtonClass,
+	RedButtonClass,
+} from '../../../utils/tailwindClass/button';
 import { PackagesGetDto } from '../../../utils/types/dtos/packages/get';
 import { StudentFormsGetDto } from '../../../utils/types/dtos/student-forms/get';
 import { StudentCreateDto } from '../../../utils/types/dtos/students/create';
-import { StudentsUpdateDto } from '../../../utils/types/dtos/students/update';
+import { StudentUpdateDto } from '../../../utils/types/dtos/students/update';
 import { ClassesGetResponse } from '../../../utils/types/responses/classes/get';
-import { ErrorResponse } from '../../../utils/types/responses/error';
 import { PackagesGetResponses } from '../../../utils/types/responses/packages/get';
 import { StudentFormsGetResponse } from '../../../utils/types/responses/student-forms/get';
 import { useIsDirty } from '../hooks/useIsDirty';
 import { useVerifyInputs } from '../hooks/useVerifyInputs';
-import { FormDataType } from '../types';
+import { EditData, FormDataType } from '../types';
 import { getAllFees, getDiscountedFees, getPackageCount } from '../utils/feesCalculations';
-import { EditData } from './table';
 
 type PropType = {
 	closeModal: () => void;
-	handler: (createData: StudentCreateDto | StudentsUpdateDto, classIds: number[]) => Promise<void>;
+	handler: (createData: StudentCreateDto | StudentUpdateDto, classIds: number[]) => Promise<void>;
 	handleActivate?: () => void;
 	data?: EditData;
 };
@@ -51,26 +56,23 @@ export function StudentsModal({ closeModal, data, handler, handleActivate }: Rea
 	const { setNotification } = useNotificationContext();
 
 	const verifyInputs = useVerifyInputs({ formData, setFormData });
-	const isDirty = useIsDirty({ formData });
+	const isDirty = useIsDirty({ formData, data });
 
 	const getForms = useGetOptions<StudentFormsGetDto, StudentFormsGetResponse>(
-		'/api/student-forms',
+		STUDENT_FORM_API_PATH,
 		value => value.form_name,
 		value => value.id,
 	);
-	const getPackage = useGet<PackagesGetDto, PackagesGetResponses>('/api/packages');
+	const getPackage = useGet<PackagesGetDto, PackagesGetResponses>(PACKAGE_API_PATH);
 
-	const { data: packageData, refetch: refetchPackage } = useQuery<
-		PackagesGetResponses,
-		AxiosError<ErrorResponse>
-	>({
+	const { data: packageData } = useCustomQuery<PackagesGetResponses>({
 		queryKey: ['currentPackage'],
 		queryFn: () =>
 			getPackage({
 				subject_count: packageCount,
 				is_active: true,
 			}),
-		enabled: true,
+		fetchOnVariable: [packageCount],
 	});
 
 	const modalButtons: ModalButtons = [
@@ -100,7 +102,7 @@ export function StudentsModal({ closeModal, data, handler, handleActivate }: Rea
 			class: GreenButtonClass,
 			action: async () => {
 				try {
-					const submitData: StudentCreateDto | StudentsUpdateDto = {
+					const submitData: StudentCreateDto | StudentUpdateDto = {
 						student_name: formData.student_name?.value,
 						form_id: formData.form_id?.value,
 						reg_date: formData.reg_date?.value,
@@ -147,10 +149,6 @@ export function StudentsModal({ closeModal, data, handler, handleActivate }: Rea
 		},
 	];
 
-	useEffect(() => {
-		refetchPackage();
-	}, [packageCount]);
-
 	return (
 		<React.Fragment>
 			<Modal
@@ -170,12 +168,11 @@ export function StudentsModal({ closeModal, data, handler, handleActivate }: Rea
 							required
 						/>
 
-						<DateInput label="Reg Date" name="reg_date" defaultValue={new Date()} required />
+						<DateInput label="Reg Date" name="reg_date" required />
 
 						<NumberInput
 							label="Academic Year"
 							name="reg_year"
-							defaultValue={new Date().getFullYear()}
 							min={2000}
 							max={2200}
 							step={1}
@@ -243,7 +240,7 @@ export function StudentsModal({ closeModal, data, handler, handleActivate }: Rea
 										form={formData.form_id?.value}
 										onUpdate={() => setPackageCount(getPackageCount(formData))}
 									/>
-									<span>{`RM ${getDiscountedFees(formData[formName].value as ClassesGetResponse, packageData?.[0]).toFixed(2)}`}</span>
+									<span>{`RM ${getDiscountedFees(formData[formName]?.value as ClassesGetResponse, packageData?.[0])?.toFixed(2)}`}</span>
 								</div>
 							);
 						})}

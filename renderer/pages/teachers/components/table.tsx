@@ -4,25 +4,21 @@ import React, { useEffect, useState } from 'react';
 import { FormProvider } from '../../../components/providers/form-providers';
 import { TableColumnType, TableTemplate } from '../../../components/tables/table-template';
 import { usePost } from '../../../hooks/use-post';
-import { GreenBoldText, RedBoldText } from '../../../utils/class/text';
-import { getCurrentDateOnly } from '../../../utils/parsers/dateParsers';
+import { getToday } from '../../../utils/dateOperations';
+import { GreenBoldText, RedBoldText } from '../../../utils/tailwindClass/text';
 import { TeacherUpdateDto } from '../../../utils/types/dtos/teachers/update';
 import { ErrorResponse } from '../../../utils/types/responses/error';
-import { TeachersGetResponses } from '../../../utils/types/responses/teachers/get';
+import {
+	TeachersGetResponse,
+	TeachersGetResponses,
+} from '../../../utils/types/responses/teachers/get';
 import { BackendPath, defaultSort, formDefaultValueFilled } from '../constants';
 import { EditData } from '../types';
 import { TeachersModal } from './teachers-modal';
 
-const columns: TableColumnType<EditData>[] = [
+const columns: TableColumnType<TeachersGetResponse>[] = [
 	{ title: 'ID', columnName: 'id', addOnClass: 'w-[5rem]' },
 	{ title: 'Name', columnName: 'teacher_name' },
-	{ title: 'Phone Number', columnName: 'phone_number' },
-	{
-		title: 'IC',
-		columnName: 'ic',
-		valueParser: value =>
-			value.ic?.length === 14 ? 'XXXXXX-XX-' + value.ic?.slice(10) : value?.ic,
-	},
 	{
 		title: 'Status',
 		columnName: 'is_active',
@@ -44,14 +40,14 @@ type PropType = {
 export function TeachersTable({ data, search, refetch, setOrderBy }: Readonly<PropType>) {
 	const [tableData, setTableData] = useState<TeachersGetResponses>([]);
 	const [selected, setSelected] = useState<EditData>(undefined);
-	const postForm = usePost<TeacherUpdateDto, void>(BackendPath);
+	const postTeacher = usePost<TeacherUpdateDto, void>(BackendPath);
 
 	const handleEdit = (data: EditData) => {
 		setSelected(data);
 	};
 
 	const handleUpdate = async (data: TeacherUpdateDto) => {
-		await postForm(data, selected.id.toString());
+		await postTeacher(data, selected.id);
 		await refetch();
 	};
 
@@ -59,7 +55,7 @@ export function TeachersTable({ data, search, refetch, setOrderBy }: Readonly<Pr
 		await handleUpdate({ is_active: !selected.is_active });
 		setSelected((prev: EditData) => ({
 			...prev,
-			end_date: !selected.is_active === true ? null : getCurrentDateOnly(),
+			end_date: !selected.is_active === true ? null : getToday(),
 			is_active: !selected.is_active,
 		}));
 	};
@@ -70,12 +66,12 @@ export function TeachersTable({ data, search, refetch, setOrderBy }: Readonly<Pr
 			search = search.trim().toLowerCase();
 			filteredData = filteredData.filter(
 				value =>
-					'#' + value.id.toString() === search ||
-					value.teacher_name.toLowerCase().includes(search) ||
-					value.phone_number.includes(search) ||
-					value.phone_number.replace(/-/g, '').replace(/\s/g, '').includes(search) ||
-					value.ic.includes(search) ||
-					value.ic.replace(/-/g, '').includes(search),
+					'#' + value.id === search ||
+					value.teacher_name?.toLowerCase().includes(search) ||
+					value.phone_number?.includes(search) ||
+					value.phone_number?.replace(/-/g, '').replace(/\s/g, '').includes(search) ||
+					value.ic?.includes(search) ||
+					value.ic?.replace(/-/g, '').includes(search),
 			);
 		}
 

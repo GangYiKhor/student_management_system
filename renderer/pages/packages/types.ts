@@ -11,6 +11,7 @@ export type EditData = {
 export type SearchDataType = {
 	general: { value: string; valid: boolean };
 	form_id: { value: number; valid: boolean };
+	subject_count: { value: number; valid: boolean };
 	status: { value: boolean; valid: boolean };
 };
 
