@@ -80,10 +80,7 @@ function ClassRegistration() {
 
 						<ClassTable data={data} search={search} refetch={refetch} setOrderBy={setOrderBy} />
 
-						<LastUpdatedAt
-							lastUpdatedAt={dataUpdatedAt ?? new Date(dataUpdatedAt)}
-							refetch={refetch}
-						/>
+						<LastUpdatedAt lastUpdatedAt={dataUpdatedAt} refetch={refetch} />
 
 						{toggleModal ? (
 							<FormProvider defaultValue={formDefaultValue}>

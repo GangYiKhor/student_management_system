@@ -4,12 +4,12 @@ type PropType = {
 	addOnClass?: string;
 };
 
-export default function Separator({ addOnClass }: Readonly<PropType>) {
+export default function ThinSeparator({ addOnClass }: Readonly<PropType>) {
 	return (
 		<hr
 			className={clsx(
-				'h-1',
-				'my-2',
+				'h-[2px]',
+				'my-1',
 				'bg-gray-200',
 				'dark:bg-gray-500',
 				'border-none',

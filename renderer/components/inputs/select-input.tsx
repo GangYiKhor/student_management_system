@@ -26,6 +26,7 @@ type PropType = {
 	onUpdate?: () => any;
 	required?: boolean;
 	leftLabel?: boolean;
+	labelClassAddOn?: string;
 };
 
 export function SelectInput({
@@ -39,6 +40,7 @@ export function SelectInput({
 	onUpdate,
 	required,
 	leftLabel,
+	labelClassAddOn = '',
 }: Readonly<PropType>) {
 	id = id ?? kebabCase(name);
 	const containerClass = leftLabel ? ContainerFlexRowGrow : ContainerFlexColGrow;
@@ -91,11 +93,11 @@ export function SelectInput({
 			setInput(foundIndex.toString());
 		}
 		onUpdate?.();
-	}, [formData?.[name]?.value]);
+	}, [formData?.[name]?.value, options, data]);
 
 	return (
 		<div className={containerClass}>
-			<label htmlFor={id} className={labelClass}>
+			<label htmlFor={id} className={clsx(labelClass, labelClassAddOn)}>
 				{label}:{required ? <RequiredIcon /> : null}
 			</label>
 

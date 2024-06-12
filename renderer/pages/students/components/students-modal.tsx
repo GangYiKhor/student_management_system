@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { DateInput } from '../../../components/inputs/date-input';
 import { NumberInput } from '../../../components/inputs/number-input';
 import { SelectClass } from '../../../components/inputs/select-class';
@@ -12,11 +12,13 @@ import { useNotificationContext } from '../../../components/providers/notificati
 import Row from '../../../components/row';
 import { Section } from '../../../components/section';
 import Separator from '../../../components/separator';
+import ThinSeparator from '../../../components/thin-seperator';
 import { useCustomQuery } from '../../../hooks/use-custom-query';
 import { useGet, useGetOptions } from '../../../hooks/use-get';
 import {
 	CLASS_COUNT,
 	PACKAGE_API_PATH,
+	STUDENT_CLASS_API_PATH,
 	STUDENT_FORM_API_PATH,
 } from '../../../utils/constants/constants';
 import { icFormat, icFormatRevert } from '../../../utils/formatting/icFormatting';
@@ -29,17 +31,26 @@ import {
 	GreenButtonClass,
 	RedButtonClass,
 } from '../../../utils/tailwindClass/button';
+import { GreenBoldText } from '../../../utils/tailwindClass/text';
 import { PackagesGetDto } from '../../../utils/types/dtos/packages/get';
 import { StudentFormsGetDto } from '../../../utils/types/dtos/student-forms/get';
 import { StudentCreateDto } from '../../../utils/types/dtos/students/create';
 import { StudentUpdateDto } from '../../../utils/types/dtos/students/update';
 import { ClassesGetResponse } from '../../../utils/types/responses/classes/get';
 import { PackagesGetResponses } from '../../../utils/types/responses/packages/get';
+import { StudentClassesGetResponses } from '../../../utils/types/responses/student-classes/get';
 import { StudentFormsGetResponse } from '../../../utils/types/responses/student-forms/get';
 import { useIsDirty } from '../hooks/useIsDirty';
 import { useVerifyInputs } from '../hooks/useVerifyInputs';
 import { EditData, FormDataType } from '../types';
-import { getAllFees, getDiscountedFees, getPackageCount } from '../utils/feesCalculations';
+import {
+	getAllFees,
+	getAllFeesDiscounted,
+	getDiscountedFees,
+	getPackageCount,
+} from '../utils/feesCalculations';
+
+const feesClass = clsx('w-16', 'text-right');
 
 type PropType = {
 	closeModal: () => void;
@@ -52,6 +63,8 @@ export function StudentsModal({ closeModal, data, handler, handleActivate }: Rea
 	const { formData, setFormData } = useFormContext<FormDataType>();
 	const [confirmation, setConfirmation] = useState(false);
 	const [packageCount, setPackageCount] = useState(0);
+	const [allFees, setAllFees] = useState(0);
+	const [allFeesDiscounted, setAllFeesDiscounted] = useState(0);
 	const [closeConfirmation, setCloseConfirmation] = useState(false);
 	const { setNotification } = useNotificationContext();
 
@@ -64,16 +77,48 @@ export function StudentsModal({ closeModal, data, handler, handleActivate }: Rea
 		value => value.id,
 	);
 	const getPackage = useGet<PackagesGetDto, PackagesGetResponses>(PACKAGE_API_PATH);
+	const getStudentClasses = useGet<void, StudentClassesGetResponses>(STUDENT_CLASS_API_PATH);
+
+	const { data: classData, refetch: fetchClass } = useCustomQuery<StudentClassesGetResponses>({
+		queryKey: ['studentClass'],
+		queryFn: () => getStudentClasses(undefined, data?.id),
+		disabled: true,
+		fetchOnVariable: [data?.id],
+	});
 
 	const { data: packageData } = useCustomQuery<PackagesGetResponses>({
 		queryKey: ['currentPackage'],
 		queryFn: () =>
 			getPackage({
+				form_id: formData?.form_id?.value,
 				subject_count: packageCount,
 				is_active: true,
 			}),
-		fetchOnVariable: [packageCount],
+		fetchOnVariable: [formData?.form_id?.value, packageCount],
 	});
+
+	useEffect(() => {
+		if (data?.id) {
+			fetchClass();
+		}
+	}, [data?.id]);
+
+	useEffect(() => {
+		if (classData) {
+			for (let i = 0; i < CLASS_COUNT; i++) {
+				setFormData({ name: `class_${i}`, value: classData[i]?.class ?? null, valid: true });
+			}
+		}
+	}, [classData]);
+
+	useEffect(() => {
+		setPackageCount(getPackageCount(formData));
+	}, [formData]);
+
+	useEffect(() => {
+		setAllFees(getAllFees(formData));
+		setAllFeesDiscounted(getAllFeesDiscounted(formData, packageData?.[0]));
+	}, [formData, packageData]);
 
 	const modalButtons: ModalButtons = [
 		{
@@ -103,28 +148,30 @@ export function StudentsModal({ closeModal, data, handler, handleActivate }: Rea
 			action: async () => {
 				try {
 					const submitData: StudentCreateDto | StudentUpdateDto = {
-						student_name: formData.student_name?.value,
+						student_name: formData.student_name?.value?.trim(),
 						form_id: formData.form_id?.value,
 						reg_date: formData.reg_date?.value,
 						reg_year: formData.reg_year?.value,
-						gender: formData.gender?.value ?? null,
-						ic: formData.ic?.value ?? null,
-						school: formData.school?.value ?? null,
-						phone_number: formData.phone_number?.value ?? null,
-						parent_phone_number: formData.parent_phone_number?.value ?? null,
-						email: formData.email?.value ?? null,
-						address: formData.address?.value ?? null,
+						gender: formData.gender?.value?.trim() || null,
+						ic: formData.ic?.value?.trim() || null,
+						school: formData.school?.value?.trim() || null,
+						phone_number: formData.phone_number?.value?.trim() || null,
+						parent_phone_number: formData.parent_phone_number?.value?.trim() || null,
+						email: formData.email?.value?.trim() || null,
+						address: formData.address?.value?.trim() || null,
 					};
 
 					const classIds: number[] = [];
-					for (let i = 1; i <= CLASS_COUNT; i++) {
-						classIds.push((formData[`class_${i}`]?.value as ClassesGetResponse).id);
+					for (let i = 0; i < CLASS_COUNT; i++) {
+						classIds.push((formData[`class_${i}`]?.value as ClassesGetResponse)?.id);
 					}
 
 					await handler(submitData, classIds);
-					await handler(submitData, []);
 
 					setConfirmation(false);
+					if (!data) {
+						closeModal();
+					}
 				} catch (error) {
 					setNotification({ message: error });
 					setConfirmation(false);
@@ -229,29 +276,46 @@ export function StudentsModal({ closeModal, data, handler, handleActivate }: Rea
 					</Section>
 
 					<Section title="Classes" hideable>
-						{new Array(CLASS_COUNT).fill(null).map((_, index) => {
-							const count = index + 1;
-							const formName = `class_${count}`;
-							return (
-								<div key={`class-${count}`} className={clsx('flex', 'items-center', 'gap-2')}>
-									<SelectClass
-										label={`Class ${count}`}
-										name={formName}
-										form={formData.form_id?.value}
-										onUpdate={() => setPackageCount(getPackageCount(formData))}
-									/>
-									<span>{`RM ${getDiscountedFees(formData[formName]?.value as ClassesGetResponse, packageData?.[0])?.toFixed(2)}`}</span>
-								</div>
-							);
-						})}
-						<Separator />
-						<div className={clsx('flex', 'justify-end')}>
-							<span className={clsx('font-bold')}>{`RM ${getAllFees(
-								formData,
-								packageData?.[0],
-							).toFixed(2)}`}</span>
+						<div className={clsx('flex', 'flex-col', 'gap-1', 'pt-2', 'pb-4')}>
+							{new Array(CLASS_COUNT).fill(null).map((_, index) => {
+								const count = index + 1;
+								const formName = `class_${index}`;
+								return (
+									<div key={`class-${count}`} className={clsx('flex', 'items-center', 'gap-2')}>
+										<SelectClass
+											label={`${count}`}
+											name={formName}
+											form={formData.form_id?.value}
+											onUpdate={() => setPackageCount(getPackageCount(formData))}
+											labelClassAddOn={clsx('w-6')}
+										/>
+										<span>RM</span>
+										<span className={clsx('w-12', 'text-right')}>
+											{getDiscountedFees(
+												formData[formName]?.value as ClassesGetResponse,
+												packageData?.[0],
+											)?.toFixed(2)}
+										</span>
+									</div>
+								);
+							})}
 						</div>
 					</Section>
+					<Separator />
+					<div className={clsx('flex', 'justify-end')}>
+						<span>Fees: RM</span>
+						<span className={feesClass}>{allFees.toFixed(2)}</span>
+					</div>
+					<div className={clsx('flex', 'justify-end')}>
+						<span>Package Discount: -RM</span>
+						<span className={feesClass}>{(allFees - allFeesDiscounted).toFixed(2)}</span>
+					</div>
+					<ThinSeparator />
+					<div className={clsx('flex', 'justify-end')}>
+						<span>Total Fees: RM</span>
+						<span className={clsx(feesClass, GreenBoldText)}>{allFeesDiscounted.toFixed(2)}</span>
+					</div>
+					<ThinSeparator />
 				</div>
 			</Modal>
 

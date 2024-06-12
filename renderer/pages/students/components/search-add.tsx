@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { DateInput } from '../../../components/inputs/date-input';
+import { DateRangeInput } from '../../../components/inputs/date-range-input';
 import { NumberInput } from '../../../components/inputs/number-input';
 import { SelectInput } from '../../../components/inputs/select-input';
 import { TextInput } from '../../../components/inputs/text-input';
@@ -78,7 +78,7 @@ export function StudentsSearchAdd({
 			<TextInput
 				id="text-search"
 				label="Search"
-				name="search"
+				name="text"
 				placeholder="Search any details"
 				leftLabel
 			/>
@@ -92,14 +92,14 @@ export function StudentsSearchAdd({
 				leftLabel
 			/>
 
-			<DateInput id="reg-date-start-search" label="Reg From" name="reg_date_start" leftLabel />
-			<DateInput
-				id="reg-date-end-search"
-				label="To"
-				name="reg_date_end"
-				min={formData.reg_date_start?.value}
+			<DateRangeInput
+				id="reg-date-search"
+				label="Reg"
+				startName="reg_date_start"
+				endName="reg_date_end"
 				leftLabel
 			/>
+
 			<NumberInput
 				id="year-search"
 				label="Year"

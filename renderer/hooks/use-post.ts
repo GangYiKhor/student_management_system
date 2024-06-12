@@ -7,15 +7,17 @@ export function usePost<T = any, Res = any>(url: string, parseFunc?: (value: Res
 
 	return async (body: T, path?: string | number): Promise<Res> => {
 		try {
+			let curUrl = url;
+
 			if (path) {
-				if (url.endsWith('/')) {
-					url += path;
+				if (curUrl.endsWith('/')) {
+					curUrl += path;
 				} else {
-					url += '/' + path;
+					curUrl += '/' + path;
 				}
 			}
 
-			const { data } = await axios.post<void, AxiosResponse<Res>, T>(url, body);
+			const { data } = await axios.post<void, AxiosResponse<Res>, T>(curUrl, body);
 			return parseFunc?.(data) ?? data;
 		} catch (error: any) {
 			if (error instanceof AxiosError) {

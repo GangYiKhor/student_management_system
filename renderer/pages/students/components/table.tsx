@@ -22,7 +22,7 @@ const columns: TableColumnType<StudentsGetResponse>[] = [
 	{ title: 'Name', columnName: 'student_name' },
 	{
 		title: 'Form',
-		columnName: 'form',
+		columnName: 'form_name',
 		valueParser: value => value.form.form_name,
 	},
 	{ title: 'Year', columnName: 'reg_year' },

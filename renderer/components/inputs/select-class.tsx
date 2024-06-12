@@ -12,9 +12,18 @@ type PropType = {
 	form?: number | string;
 	onlyId?: boolean;
 	onUpdate?: () => any;
+	labelClassAddOn?: string;
 };
 
-export function SelectClass({ id, label, name, form, onlyId, onUpdate }: Readonly<PropType>) {
+export function SelectClass({
+	id,
+	label,
+	name,
+	form,
+	onlyId,
+	onUpdate,
+	labelClassAddOn,
+}: Readonly<PropType>) {
 	const getClass = useGetOptions<ClassesGetDto, ClassesGetResponse>(
 		CLASS_API_PATH,
 		value => `${value.class_name} (${value.teacher.teacher_name})`,
@@ -37,6 +46,7 @@ export function SelectClass({ id, label, name, form, onlyId, onUpdate }: Readonl
 			queryFn={queryFn}
 			onUpdate={onUpdate}
 			leftLabel
+			labelClassAddOn={labelClassAddOn}
 		/>
 	);
 }

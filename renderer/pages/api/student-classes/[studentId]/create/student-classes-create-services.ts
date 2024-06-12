@@ -6,17 +6,10 @@ export async function studentClassesCreateServices(
 	dto: StudentClassCreateDto,
 ): Promise<void> {
 	for (let i = 0; i < dto.length; i++) {
-		try {
-			await prisma.student_class.update({
-				data: { class_id: dto[i].class_id },
-				where: { student_id_sequence: { student_id: studentId, sequence: i } },
-			});
-		} catch (err) {
-			if (err.code === 'P2025') {
-				await prisma.student_class.create({
-					data: { student_id: studentId, sequence: i, class_id: dto[i].class_id },
-				});
-			}
-		}
+		await prisma.student_class.upsert({
+			where: { student_id_sequence: { student_id: studentId, sequence: i } },
+			update: { class_id: dto?.[i]?.class_id ?? null },
+			create: { student_id: studentId, sequence: i, class_id: dto?.[i]?.class_id },
+		});
 	}
 }

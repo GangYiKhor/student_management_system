@@ -31,7 +31,7 @@ export function DateInput({ id, label, name, min, max, required, leftLabel }: Re
 	const inputClass = leftLabel ? TextBoxRightClass : TextBoxBottomClass;
 
 	const { formData, setFormData } = useFormContext();
-	const [input, setInput] = useState<string>(dateFormatter(formData?.[name]?.value));
+	const [input, setInput] = useState<string>('');
 
 	const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		if (e.target.value === '') {

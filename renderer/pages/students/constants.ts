@@ -47,8 +47,8 @@ export const searchDefaultValue: SearchDataType = {
 	form_id: { value: undefined, valid: true },
 	reg_date_start: { value: undefined, valid: true },
 	reg_date_end: { value: undefined, valid: true },
-	reg_year: { value: undefined, valid: true },
-	status: { value: undefined, valid: true },
+	reg_year: { value: new Date().getFullYear(), valid: true },
+	status: { value: true, valid: true },
 };
 
 export const parseGetData = (data: StudentsGetResponses) =>

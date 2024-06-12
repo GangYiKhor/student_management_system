@@ -46,7 +46,7 @@ const headerClass = clsx('text-3xl', 'font-bold');
 
 const headerButtonClass = clsx('flex', 'justify-end', 'items-center', 'gap-4');
 
-const contentClass = clsx('p-6', 'overflow-y-auto', 'max-h-[80vh]', 'min-w-[50vw]');
+const contentClass = clsx('px-6', 'py-2', 'overflow-y-auto', 'max-h-[80vh]', 'min-w-[50vw]');
 
 const footerContainerClass = clsx(
 	'flex',

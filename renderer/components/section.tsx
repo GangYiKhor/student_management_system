@@ -9,8 +9,8 @@ const buttonClass = clsx(
 	'items-center',
 	'p-2',
 	'pl-4',
-	'my-2',
-	'rounded-lg',
+	'mt-2',
+	'rounded-t-lg',
 	'bg-[rgba(0,0,0,0.05)]',
 	'dark:bg-[rgba(255,255,255,0.1)]',
 );
@@ -23,6 +23,12 @@ const hoverButtonClass = clsx(
 );
 
 const titleClass = clsx('font-bold', 'text-lg', 'text-neutral-700', 'dark:text-neutral-200');
+const contentClass = clsx(
+	'px-4',
+	'rounded-b-lg',
+	'bg-[rgba(0,0,0,0.05)]',
+	'dark:bg-[rgba(255,255,255,0.1)]',
+);
 
 type PropType = {
 	title?: string;
@@ -43,13 +49,18 @@ export function Section({ title, hideable, defaultHide, children }: Readonly<Pro
 	return (
 		<div>
 			<button
-				className={clsx(buttonClass, hideable ? hoverButtonClass : 'cursor-default')}
+				className={clsx(
+					buttonClass,
+					hideable ? hoverButtonClass : 'cursor-default',
+					hideable && hidden && 'rounded-b-lg',
+				)}
+				disabled={!hideable}
 				onClick={() => hideable && setHidden(!hidden)}
 			>
 				<span className={titleClass}>{title}</span>
 				{getChevron()}
 			</button>
-			<div className={hideable ? clsx(hidden && 'hidden') : ''}>{children}</div>
+			<div className={clsx(hideable && hidden && 'hidden', contentClass)}>{children}</div>
 		</div>
 	);
 }

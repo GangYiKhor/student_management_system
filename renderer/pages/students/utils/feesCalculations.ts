@@ -6,7 +6,7 @@ import { FormDataType } from '../types';
 export function getPackageCount(formData: FormDataType): number {
 	let packageCount = 0;
 
-	for (let i = 1; i <= CLASS_COUNT; i++) {
+	for (let i = 0; i < CLASS_COUNT; i++) {
 		const curClass = formData[`class_${i}`]?.value as ClassesGetResponse;
 		packageCount += curClass?.is_package ? 1 : 0;
 	}
@@ -18,6 +18,9 @@ export function getDiscountedFees(
 	value: ClassesGetResponse,
 	curPackage: PackagesGetResponse,
 ): number {
+	if (!value) {
+		return 0;
+	}
 	if (value?.is_package) {
 		return value?.fees - (curPackage?.discount_per_subject ?? 0);
 	} else {
@@ -25,10 +28,23 @@ export function getDiscountedFees(
 	}
 }
 
-export function getAllFees(formData: FormDataType, curPackage: PackagesGetResponse): number {
+export function getAllFees(formData: FormDataType): number {
 	let fees = 0;
 
-	for (let i = 1; i <= CLASS_COUNT; i++) {
+	for (let i = 0; i < CLASS_COUNT; i++) {
+		fees += (formData[`class_${i}`]?.value as ClassesGetResponse)?.fees ?? 0;
+	}
+
+	return fees;
+}
+
+export function getAllFeesDiscounted(
+	formData: FormDataType,
+	curPackage: PackagesGetResponse,
+): number {
+	let fees = 0;
+
+	for (let i = 0; i < CLASS_COUNT; i++) {
 		const curClass = formData[`class_${i}`]?.value as ClassesGetResponse;
 		fees += getDiscountedFees(curClass, curPackage);
 	}

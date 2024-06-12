@@ -18,7 +18,7 @@ export function useCustomQuery<Res = any>({
 	queryFn,
 	disabled,
 	errorHandler,
-	fetchOnVariable,
+	fetchOnVariable = [],
 }: Readonly<PropType<Res>>) {
 	const { setNotification } = useNotificationContext();
 
@@ -44,7 +44,9 @@ export function useCustomQuery<Res = any>({
 	}, [isError]);
 
 	useEffect(() => {
-		refetch();
+		if (fetchOnVariable.length) {
+			refetch();
+		}
 	}, [...fetchOnVariable]);
 
 	return { data, isLoading, error, isError, dataUpdatedAt, refetch };

@@ -1,4 +1,4 @@
-import { isSameDay } from '../../../utils/dateOperations';
+import { getToday, isSameDay } from '../../../utils/dateOperations';
 import { EditData, FormDataType } from '../types';
 
 type PropType = {
@@ -25,8 +25,8 @@ export function useIsDirty({ formData, data }: Readonly<PropType>) {
 		} else {
 			isDirty ||= formData.student_name?.value?.trim() !== '';
 			isDirty ||= formData.form_id?.value !== undefined;
-			isDirty ||= formData.reg_date?.value !== undefined;
-			isDirty ||= formData.reg_year?.value !== undefined;
+			isDirty ||= !isSameDay(formData.reg_date?.value, getToday());
+			isDirty ||= formData.reg_year?.value !== new Date().getFullYear();
 			isDirty ||= formData.gender?.value?.trim() !== '';
 			isDirty ||= formData.ic?.value?.trim() !== '';
 			isDirty ||= formData.school?.value?.trim() !== '';

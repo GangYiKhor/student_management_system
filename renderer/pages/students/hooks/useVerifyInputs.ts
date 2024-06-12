@@ -48,7 +48,7 @@ export function useVerifyInputs({ formData, setFormData }: PropType) {
 			(value: number) => 2000 <= value && value <= 2200,
 		);
 
-		valid = fieldCheckerRequiredValue(
+		valid = fieldCheckerValue(
 			valid,
 			formData,
 			'phone_number',
@@ -58,7 +58,7 @@ export function useVerifyInputs({ formData, setFormData }: PropType) {
 			verifyPhoneNumber,
 		);
 
-		valid = fieldCheckerRequiredValue(
+		valid = fieldCheckerValue(
 			valid,
 			formData,
 			'parent_phone_number',

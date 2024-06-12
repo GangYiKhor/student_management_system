@@ -8,7 +8,7 @@ import { StudentsGetResponses } from '../../../../utils/types/responses/students
 export async function studentsGetServices(
 	dto: StudentsGetDto & { OR?: { [key: string]: any } },
 ): Promise<StudentsGetResponses> {
-	const { search_text, reg_date_start, reg_date_end, orderBy: order, ...where } = dto;
+	const { search_text = '', reg_date_start, reg_date_end, orderBy: order, ...where } = dto;
 
 	if (reg_date_start && reg_date_end) {
 		where.reg_date = { gte: reg_date_start, lte: reg_date_end };
@@ -27,13 +27,13 @@ export async function studentsGetServices(
 		where: {
 			...where,
 			OR: [
-				{ student_name: { contains: search_text } },
-				{ ic: { contains: search_text } },
-				{ school: { contains: search_text } },
-				{ phone_number: { contains: search_text } },
-				{ parent_phone_number: { contains: search_text } },
-				{ email: { contains: search_text } },
-				{ address: { contains: search_text } },
+				{ student_name: { contains: search_text, mode: 'insensitive' } },
+				{ ic: { contains: search_text, mode: 'insensitive' } },
+				{ school: { contains: search_text, mode: 'insensitive' } },
+				{ phone_number: { contains: search_text, mode: 'insensitive' } },
+				{ parent_phone_number: { contains: search_text, mode: 'insensitive' } },
+				{ email: { contains: search_text, mode: 'insensitive' } },
+				{ address: { contains: search_text, mode: 'insensitive' } },
 			],
 		},
 		orderBy,

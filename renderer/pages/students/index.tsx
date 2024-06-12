@@ -69,9 +69,7 @@ function Students() {
 				<title>{PageName}</title>
 			</Head>
 			<Layout headerTitle={PageName}>
-				{isLoading ? (
-					<Loader />
-				) : (
+				<Loader isLoading={isLoading}>
 					<div className={clsx('flex', 'flex-col', 'gap-4')}>
 						<FormProvider defaultValue={searchDefaultValue}>
 							<StudentsSearchAdd
@@ -87,10 +85,7 @@ function Students() {
 
 						<StudentsTable data={data} refetch={refetch} setOrderBy={setOrderBy} />
 
-						<LastUpdatedAt
-							lastUpdatedAt={dataUpdatedAt ?? new Date(dataUpdatedAt)}
-							refetch={refetch}
-						/>
+						<LastUpdatedAt lastUpdatedAt={dataUpdatedAt} refetch={refetch} />
 
 						{toggleModal ? (
 							<FormProvider defaultValue={formDefaultValue}>
@@ -98,7 +93,7 @@ function Students() {
 							</FormProvider>
 						) : null}
 					</div>
-				)}
+				</Loader>
 			</Layout>
 		</React.Fragment>
 	);
