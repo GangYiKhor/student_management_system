@@ -14,13 +14,13 @@ import { Section } from '../../../components/section';
 import Separator from '../../../components/separator';
 import ThinSeparator from '../../../components/thin-seperator';
 import { useCustomQuery } from '../../../hooks/use-custom-query';
-import { useGet, useGetOptions } from '../../../hooks/use-get';
+import { useGet } from '../../../hooks/use-get';
+import { useGetClassOptions } from '../../../hooks/use-get-class-options';
+import { useGetFormOptions } from '../../../hooks/use-get-form-options';
 import {
-	CLASS_API_PATH,
 	CLASS_COUNT,
 	PACKAGE_API_PATH,
 	STUDENT_CLASS_API_PATH,
-	STUDENT_FORM_API_PATH,
 } from '../../../utils/constants/constants';
 import { icFormat, icFormatRevert } from '../../../utils/formatting/icFormatting';
 import {
@@ -34,15 +34,12 @@ import {
 	RedButtonClass,
 } from '../../../utils/tailwindClass/button';
 import { GreenBoldText } from '../../../utils/tailwindClass/text';
-import { ClassesGetDto } from '../../../utils/types/dtos/classes/get';
 import { PackagesGetDto } from '../../../utils/types/dtos/packages/get';
-import { StudentFormsGetDto } from '../../../utils/types/dtos/student-forms/get';
 import { StudentCreateDto } from '../../../utils/types/dtos/students/create';
 import { StudentUpdateDto } from '../../../utils/types/dtos/students/update';
 import { ClassesGetResponse } from '../../../utils/types/responses/classes/get';
 import { PackagesGetResponses } from '../../../utils/types/responses/packages/get';
 import { StudentClassesGetResponses } from '../../../utils/types/responses/student-classes/get';
-import { StudentFormsGetResponse } from '../../../utils/types/responses/student-forms/get';
 import { StudentCreateResponse } from '../../../utils/types/responses/students/create';
 import { StudentUpdateResponse } from '../../../utils/types/responses/students/update';
 import { SelectOptions } from '../../../utils/types/select-options';
@@ -82,15 +79,8 @@ export function StudentsModal({ closeModal, data, handler, handleActivate }: Rea
 	const verifyInputs = useVerifyInputs({ formData, setFormData });
 	const isDirty = useIsDirty({ formData, data: passedData, classData });
 
-	const getForms = useGetOptions<StudentFormsGetDto, StudentFormsGetResponse>(
-		STUDENT_FORM_API_PATH,
-		value => value.form_name,
-		value => value.id,
-	);
-	const getClass = useGetOptions<ClassesGetDto, ClassesGetResponse>(
-		CLASS_API_PATH,
-		value => `${value.class_name} (${value.teacher.teacher_name})`,
-	);
+	const getForms = useGetFormOptions();
+	const getClass = useGetClassOptions();
 	const getPackage = useGet<PackagesGetDto, PackagesGetResponses>(PACKAGE_API_PATH);
 	const getStudentClasses = useGet<void, StudentClassesGetResponses>(STUDENT_CLASS_API_PATH);
 
@@ -106,7 +96,7 @@ export function StudentsModal({ closeModal, data, handler, handleActivate }: Rea
 		fetchOnlyIfDefined: [packageCount],
 	});
 
-	const { data: classOptions, refetch } = useCustomQuery<SelectOptions<ClassesGetResponse>>({
+	const { data: classOptions } = useCustomQuery<SelectOptions<ClassesGetResponse>>({
 		queryKey: ['classes'],
 		queryFn: () =>
 			getClass({
@@ -114,12 +104,10 @@ export function StudentsModal({ closeModal, data, handler, handleActivate }: Rea
 				is_active: true,
 				orderBy: 'class_name asc',
 			}),
-		disabled: true,
+		fetchOnVariable: [formData?.form_id?.value],
 	});
 
 	useEffect(() => {
-		refetch();
-
 		for (let i = 0; i < CLASS_COUNT; i++) {
 			setFormData({ name: `class_${i}`, value: null, valid: true });
 		}

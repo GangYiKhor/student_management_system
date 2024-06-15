@@ -6,11 +6,10 @@ import { SearchBar } from '../../../components/search-bar';
 import { GeneralSearch } from '../../../components/searches/general-search';
 import { StatusSearch } from '../../../components/searches/status-search';
 import { useGetOptions } from '../../../hooks/use-get';
-import { STUDENT_FORM_API_PATH, TEACHER_API_PATH } from '../../../utils/constants/constants';
+import { useGetFormOptions } from '../../../hooks/use-get-form-options';
+import { TEACHER_API_PATH } from '../../../utils/constants/constants';
 import { BlueButtonClass } from '../../../utils/tailwindClass/button';
-import { StudentFormsGetDto } from '../../../utils/types/dtos/student-forms/get';
 import { TeachersGetDto } from '../../../utils/types/dtos/teachers/get';
-import { StudentFormsGetResponse } from '../../../utils/types/responses/student-forms/get';
 import { TeachersGetResponse } from '../../../utils/types/responses/teachers/get';
 import { SearchBarButtons } from '../../../utils/types/search-bar-button';
 import { dayOptions } from '../constants';
@@ -45,11 +44,7 @@ export function ClassesSearchAdd({
 		},
 	];
 
-	const getForms = useGetOptions<StudentFormsGetDto, StudentFormsGetResponse>(
-		STUDENT_FORM_API_PATH,
-		value => value.form_name,
-		value => value.id,
-	);
+	const getForms = useGetFormOptions();
 	const getTeachers = useGetOptions<TeachersGetDto, TeachersGetResponse>(
 		TEACHER_API_PATH,
 		value => value.teacher_name,

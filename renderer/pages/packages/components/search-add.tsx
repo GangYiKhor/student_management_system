@@ -5,11 +5,8 @@ import { useFormContext } from '../../../components/providers/form-providers';
 import { SearchBar } from '../../../components/search-bar';
 import { GeneralSearch } from '../../../components/searches/general-search';
 import { StatusSearch } from '../../../components/searches/status-search';
-import { useGetOptions } from '../../../hooks/use-get';
-import { STUDENT_FORM_API_PATH } from '../../../utils/constants/constants';
+import { useGetFormOptions } from '../../../hooks/use-get-form-options';
 import { BlueButtonClass } from '../../../utils/tailwindClass/button';
-import { StudentFormsGetDto } from '../../../utils/types/dtos/student-forms/get';
-import { StudentFormsGetResponse } from '../../../utils/types/responses/student-forms/get';
 import { SearchBarButtons } from '../../../utils/types/search-bar-button';
 import { SearchDataType } from '../types';
 
@@ -38,11 +35,7 @@ export function PackagesSearchAdd({
 		},
 	];
 
-	const getForms = useGetOptions<StudentFormsGetDto, StudentFormsGetResponse>(
-		STUDENT_FORM_API_PATH,
-		value => value.form_name,
-		value => value.id,
-	);
+	const getForms = useGetFormOptions();
 
 	useEffect(() => {
 		setSearch(formData.general?.value);

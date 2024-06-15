@@ -10,7 +10,8 @@ import { useFormContext } from '../../../components/providers/form-providers';
 import Row from '../../../components/row';
 import Separator from '../../../components/separator';
 import { useGetOptions } from '../../../hooks/use-get';
-import { STUDENT_FORM_API_PATH, TEACHER_API_PATH } from '../../../utils/constants/constants';
+import { useGetFormOptions } from '../../../hooks/use-get-form-options';
+import { TEACHER_API_PATH } from '../../../utils/constants/constants';
 import {
 	GrayButtonClass,
 	GreenButtonClass,
@@ -18,9 +19,7 @@ import {
 } from '../../../utils/tailwindClass/button';
 import { ClassCreateDto } from '../../../utils/types/dtos/classes/create';
 import { ClassUpdateDto } from '../../../utils/types/dtos/classes/update';
-import { StudentFormsGetDto } from '../../../utils/types/dtos/student-forms/get';
 import { TeachersGetDto } from '../../../utils/types/dtos/teachers/get';
-import { StudentFormsGetResponse } from '../../../utils/types/responses/student-forms/get';
 import { TeachersGetResponse } from '../../../utils/types/responses/teachers/get';
 import { dayOptions } from '../constants';
 import { useIsDirty } from '../hooks/useIsDirty';
@@ -41,11 +40,7 @@ export function ClassesModal({ closeModal, data, handler }: Readonly<PropType>) 
 	const verifyInputs = useVerifyInputs({ formData, setFormData });
 	const isDirty = useIsDirty({ formData, data });
 
-	const getForms = useGetOptions<StudentFormsGetDto, StudentFormsGetResponse>(
-		STUDENT_FORM_API_PATH,
-		value => value.form_name,
-		value => value.id,
-	);
+	const getForms = useGetFormOptions();
 	const getTeachers = useGetOptions<TeachersGetDto, TeachersGetResponse>(
 		TEACHER_API_PATH,
 		value => value.teacher_name,

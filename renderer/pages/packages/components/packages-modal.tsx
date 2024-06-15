@@ -7,8 +7,7 @@ import Modal, { ModalButtons } from '../../../components/modal';
 import { useFormContext } from '../../../components/providers/form-providers';
 import Row from '../../../components/row';
 import Separator from '../../../components/separator';
-import { useGetOptions } from '../../../hooks/use-get';
-import { STUDENT_FORM_API_PATH } from '../../../utils/constants/constants';
+import { useGetFormOptions } from '../../../hooks/use-get-form-options';
 import {
 	GrayButtonClass,
 	GreenButtonClass,
@@ -16,8 +15,6 @@ import {
 } from '../../../utils/tailwindClass/button';
 import { PackageCreateDto } from '../../../utils/types/dtos/packages/create';
 import { PackageUpdateDto } from '../../../utils/types/dtos/packages/update';
-import { StudentFormsGetDto } from '../../../utils/types/dtos/student-forms/get';
-import { StudentFormsGetResponse } from '../../../utils/types/responses/student-forms/get';
 import { useIsDirty } from '../hooks/useIsDirty';
 import { useVerifyInputs } from '../hooks/useVerifyInputs';
 import { EditData, FormDataType } from '../types';
@@ -36,11 +33,7 @@ export function PackagesModal({ closeModal, handler, data }: Readonly<PropType>)
 	const verifyInputs = useVerifyInputs({ formData, setFormData });
 	const isDirty = useIsDirty({ formData, data });
 
-	const getForms = useGetOptions<StudentFormsGetDto, StudentFormsGetResponse>(
-		STUDENT_FORM_API_PATH,
-		value => value.form_name,
-		value => value.id,
-	);
+	const getForms = useGetFormOptions();
 
 	const modalButtons: ModalButtons = [
 		{

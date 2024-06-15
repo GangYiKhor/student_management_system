@@ -1,9 +1,11 @@
 import { useNotificationContext } from '../../../components/providers/notification-providers';
+import { CLASS_COUNT } from '../../../utils/constants/constants';
 import {
 	fieldCheckerRequired,
 	fieldCheckerRequiredValue,
 	fieldCheckerValue,
 } from '../../../utils/field-checker';
+import { ClassesGetResponse } from '../../../utils/types/responses/classes/get';
 import { verifyEmail, verifyPhoneNumber } from '../../../utils/verifications';
 import { FormDataType } from '../types';
 
@@ -77,6 +79,27 @@ export function useVerifyInputs({ formData, setFormData }: PropType) {
 			setNotification,
 			verifyEmail,
 		);
+
+		const classChoice = new Set<number>();
+		let classValid = true;
+		for (let i = 0; i < CLASS_COUNT; i++) {
+			const value = formData[`class_${i}`]?.value;
+			if (value !== undefined && value !== null) {
+				if (classChoice.has((formData[`class_${i}`]?.value as ClassesGetResponse).id)) {
+					formData[`class_${i}`].valid = false;
+					classValid = false;
+				} else {
+					classChoice.add((formData[`class_${i}`].value as ClassesGetResponse).id);
+				}
+			}
+		}
+		if (!classValid) {
+			setNotification({
+				title: 'Duplicate Class',
+				source: 'Form',
+			});
+		}
+		valid &&= classValid;
 
 		return valid;
 	};

@@ -1,9 +1,7 @@
 import { useEffect } from 'react';
 import { useCustomQuery } from '../../hooks/use-custom-query';
-import { useGetOptions } from '../../hooks/use-get';
-import { CLASS_API_PATH } from '../../utils/constants/constants';
+import { useGetClassOptions } from '../../hooks/use-get-class-options';
 import { tryParseInt } from '../../utils/numberParsers';
-import { ClassesGetDto } from '../../utils/types/dtos/classes/get';
 import { ClassesGetResponse } from '../../utils/types/responses/classes/get';
 import { SelectOptions } from '../../utils/types/select-options';
 import { SelectInput } from './select-input';
@@ -29,11 +27,7 @@ export function SelectClass({
 	labelClassAddOn,
 	options,
 }: Readonly<PropType>) {
-	const getClass = useGetOptions<ClassesGetDto, ClassesGetResponse>(
-		CLASS_API_PATH,
-		value => `${value.class_name} (${value.teacher.teacher_name})`,
-		onlyId ? value => value.id : undefined,
-	);
+	const getClass = useGetClassOptions(onlyId);
 
 	const { data, refetch } = useCustomQuery<SelectOptions<ClassesGetResponse>>({
 		queryKey: ['classes'],
