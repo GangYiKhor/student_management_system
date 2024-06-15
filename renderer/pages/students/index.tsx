@@ -54,13 +54,17 @@ function Students() {
 		fetchOnVariable: [search, formId, regDateStart, regDateEnd, regYear, isActive, orderBy],
 	});
 
-	const handleAdd = async (data: StudentCreateDto, classIds: number[]) => {
+	const handleAdd = async (
+		data: StudentCreateDto,
+		classIds: number[],
+	): Promise<StudentCreateResponse> => {
 		const { student_id } = await postStudent(data);
 		await postStudentClass(
 			classIds.map(value => ({ class_id: value })),
 			student_id,
 		);
 		await refetch();
+		return { student_id };
 	};
 
 	return (

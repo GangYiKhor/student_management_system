@@ -11,6 +11,7 @@ type PropType<Res = any> = {
 	disabled?: boolean;
 	errorHandler?: (error: any) => any;
 	fetchOnVariable?: any[];
+	fetchOnlyIfDefined?: any[];
 };
 
 export function useCustomQuery<Res = any>({
@@ -19,6 +20,7 @@ export function useCustomQuery<Res = any>({
 	disabled,
 	errorHandler,
 	fetchOnVariable = [],
+	fetchOnlyIfDefined = [],
 }: Readonly<PropType<Res>>) {
 	const { setNotification } = useNotificationContext();
 
@@ -44,7 +46,10 @@ export function useCustomQuery<Res = any>({
 	}, [isError]);
 
 	useEffect(() => {
-		if (fetchOnVariable.length) {
+		if (
+			fetchOnVariable.length &&
+			fetchOnlyIfDefined.reduce((cumulative, value) => cumulative && value !== undefined, true)
+		) {
 			refetch();
 		}
 	}, [...fetchOnVariable]);

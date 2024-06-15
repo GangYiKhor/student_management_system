@@ -84,6 +84,10 @@ export function SelectInput({
 	};
 
 	useEffect(() => {
+		if (formData?.[name]?.value === undefined) {
+			setInput('');
+		}
+
 		const foundIndex = (options ?? data)?.findIndex(record => {
 			return isEqual(record.value, formData?.[name]?.value);
 		});

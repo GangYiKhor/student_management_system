@@ -13,9 +13,9 @@ export async function studentUpdateController(
 	devLog('Update Student Handler', req.query);
 
 	try {
-		await studentUpdateServices(parseInt(req.query.id), req.body);
+		const result = await studentUpdateServices(parseInt(req.query.id), req.body);
 		devLog('Update Student Handler: UPDATED');
-		res.status(200).end();
+		res.status(200).json(result);
 	} catch (err) {
 		devLog('Update Student Handler: ERROR', err);
 

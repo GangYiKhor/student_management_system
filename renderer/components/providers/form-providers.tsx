@@ -68,7 +68,7 @@ export function FormProvider({ defaultValue = {}, children }: Readonly<PropType>
 			GenericFormDataType,
 			{ name: string | GenericFormDataType; value?: any; valid?: boolean }
 		>
-	>(reducer, { ...defaultValue });
+	>(reducer, defaultValue);
 	const formProviderValue = useMemo(() => ({ formData, setFormData }), [formData, setFormData]);
 
 	return <Form.Provider value={formProviderValue}>{children}</Form.Provider>;

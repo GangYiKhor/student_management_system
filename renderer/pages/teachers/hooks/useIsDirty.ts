@@ -10,11 +10,11 @@ export function useIsDirty({ formData, data }: Readonly<PropType>) {
 		let isDirty = false;
 
 		if (data) {
-			isDirty ||= formData.teacher_name?.value?.trim() !== data.teacher_name;
-			isDirty ||= formData.ic?.value?.trim() !== data.ic;
-			isDirty ||= formData.phone_number?.value?.trim() !== data.phone_number;
-			isDirty ||= formData.email?.value?.trim() !== data.email;
-			isDirty ||= formData.address?.value?.trim() !== data.address;
+			isDirty ||= formData.teacher_name?.value !== data.teacher_name;
+			isDirty ||= formData.ic?.value !== data.ic;
+			isDirty ||= formData.phone_number?.value !== data.phone_number;
+			isDirty ||= formData.email?.value !== data.email;
+			isDirty ||= formData.address?.value !== data.address;
 		} else {
 			isDirty ||= formData.teacher_name?.value?.trim() !== '';
 			isDirty ||= formData.ic?.value?.trim() !== '';

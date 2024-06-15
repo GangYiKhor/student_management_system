@@ -13,6 +13,7 @@ import {
 	StudentsGetResponse,
 	StudentsGetResponses,
 } from '../../../utils/types/responses/students/get';
+import { StudentUpdateResponse } from '../../../utils/types/responses/students/update';
 import { BackendPath, defaultSort, formDefaultValueFilled } from '../constants';
 import { EditData } from '../types';
 import { StudentsModal } from './students-modal';
@@ -45,20 +46,24 @@ type PropType = {
 
 export function StudentsTable({ data, refetch, setOrderBy }: Readonly<PropType>) {
 	const [selected, setSelected] = useState<EditData>(undefined);
-	const postStudent = usePost<StudentUpdateDto, void>(BackendPath);
+	const postStudent = usePost<StudentUpdateDto, StudentUpdateResponse>(BackendPath);
 	const postStudentClass = usePost<StudentClassCreateDto, void>(STUDENT_CLASS_API_PATH);
 
 	const handleEdit = (data: EditData) => {
 		setSelected(data);
 	};
 
-	const handleUpdate = async (data: StudentUpdateDto, classIds: number[]) => {
-		await postStudent(data, selected.id);
+	const handleUpdate = async (
+		data: StudentUpdateDto,
+		classIds: number[],
+	): Promise<StudentUpdateResponse> => {
+		const result = await postStudent(data, selected.id);
 		await postStudentClass(
 			classIds.map(value => ({ class_id: value })),
 			selected.id,
 		);
 		await refetch();
+		return result;
 	};
 
 	const handleActivate = useCallback(async () => {

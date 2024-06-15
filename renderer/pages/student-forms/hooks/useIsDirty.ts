@@ -10,7 +10,7 @@ export function useIsDirty({ formData, data }: Readonly<PropType>) {
 		let isDirty = false;
 
 		if (data) {
-			isDirty ||= formData.form_name?.value?.trim() !== data.form_name;
+			isDirty ||= formData.form_name?.value !== data.form_name;
 		} else {
 			isDirty ||= formData.form_name?.value?.trim() !== '';
 		}

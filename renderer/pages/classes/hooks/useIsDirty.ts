@@ -21,7 +21,7 @@ export function useIsDirty({ formData, data }: Readonly<PropType>) {
 			isDirty ||= !isSameTime(formData.end_time?.value, data.end_time);
 			isDirty ||= formData.fees?.value !== data.fees;
 			isDirty ||= formData.is_package?.value !== data.is_package;
-			isDirty ||= formData.class_name?.value.trim() !== data.class_name;
+			isDirty ||= formData.class_name?.value !== data.class_name;
 		} else {
 			isDirty ||= formData.teacher_id?.value !== undefined;
 			isDirty ||= formData.start_date?.value !== undefined;

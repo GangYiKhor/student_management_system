@@ -16,6 +16,7 @@ import ThinSeparator from '../../../components/thin-seperator';
 import { useCustomQuery } from '../../../hooks/use-custom-query';
 import { useGet, useGetOptions } from '../../../hooks/use-get';
 import {
+	CLASS_API_PATH,
 	CLASS_COUNT,
 	PACKAGE_API_PATH,
 	STUDENT_CLASS_API_PATH,
@@ -26,12 +27,14 @@ import {
 	phoneNumberFormat,
 	phoneNumberFormatRevert,
 } from '../../../utils/formatting/phoneNumberFormatting';
+import { tryParseInt } from '../../../utils/numberParsers';
 import {
 	GrayButtonClass,
 	GreenButtonClass,
 	RedButtonClass,
 } from '../../../utils/tailwindClass/button';
 import { GreenBoldText } from '../../../utils/tailwindClass/text';
+import { ClassesGetDto } from '../../../utils/types/dtos/classes/get';
 import { PackagesGetDto } from '../../../utils/types/dtos/packages/get';
 import { StudentFormsGetDto } from '../../../utils/types/dtos/student-forms/get';
 import { StudentCreateDto } from '../../../utils/types/dtos/students/create';
@@ -40,6 +43,9 @@ import { ClassesGetResponse } from '../../../utils/types/responses/classes/get';
 import { PackagesGetResponses } from '../../../utils/types/responses/packages/get';
 import { StudentClassesGetResponses } from '../../../utils/types/responses/student-classes/get';
 import { StudentFormsGetResponse } from '../../../utils/types/responses/student-forms/get';
+import { StudentCreateResponse } from '../../../utils/types/responses/students/create';
+import { StudentUpdateResponse } from '../../../utils/types/responses/students/update';
+import { SelectOptions } from '../../../utils/types/select-options';
 import { useIsDirty } from '../hooks/useIsDirty';
 import { useVerifyInputs } from '../hooks/useVerifyInputs';
 import { EditData, FormDataType } from '../types';
@@ -54,37 +60,39 @@ const feesClass = clsx('w-16', 'text-right');
 
 type PropType = {
 	closeModal: () => void;
-	handler: (createData: StudentCreateDto | StudentUpdateDto, classIds: number[]) => Promise<void>;
+	handler: (
+		createData: StudentCreateDto | StudentUpdateDto,
+		classIds: number[],
+	) => Promise<StudentCreateResponse | StudentUpdateResponse>;
 	handleActivate?: () => void;
 	data?: EditData;
 };
 
 export function StudentsModal({ closeModal, data, handler, handleActivate }: Readonly<PropType>) {
 	const { formData, setFormData } = useFormContext<FormDataType>();
-	const [confirmation, setConfirmation] = useState(false);
-	const [packageCount, setPackageCount] = useState(0);
-	const [allFees, setAllFees] = useState(0);
-	const [allFeesDiscounted, setAllFeesDiscounted] = useState(0);
-	const [closeConfirmation, setCloseConfirmation] = useState(false);
+	const [confirmation, setConfirmation] = useState<boolean>(false);
+	const [packageCount, setPackageCount] = useState<number>();
+	const [allFees, setAllFees] = useState<number>(0);
+	const [allFeesDiscounted, setAllFeesDiscounted] = useState<number>(0);
+	const [closeConfirmation, setCloseConfirmation] = useState<boolean>(false);
+	const [passedData, setPassedData] = useState<EditData>(data);
+	const [classData, setClassData] = useState<StudentClassesGetResponses>();
 	const { setNotification } = useNotificationContext();
 
 	const verifyInputs = useVerifyInputs({ formData, setFormData });
-	const isDirty = useIsDirty({ formData, data });
+	const isDirty = useIsDirty({ formData, data: passedData, classData });
 
 	const getForms = useGetOptions<StudentFormsGetDto, StudentFormsGetResponse>(
 		STUDENT_FORM_API_PATH,
 		value => value.form_name,
 		value => value.id,
 	);
+	const getClass = useGetOptions<ClassesGetDto, ClassesGetResponse>(
+		CLASS_API_PATH,
+		value => `${value.class_name} (${value.teacher.teacher_name})`,
+	);
 	const getPackage = useGet<PackagesGetDto, PackagesGetResponses>(PACKAGE_API_PATH);
 	const getStudentClasses = useGet<void, StudentClassesGetResponses>(STUDENT_CLASS_API_PATH);
-
-	const { data: classData, refetch: fetchClass } = useCustomQuery<StudentClassesGetResponses>({
-		queryKey: ['studentClass'],
-		queryFn: () => getStudentClasses(undefined, data?.id),
-		disabled: true,
-		fetchOnVariable: [data?.id],
-	});
 
 	const { data: packageData } = useCustomQuery<PackagesGetResponses>({
 		queryKey: ['currentPackage'],
@@ -95,13 +103,39 @@ export function StudentsModal({ closeModal, data, handler, handleActivate }: Rea
 				is_active: true,
 			}),
 		fetchOnVariable: [formData?.form_id?.value, packageCount],
+		fetchOnlyIfDefined: [packageCount],
+	});
+
+	const { data: classOptions, refetch } = useCustomQuery<SelectOptions<ClassesGetResponse>>({
+		queryKey: ['classes'],
+		queryFn: () =>
+			getClass({
+				form_id: tryParseInt(formData?.form_id?.value),
+				is_active: true,
+				orderBy: 'class_name asc',
+			}),
+		disabled: true,
 	});
 
 	useEffect(() => {
-		if (data?.id) {
-			fetchClass();
+		refetch();
+
+		for (let i = 0; i < CLASS_COUNT; i++) {
+			setFormData({ name: `class_${i}`, value: null, valid: true });
 		}
-	}, [data?.id]);
+	}, [formData?.form_id?.value]);
+
+	useEffect(() => {
+		if (passedData?.id) {
+			getStudentClasses(undefined, passedData?.id).then(value => setClassData(value));
+		}
+	}, [passedData?.id]);
+
+	useEffect(() => {
+		if (data) {
+			setPassedData(data);
+		}
+	}, [data]);
 
 	useEffect(() => {
 		if (classData) {
@@ -122,16 +156,16 @@ export function StudentsModal({ closeModal, data, handler, handleActivate }: Rea
 
 	const modalButtons: ModalButtons = [
 		{
-			text: data ? 'Update' : 'Create',
+			text: passedData ? 'Update' : 'Create',
 			class: GreenButtonClass,
 			action: () => verifyInputs() && setConfirmation(true),
 		},
 	];
 
-	if (data) {
+	if (passedData) {
 		modalButtons.unshift({
-			text: data.is_active ? 'Deactivate' : 'Activate',
-			class: data.is_active ? RedButtonClass : GreenButtonClass,
+			text: passedData.is_active ? 'Deactivate' : 'Activate',
+			class: passedData.is_active ? RedButtonClass : GreenButtonClass,
 			action: () => handleActivate(),
 		});
 	}
@@ -148,17 +182,17 @@ export function StudentsModal({ closeModal, data, handler, handleActivate }: Rea
 			action: async () => {
 				try {
 					const submitData: StudentCreateDto | StudentUpdateDto = {
-						student_name: formData.student_name?.value?.trim(),
+						student_name: formData.student_name?.value?.trim() || '',
 						form_id: formData.form_id?.value,
 						reg_date: formData.reg_date?.value,
 						reg_year: formData.reg_year?.value,
-						gender: formData.gender?.value?.trim() || null,
-						ic: formData.ic?.value?.trim() || null,
-						school: formData.school?.value?.trim() || null,
-						phone_number: formData.phone_number?.value?.trim() || null,
-						parent_phone_number: formData.parent_phone_number?.value?.trim() || null,
-						email: formData.email?.value?.trim() || null,
-						address: formData.address?.value?.trim() || null,
+						gender: formData.gender?.value?.trim() || '',
+						ic: formData.ic?.value?.trim() || '',
+						school: formData.school?.value?.trim() || '',
+						phone_number: formData.phone_number?.value?.trim() || '',
+						parent_phone_number: formData.parent_phone_number?.value?.trim() || '',
+						email: formData.email?.value?.trim() || '',
+						address: formData.address?.value?.trim() || '',
 					};
 
 					const classIds: number[] = [];
@@ -166,12 +200,16 @@ export function StudentsModal({ closeModal, data, handler, handleActivate }: Rea
 						classIds.push((formData[`class_${i}`]?.value as ClassesGetResponse)?.id);
 					}
 
-					await handler(submitData, classIds);
+					const result = await handler(submitData, classIds);
 
 					setConfirmation(false);
-					if (!data) {
-						closeModal();
-					}
+					setPassedData(prev => ({
+						id: result.student_id,
+						is_active: true,
+						...prev,
+						...submitData,
+					}));
+					getStudentClasses(undefined, result.student_id).then(value => setClassData(value));
 				} catch (error) {
 					setNotification({ message: error });
 					setConfirmation(false);
@@ -199,7 +237,7 @@ export function StudentsModal({ closeModal, data, handler, handleActivate }: Rea
 	return (
 		<React.Fragment>
 			<Modal
-				title={data ? `Edit Student` : `Create Student`}
+				title={passedData ? `Edit Student` : `Create Student`}
 				closeModal={() => (isDirty() ? setCloseConfirmation(true) : closeModal())}
 				closeOnBlur={false}
 				buttons={modalButtons}
@@ -227,7 +265,7 @@ export function StudentsModal({ closeModal, data, handler, handleActivate }: Rea
 						/>
 					</Row>
 
-					<Section title="Student Details" hideable defaultHide={!!data}>
+					<Section title="Student Details" hideable defaultHide={!!passedData}>
 						<SelectInput
 							label="Gender"
 							name="gender"
@@ -285,9 +323,9 @@ export function StudentsModal({ closeModal, data, handler, handleActivate }: Rea
 										<SelectClass
 											label={`${count}`}
 											name={formName}
-											form={formData.form_id?.value}
 											onUpdate={() => setPackageCount(getPackageCount(formData))}
 											labelClassAddOn={clsx('w-6')}
+											options={classOptions}
 										/>
 										<span>RM</span>
 										<span className={clsx('w-12', 'text-right')}>
@@ -326,7 +364,7 @@ export function StudentsModal({ closeModal, data, handler, handleActivate }: Rea
 					closeOnBlur={false}
 					buttons={confirmationButtons}
 				>
-					<p>Confirm {data ? 'Update' : 'Create'}?</p>
+					<p>Confirm {passedData ? 'Update' : 'Create'}?</p>
 				</Modal>
 			) : null}
 
