@@ -87,7 +87,7 @@ export function DateRangeInput({
 	return (
 		<div className={containerClass}>
 			<label htmlFor={id} className={labelClass}>
-				{label}:{required ? <RequiredIcon /> : null}
+				{label}:<RequiredIcon required={required} />
 			</label>
 
 			<div

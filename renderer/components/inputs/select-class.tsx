@@ -1,20 +1,33 @@
 import { useEffect } from 'react';
 import { useCustomQuery } from '../../hooks/use-custom-query';
-import { useGetClassOptions } from '../../hooks/use-get-class-options';
+import { useGetClassComboBoxOptions } from '../../hooks/use-get-class-options';
+import { DAY } from '../../utils/constants/constants';
 import { tryParseInt } from '../../utils/numberParsers';
-import { ClassesGetResponse } from '../../utils/types/responses/classes/get';
-import { SelectOptions } from '../../utils/types/select-options';
-import { SelectInput } from './select-input';
+import { ClassesGetResponses } from '../../utils/types/responses/classes/get';
+import { ComboBox, DropDownColumnParser } from './combo-box';
+
+const columnParsers: DropDownColumnParser<ClassesGetResponses[0]> = [
+	{ column: 'class_name', parser: value => value.class_name },
+	{
+		column: 'form_name',
+		parser: value => value.form.form_name,
+	},
+	{
+		column: 'teacher_name',
+		parser: value => value.teacher.teacher_name,
+	},
+	{ column: 'day', parser: value => DAY[value.day] },
+];
 
 type PropType = {
 	id?: string;
 	label?: string;
 	name: string;
 	form?: number | string;
-	onlyId?: boolean;
 	onUpdate?: () => any;
+	options?: ClassesGetResponses;
 	labelClassAddOn?: string;
-	options?: SelectOptions<ClassesGetResponse>;
+	required?: boolean;
 };
 
 export function SelectClass({
@@ -22,14 +35,14 @@ export function SelectClass({
 	label,
 	name,
 	form,
-	onlyId,
 	onUpdate,
-	labelClassAddOn,
 	options,
+	labelClassAddOn,
+	required,
 }: Readonly<PropType>) {
-	const getClass = useGetClassOptions(onlyId);
+	const getClass = useGetClassComboBoxOptions();
 
-	const { data, refetch } = useCustomQuery<SelectOptions<ClassesGetResponse>>({
+	const { data, refetch } = useCustomQuery<ClassesGetResponses>({
 		queryKey: ['classes'],
 		queryFn: () =>
 			getClass({
@@ -47,13 +60,15 @@ export function SelectClass({
 	}, [form]);
 
 	return (
-		<SelectInput
+		<ComboBox
 			id={id}
 			label={label}
 			name={name}
-			placeholder="Not Selected"
 			options={options ?? data}
+			columnParsers={columnParsers}
+			labelColumn="class_name"
 			onUpdate={onUpdate}
+			required={required}
 			leftLabel
 			labelClassAddOn={labelClassAddOn}
 		/>

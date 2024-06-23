@@ -47,7 +47,7 @@ export function TimeInput({ id, label, name, min, max, required, leftLabel }: Re
 	return (
 		<div className={containerClass}>
 			<label htmlFor={id} className={labelClass}>
-				{label}:{required ? <RequiredIcon /> : null}
+				{label}:<RequiredIcon required={required} />
 			</label>
 
 			<input

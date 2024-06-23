@@ -20,8 +20,8 @@ export const THeadHoverClass = clsx(
 
 export const THeadClassWithHover = clsx(THeadClass, THeadHoverClass);
 
-export const THeadCellClass = clsx('pt-3', 'pb-3', 'pl-4', 'pr-5', 'text-center');
-export const CellClass = clsx('pt-1', 'pb-1', 'pl-4', 'pr-5', 'text-center');
+export const THeadCellClass = clsx('py-3', 'pl-4', 'pr-5', 'text-center');
+export const CellClass = clsx('py-1', 'pl-4', 'pr-5', 'text-center');
 
 export const NormalRowHoverClass = clsx(
 	'hover:bg-[rgba(0,0,0,0.05)]',

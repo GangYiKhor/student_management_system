@@ -1,6 +1,7 @@
 import { DefaultSort } from '../../components/tables/table-template';
 import { STUDENT_API_PATH } from '../../utils/constants/constants';
-import { getToday } from '../../utils/dateOperations';
+import { getToday, parseDateTime } from '../../utils/dateOperations';
+import { StudentClassesGetResponses } from '../../utils/types/responses/student-classes/get';
 import { StudentsGetResponses } from '../../utils/types/responses/students/get';
 import { EditData, FormDataType, SearchDataType } from './types';
 
@@ -53,6 +54,17 @@ export const searchDefaultValue: SearchDataType = {
 
 export const parseGetData = (data: StudentsGetResponses) =>
 	data.map(value => {
-		value.reg_date = new Date(value.reg_date);
+		value.reg_date = parseDateTime(value.reg_date);
+		return value;
+	});
+
+export const parseGetStudentClassData = (data: StudentClassesGetResponses) =>
+	data.map(value => {
+		if (value.class) {
+			value.class.start_date = parseDateTime(value.class.start_date);
+			value.class.end_date = parseDateTime(value.class.end_date);
+			value.class.start_time = parseDateTime(value.class.start_time);
+			value.class.end_time = parseDateTime(value.class.end_time);
+		}
 		return value;
 	});

@@ -8,7 +8,7 @@ export default function ThinSeparator({ addOnClass }: Readonly<PropType>) {
 	return (
 		<hr
 			className={clsx(
-				'h-[2px]',
+				'h-0.5',
 				'my-1',
 				'bg-gray-200',
 				'dark:bg-gray-500',

@@ -102,7 +102,7 @@ export function SelectInput({
 	return (
 		<div className={containerClass}>
 			<label htmlFor={id} className={clsx(labelClass, labelClassAddOn)}>
-				{label}:{required ? <RequiredIcon /> : null}
+				{label}:<RequiredIcon required={required} />
 			</label>
 
 			<div

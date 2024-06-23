@@ -58,7 +58,7 @@ export function TextAreaInput({
 	return (
 		<div className={ContainerFlexColGrow}>
 			<label htmlFor={id} className={LabelTopClass}>
-				{label}:{required ? <RequiredIcon /> : null}
+				{label}:<RequiredIcon required={required} />
 			</label>
 
 			<textarea

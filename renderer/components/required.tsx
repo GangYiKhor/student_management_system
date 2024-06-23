@@ -3,11 +3,15 @@ import { useTooltip } from '../hooks/use-tooltip';
 
 const requiredClass = clsx('text-red-500', 'dark:text-rose-400', 'text-bold');
 
-export function RequiredIcon() {
+type PropType = {
+	required?: boolean;
+};
+
+export function RequiredIcon({ required }: Readonly<PropType>) {
 	const { tooltip } = useTooltip();
-	return (
+	return required ? (
 		<span className={requiredClass} {...tooltip('Required')}>
 			*
 		</span>
-	);
+	) : null;
 }

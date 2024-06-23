@@ -63,7 +63,7 @@ export function NumberInput({
 	return (
 		<div className={containerClass}>
 			<label htmlFor={id} className={labelClass}>
-				{label}:{required ? <RequiredIcon /> : null}
+				{label}:<RequiredIcon required={required} />
 			</label>
 
 			<div className={clsx(inputClass, (formData[name]?.valid ?? true) || InvalidTextBoxClass)}>

@@ -6,7 +6,7 @@ const layoutClass = clsx('flex', 'bg-[rgb(250,250,250)]', 'dark:bg-[rgb(42,46,50
 
 const mainClass = clsx('flex-1', 'w-full', 'h-screen', 'overflow-auto');
 
-const contentClass = clsx('pl-5', 'pr-5', 'pt-5', 'pb-5');
+const contentClass = clsx('p-5');
 
 type PropType = {
 	children: any;

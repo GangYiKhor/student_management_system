@@ -15,7 +15,7 @@ import Separator from '../../../components/separator';
 import ThinSeparator from '../../../components/thin-seperator';
 import { useCustomQuery } from '../../../hooks/use-custom-query';
 import { useGet } from '../../../hooks/use-get';
-import { useGetClassOptions } from '../../../hooks/use-get-class-options';
+import { useGetClassComboBoxOptions } from '../../../hooks/use-get-class-options';
 import { useGetFormOptions } from '../../../hooks/use-get-form-options';
 import {
 	CLASS_COUNT,
@@ -37,12 +37,15 @@ import { GreenBoldText } from '../../../utils/tailwindClass/text';
 import { PackagesGetDto } from '../../../utils/types/dtos/packages/get';
 import { StudentCreateDto } from '../../../utils/types/dtos/students/create';
 import { StudentUpdateDto } from '../../../utils/types/dtos/students/update';
-import { ClassesGetResponse } from '../../../utils/types/responses/classes/get';
+import {
+	ClassesGetResponse,
+	ClassesGetResponses,
+} from '../../../utils/types/responses/classes/get';
 import { PackagesGetResponses } from '../../../utils/types/responses/packages/get';
 import { StudentClassesGetResponses } from '../../../utils/types/responses/student-classes/get';
 import { StudentCreateResponse } from '../../../utils/types/responses/students/create';
 import { StudentUpdateResponse } from '../../../utils/types/responses/students/update';
-import { SelectOptions } from '../../../utils/types/select-options';
+import { parseGetStudentClassData } from '../constants';
 import { useIsDirty } from '../hooks/useIsDirty';
 import { useVerifyInputs } from '../hooks/useVerifyInputs';
 import { EditData, FormDataType } from '../types';
@@ -80,9 +83,12 @@ export function StudentsModal({ closeModal, data, handler, handleActivate }: Rea
 	const isDirty = useIsDirty({ formData, data: passedData, classData });
 
 	const getForms = useGetFormOptions();
-	const getClass = useGetClassOptions();
+	const getClass = useGetClassComboBoxOptions();
 	const getPackage = useGet<PackagesGetDto, PackagesGetResponses>(PACKAGE_API_PATH);
-	const getStudentClasses = useGet<void, StudentClassesGetResponses>(STUDENT_CLASS_API_PATH);
+	const getStudentClasses = useGet<void, StudentClassesGetResponses>(
+		STUDENT_CLASS_API_PATH,
+		parseGetStudentClassData,
+	);
 
 	const { data: packageData } = useCustomQuery<PackagesGetResponses>({
 		queryKey: ['currentPackage'],
@@ -96,7 +102,7 @@ export function StudentsModal({ closeModal, data, handler, handleActivate }: Rea
 		fetchOnlyIfDefined: [packageCount],
 	});
 
-	const { data: classOptions } = useCustomQuery<SelectOptions<ClassesGetResponse>>({
+	const { data: classOptions } = useCustomQuery<ClassesGetResponses>({
 		queryKey: ['classes'],
 		queryFn: () =>
 			getClass({
