@@ -118,6 +118,50 @@ export function dateFormatter(
 	return dateString;
 }
 
+/**
+ * Add or Substract a specific number of time from date
+ *
+ * @example
+ * const date = new Date('2024-05-31 12:00:00')
+ * dateOperator(date, 15, 'd');
+ * // 2024-06-15 12:00:00
+ *
+ * dateOperator(date, -15, 'd');
+ * // 2024-05-16 12:00:00
+ *
+ * dateOperator(date, 5, 'h');
+ * // 2024-05-16 17:00:00
+ */
+export function dateOperator(
+	value: Date,
+	count: number,
+	unit: 'y' | 'M' | 'd' | 'h' | 'm' | 's' | 'ms',
+): Date {
+	const newValue = new Date(value);
+	const getOperator = {
+		y: 'getFullYear',
+		M: 'getMonth',
+		d: 'getDate',
+		h: 'getHours',
+		m: 'getMinutes',
+		s: 'getSeconds',
+		ms: 'getMilliseconds',
+	};
+	const setOperator = {
+		y: 'setFullYear',
+		M: 'setMonth',
+		d: 'setDate',
+		h: 'setHours',
+		m: 'setMinutes',
+		s: 'setSeconds',
+		ms: 'setMilliseconds',
+	};
+
+	count += newValue[getOperator[unit]]();
+	newValue[setOperator[unit]](count);
+	return newValue;
+}
+
 export function getToday(): Date {
 	const date = new Date();
 	return toDateOnly(date);
@@ -179,5 +223,38 @@ export function isSameDayOrBefore(date1: Date, date2: Date): boolean {
 		const day1 = toDateOnly(new Date(date1));
 		const day2 = toDateOnly(new Date(date2));
 		return day1?.getTime() <= day2?.getTime();
+	}
+}
+
+/**
+ * Returns which date it is closer to, 1 = date1; 2 = date2; 0 = same for both; -1 = invalid date
+ * @param mainDate Main Date
+ * @param date1 Date to compare 1
+ * @param date2 Date to compare 2
+ */
+export function isCloserTo(mainDate: Date, date1: Date, date2: Date): number {
+	mainDate = parseDateTime(mainDate, null);
+	date1 = parseDateTime(date1, null);
+	date2 = parseDateTime(date2, null);
+
+	switch (true) {
+		case mainDate === null || (date1 === null && date2 === null):
+			return -1;
+
+		case date1 === null:
+			return 2;
+
+		case date2 === null:
+			return 1;
+
+		case isSameTime(date1, date2):
+			return 0;
+
+		case Math.abs(date1.getTime() - mainDate.getTime()) >
+			Math.abs(date2.getTime() - mainDate.getTime()):
+			return 2;
+
+		default:
+			return 1;
 	}
 }

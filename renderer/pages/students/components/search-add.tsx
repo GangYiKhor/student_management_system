@@ -85,13 +85,7 @@ export function StudentsSearchAdd({
 				leftLabel
 			/>
 
-			<DateRangeInput
-				id="reg-date-search"
-				label="Reg"
-				startName="reg_date_start"
-				endName="reg_date_end"
-				leftLabel
-			/>
+			<DateRangeInput label="Reg" startName="reg_date_start" endName="reg_date_end" />
 
 			<NumberInput
 				id="year-search"
