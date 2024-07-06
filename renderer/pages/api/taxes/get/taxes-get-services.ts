@@ -1,4 +1,4 @@
-import { getToday } from '../../../../utils/dateOperations';
+import { getUTCToday } from '../../../../utils/dateOperations';
 import { parseOrderBy } from '../../../../utils/parseOrderBy';
 import prisma from '../../../../utils/prisma-client';
 import { TaxesGetDto, TaxesGetQueryDto } from '../../../../utils/types/dtos/taxes/get';
@@ -9,8 +9,8 @@ export async function taxesGetServices(
 ): Promise<TaxesGetResponses> {
 	const { orderBy: order, is_active, ...where } = dto;
 
-	const now = getToday();
-	const tomorrow = getToday();
+	const now = getUTCToday();
+	const tomorrow = getUTCToday();
 	tomorrow.setDate(tomorrow.getDate() + 1);
 	if (is_active) {
 		where.start_date = { lt: tomorrow };

@@ -1,4 +1,4 @@
-import { getToday, parseDateTime } from '../../../../utils/dateOperations';
+import { getUTCToday, parseDateTime } from '../../../../utils/dateOperations';
 import { tryParseFloat, tryParseInt } from '../../../../utils/numberParsers';
 import { parseOrderBy } from '../../../../utils/parseOrderBy';
 import prisma from '../../../../utils/prisma-client';
@@ -6,12 +6,12 @@ import { ClassesGetDto, ClassesGetQueryDto } from '../../../../utils/types/dtos/
 import { ClassesGetResponses } from '../../../../utils/types/responses/classes/get';
 
 export async function classesGetServices(
-	getClassDto: ClassesGetDto & { OR?: { [key: string]: any }[] },
+	dto: ClassesGetDto & { OR?: { [key: string]: any }[] },
 ): Promise<ClassesGetResponses> {
-	const { orderBy: order, is_active, ...where } = getClassDto;
+	const { orderBy: order, is_active, ...where } = dto;
 
-	const today = getToday();
-	const tomorrow = getToday();
+	const today = getUTCToday();
+	const tomorrow = getUTCToday();
 	tomorrow.setDate(tomorrow.getDate() + 1);
 	if (is_active) {
 		where.start_date = { lt: tomorrow };

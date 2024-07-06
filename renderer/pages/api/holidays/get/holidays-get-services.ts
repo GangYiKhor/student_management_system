@@ -4,10 +4,8 @@ import prisma from '../../../../utils/prisma-client';
 import { HolidaysGetDto, HolidaysGetQueryDto } from '../../../../utils/types/dtos/holidays/get';
 import { HolidaysGetResponses } from '../../../../utils/types/responses/holidays/get';
 
-export async function holidaysGetServices(
-	getHolidaysDto: HolidaysGetDto,
-): Promise<HolidaysGetResponses> {
-	const { orderBy: order, startDate, endDate } = getHolidaysDto;
+export async function holidaysGetServices(dto: HolidaysGetDto): Promise<HolidaysGetResponses> {
+	const { orderBy: order, startDate, endDate } = dto;
 
 	const where: { date?: { gte?: Date; lte?: Date } | Date } = {};
 

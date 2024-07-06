@@ -37,6 +37,7 @@ type PropType = {
 	columnParsers?: DropDownColumnParser;
 	labelColumn: string;
 	labelParser?: (value: any) => string;
+	valueParser?: (value: any) => any;
 	onUpdate?: () => any;
 	notSearchable?: boolean;
 	required?: boolean;
@@ -58,7 +59,8 @@ export function ComboBox({
 	columns,
 	columnParsers,
 	labelColumn,
-	labelParser,
+	labelParser = value => getPropertyValue(value, labelColumn),
+	valueParser = value => value,
 	onUpdate,
 	notSearchable,
 	required,
@@ -74,15 +76,20 @@ export function ComboBox({
 			parser: value => getPropertyValue(value, column),
 		})) ??
 		[];
-	labelParser = labelParser ?? (value => getPropertyValue(value, labelColumn));
 
-	const containerClass = clsx(leftLabel ? ContainerFlexRowGrow : ContainerFlexColGrow);
-	const labelClass = leftLabel ? LabelLeftClass : LabelTopClass;
-	const inputClass = clsx(
-		ContainerFlexRowGrow,
-		leftLabel ? TextBoxRightClass : TextBoxBottomClass,
-		'relative',
-	);
+	let containerClass = '';
+	let labelClass = '';
+	let inputClass = clsx(ContainerFlexRowGrow, 'relative');
+
+	if (leftLabel) {
+		containerClass = ContainerFlexRowGrow;
+		labelClass = LabelLeftClass;
+		inputClass = clsx(inputClass, TextBoxRightClass);
+	} else {
+		containerClass = ContainerFlexColGrow;
+		labelClass = LabelTopClass;
+		inputClass = clsx(inputClass, TextBoxBottomClass);
+	}
 
 	const { formData, setFormData } = useFormContext();
 	const [input, setInput] = useState<string>('');
@@ -93,7 +100,7 @@ export function ComboBox({
 		setInput(e.target.value);
 
 		const foundIndex = options?.findIndex(record => {
-			return labelParser(record)?.includes(e.target.value);
+			return labelParser(record).toLowerCase().includes(e.target.value?.toLowerCase());
 		});
 
 		const scrollHeight = foundIndex < 0 ? 0 : foundIndex * 30 + 30;
@@ -102,7 +109,7 @@ export function ComboBox({
 
 	const onSelect = (selected: { [key: string]: any }) => {
 		setInput(labelParser(selected) ?? '');
-		setFormData({ name, value: selected ?? null, valid: true });
+		setFormData({ name, value: selected ? valueParser(selected) : null, valid: true });
 		setShowDropdown(false);
 		onUpdate?.();
 	};
@@ -118,7 +125,7 @@ export function ComboBox({
 			});
 
 			if (foundIndex > -1) {
-				setFormData({ name, value: options[foundIndex], valid: true });
+				setFormData({ name, value: valueParser(options[foundIndex]), valid: true });
 				setShowDropdown(false);
 				onUpdate?.();
 			} else {
@@ -131,14 +138,14 @@ export function ComboBox({
 
 	const onBlur = () => {
 		const foundIndex = options?.findIndex(record => {
-			return labelParser(record).toLowerCase() === input.toLowerCase();
+			return labelParser(record).toLowerCase() === input?.toLowerCase();
 		});
 
-		if (foundIndex < 0) {
+		if (foundIndex < 0 && required) {
 			setFormData({ name, valid: false });
-		} else if (!isEqual(options[foundIndex], formData?.[name]?.value)) {
+		} else if (!isEqual(valueParser(options[foundIndex]), formData?.[name]?.value)) {
 			setInput(labelParser(options[foundIndex]));
-			setFormData({ name, value: options[foundIndex], valid: true });
+			setFormData({ name, value: valueParser(options[foundIndex]), valid: true });
 			onUpdate?.();
 		}
 
@@ -154,10 +161,11 @@ export function ComboBox({
 	useEffect(() => {
 		if (formData?.[name]?.value === undefined) {
 			setInput('');
+			return;
 		}
 
 		const foundIndex = options?.findIndex(record => {
-			return isEqual(record, formData?.[name]?.value);
+			return isEqual(valueParser(record), formData?.[name]?.value);
 		});
 
 		const newData = foundIndex > -1 ? labelParser(options[foundIndex]) : '';
@@ -230,7 +238,7 @@ export function ComboBox({
 										className={clsx(
 											DropdownRowClass,
 											isEqual(value, formData?.[name]?.value) ? DropdownSelectedRow : '',
-											input.toLowerCase() === labelParser(value).toLowerCase()
+											input?.toLowerCase() === labelParser(value)?.toLowerCase()
 												? DropdownSelectedRow
 												: '',
 										)}

@@ -2,8 +2,8 @@ import { ExistedError } from '../../../../utils/errors/ExistedError';
 import prisma from '../../../../utils/prisma-client';
 import { PackageCreateDto } from '../../../../utils/types/dtos/packages/create';
 
-export async function packagesCreateServices(createPackagesDto: PackageCreateDto): Promise<void> {
-	const { start_date, end_date, subject_count_from, subject_count_to, form_id } = createPackagesDto;
+export async function packagesCreateServices(dto: PackageCreateDto): Promise<void> {
+	const { start_date, end_date, subject_count_from, subject_count_to, form_id } = dto;
 	const existingRecord = await prisma.package_discount.findFirst({
 		where: {
 			form_id,
@@ -17,5 +17,5 @@ export async function packagesCreateServices(createPackagesDto: PackageCreateDto
 	if (existingRecord) {
 		throw new ExistedError('Clashed Package: ' + existingRecord.id, 'Clashed Package!');
 	}
-	await prisma.package_discount.create({ data: createPackagesDto });
+	await prisma.package_discount.create({ data: dto });
 }

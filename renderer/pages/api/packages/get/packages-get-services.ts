@@ -1,16 +1,16 @@
-import { getToday } from '../../../../utils/dateOperations';
+import { getUTCToday } from '../../../../utils/dateOperations';
 import { parseOrderBy } from '../../../../utils/parseOrderBy';
 import prisma from '../../../../utils/prisma-client';
 import { PackagesGetDto, PackagesGetQueryDto } from '../../../../utils/types/dtos/packages/get';
 import { PackagesGetResponses } from '../../../../utils/types/responses/packages/get';
 
 export async function packagesGetServices(
-	getPackagesDto: PackagesGetDto & { OR?: { [key: string]: any }[] },
+	dto: PackagesGetDto & { OR?: { [key: string]: any }[] },
 ): Promise<PackagesGetResponses> {
-	const { orderBy: order, subject_count, is_active, ...where } = getPackagesDto;
+	const { orderBy: order, subject_count, is_active, ...where } = dto;
 
-	const today = getToday();
-	const tomorrow = getToday();
+	const today = getUTCToday();
+	const tomorrow = getUTCToday();
 	tomorrow.setDate(tomorrow.getDate() + 1);
 	if (is_active) {
 		where.start_date = { lt: tomorrow };

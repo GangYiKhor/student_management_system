@@ -11,3 +11,5 @@ export const YellowBoldText = clsx('font-bold', YellowText);
 
 export const GrayText = clsx('text-gray-400', 'dark:text-gray-400');
 export const GrayBoldText = clsx('font-bold', GrayText);
+
+export const GrayInfoText = clsx('text-xs', 'text-gray-400', 'dark:text-gray-400');

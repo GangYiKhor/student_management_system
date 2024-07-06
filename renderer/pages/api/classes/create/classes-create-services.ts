@@ -2,8 +2,8 @@ import { ExistedError } from '../../../../utils/errors/ExistedError';
 import prisma from '../../../../utils/prisma-client';
 import { ClassCreateDto } from '../../../../utils/types/dtos/classes/create';
 
-export async function classesCreateServices(createClassDto: ClassCreateDto): Promise<void> {
-	const { teacher_id, start_date, end_date, day, start_time, end_time } = createClassDto;
+export async function classesCreateServices(dto: ClassCreateDto): Promise<void> {
+	const { teacher_id, start_date, end_date, day, start_time, end_time } = dto;
 	const existingRecord = await prisma.class_registration.findFirst({
 		where: {
 			teacher_id,
@@ -19,5 +19,5 @@ export async function classesCreateServices(createClassDto: ClassCreateDto): Pro
 		throw new ExistedError('Clashed Class With ID: ' + existingRecord.id, 'Duplicate Class!');
 	}
 
-	await prisma.class_registration.create({ data: { ...createClassDto } });
+	await prisma.class_registration.create({ data: dto });
 }

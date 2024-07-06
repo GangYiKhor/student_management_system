@@ -24,6 +24,7 @@ type PropType = {
 	maxLength?: number;
 	email?: boolean;
 	required?: boolean;
+	locked?: boolean;
 	leftLabel?: boolean;
 };
 
@@ -39,6 +40,7 @@ export function TextInput({
 	maxLength = 50,
 	email,
 	required,
+	locked,
 	leftLabel,
 }: Readonly<PropType>) {
 	id = id ?? kebabCase(name);
@@ -91,7 +93,7 @@ export function TextInput({
 					id={id}
 					name={name}
 					value={input}
-					onChange={onChange}
+					onChange={locked ? () => {} : onChange}
 					placeholder={placeholder}
 					maxLength={maxLength}
 					onFocus={onFocus}

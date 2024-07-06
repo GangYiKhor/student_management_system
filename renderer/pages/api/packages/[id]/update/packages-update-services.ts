@@ -2,11 +2,8 @@ import { ExistedError } from '../../../../../utils/errors/ExistedError';
 import prisma from '../../../../../utils/prisma-client';
 import { PackageUpdateDto } from '../../../../../utils/types/dtos/packages/update';
 
-export async function packagesUpdateServices(
-	id: number,
-	updatePackagesDto: PackageUpdateDto,
-): Promise<void> {
-	const { start_date, end_date, subject_count_from, subject_count_to, form_id } = updatePackagesDto;
+export async function packagesUpdateServices(id: number, dto: PackageUpdateDto): Promise<void> {
+	const { start_date, end_date, subject_count_from, subject_count_to, form_id } = dto;
 	const existingRecord = await prisma.package_discount.findFirst({
 		where: {
 			form_id,
@@ -21,5 +18,5 @@ export async function packagesUpdateServices(
 	if (existingRecord) {
 		throw new ExistedError('Duplicated Package: ' + existingRecord.id, 'Duplicate Package!');
 	}
-	await prisma.package_discount.update({ where: { id }, data: updatePackagesDto });
+	await prisma.package_discount.update({ where: { id }, data: dto });
 }

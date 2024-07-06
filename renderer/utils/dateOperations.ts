@@ -167,6 +167,12 @@ export function getToday(): Date {
 	return toDateOnly(date);
 }
 
+export function getUTCToday(): Date {
+	let date = new Date();
+	date = toDateOnly(date);
+	return dateOperator(date, -date.getTimezoneOffset(), 'm');
+}
+
 export function toDateOnly(value: Date): Date {
 	value.setHours(0, 0, 0, 0);
 	return value;

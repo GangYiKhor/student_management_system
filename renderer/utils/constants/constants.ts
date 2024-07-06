@@ -6,7 +6,7 @@ export const MENU_ITEMS = [
 	{ image: '/images/class.png', href: '/classes', text: 'Classes' },
 	{ image: '/images/package.png', href: '/packages', text: 'Packages' },
 	{ image: '/images/teacher.png', href: '/teachers', text: 'Teachers' },
-	{ image: '/images/voucher.png', href: '/coming-soon', text: 'Vouchers' },
+	{ image: '/images/voucher.png', href: '/vouchers', text: 'Vouchers' },
 	{ image: '/images/holiday.png', href: '/holidays', text: 'Holidays' },
 	{ image: '/images/tax.png', href: '/taxes', text: 'Tax' },
 	{ image: '/images/student_year.png', href: '/student-forms', text: 'Form' },
@@ -54,6 +54,7 @@ export const MONTH_SHORT = {
 };
 
 export const CLASS_API_PATH = '/api/classes';
+export const VOUCHER_API_PATH = '/api/vouchers';
 export const STUDENT_FORM_API_PATH = '/api/student-forms';
 export const TEACHER_API_PATH = '/api/teachers';
 export const HOLIDAY_API_PATH = '/api/holidays';
