@@ -16,6 +16,11 @@
 	box-shadow: 0 0 0.5em red;
 }
 
+.error-outline {
+	animation: shake 0.15s ease-in-out 0s 2;
+	outline: red;
+}
+
 .shake {
 	animation: shake 0.15s ease-in-out 0s 2;
 	overflow: hidden;

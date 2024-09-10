@@ -8,7 +8,7 @@ import { useNotificationContext } from './providers/notification-providers';
 const errorColor = clsx('bg-red-200', 'dark:bg-red-900');
 const warnColor = clsx('bg-orange-200', 'dark:bg-yellow-800');
 const infoColor = clsx('bg-blue-200', 'dark:bg-gray-600');
-const notificationClass = clsx('flex', 'justify-around', 'rounded-lg', 'mt-5');
+const notificationClass = clsx('flex', 'justify-between', 'rounded-lg', 'mt-5');
 
 const containerClass = clsx(
 	'absolute',
