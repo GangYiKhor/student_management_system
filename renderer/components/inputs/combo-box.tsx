@@ -141,7 +141,9 @@ export function ComboBox({
 			return labelParser(record).toLowerCase() === input?.toLowerCase();
 		});
 
-		if (foundIndex < 0 && required) {
+		if (input === '') {
+			// If no text typed, do not set value
+		} else if (foundIndex < 0 && required) {
 			setFormData({ name, valid: false });
 		} else if (!isEqual(valueParser(options[foundIndex]), formData?.[name]?.value)) {
 			setInput(labelParser(options[foundIndex]));
@@ -149,7 +151,7 @@ export function ComboBox({
 			onUpdate?.();
 		}
 
-		setTimeout(() => setShowDropdown(false), 100);
+		setTimeout(() => setShowDropdown(false), 300);
 	};
 
 	const onClear = () => {

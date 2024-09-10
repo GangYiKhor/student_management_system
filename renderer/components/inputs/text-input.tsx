@@ -75,7 +75,7 @@ export function TextInput({
 	useEffect(() => {
 		const newData = formData?.[name]?.value ?? '';
 		if (newData !== input) {
-			setInput(formData[name].value);
+			setInput(newData);
 		}
 	}, [formData?.[name]?.value]);
 
