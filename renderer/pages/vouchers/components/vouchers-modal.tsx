@@ -204,6 +204,7 @@ export function VouchersModal({ closeModal, data, handler }: Readonly<PropType>)
 								{ label: 'Value (RM)', value: false },
 							]}
 							required
+							locked={!!data}
 						/>
 
 						<NumberInput
@@ -215,6 +216,7 @@ export function VouchersModal({ closeModal, data, handler }: Readonly<PropType>)
 							max={formData?.is_percentage?.value ? 100 : null}
 							step={0.01}
 							required
+							locked={!!data}
 						/>
 					</Row>
 

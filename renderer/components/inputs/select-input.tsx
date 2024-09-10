@@ -25,6 +25,7 @@ type PropType = {
 	options?: { value: any; label: string }[];
 	onUpdate?: () => any;
 	required?: boolean;
+	locked?: boolean;
 	leftLabel?: boolean;
 	labelClassAddOn?: string;
 };
@@ -39,6 +40,7 @@ export function SelectInput({
 	options,
 	onUpdate,
 	required,
+	locked,
 	leftLabel,
 	labelClassAddOn = '',
 }: Readonly<PropType>) {
@@ -117,9 +119,10 @@ export function SelectInput({
 					id={id}
 					name={name}
 					value={input}
-					onChange={onChange}
+					onChange={locked ? () => {} : onChange}
 					onClick={() => (queryFn ? refetch() : null)}
 					required={required}
+					disabled={locked}
 					className={clsx('flex-1', 'px-1', 'bg-transparent', 'focus:outline-none')}
 				>
 					<option value="" disabled={required} className={clsx('bg-bglight', 'dark:bg-bgdark')}>
@@ -137,8 +140,8 @@ export function SelectInput({
 					))}
 				</select>
 
-				<button onClick={onClear}>
-					<CloseButtonIcon />
+				<button onClick={onClear} disabled={locked}>
+					<CloseButtonIcon disabled={locked} />
 				</button>
 			</div>
 		</div>

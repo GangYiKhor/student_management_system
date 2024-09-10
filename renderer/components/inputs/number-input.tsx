@@ -24,6 +24,7 @@ type PropType = {
 	max?: number;
 	step?: number;
 	required?: boolean;
+	locked?: boolean;
 	leftLabel?: boolean;
 };
 
@@ -38,6 +39,7 @@ export function NumberInput({
 	max,
 	step,
 	required,
+	locked,
 	leftLabel,
 }: Readonly<PropType>) {
 	id = id ?? kebabCase(name);
@@ -74,7 +76,7 @@ export function NumberInput({
 					id={id}
 					name={name}
 					value={input}
-					onChange={onChange}
+					onChange={locked ? () => {} : onChange}
 					placeholder={placeholder}
 					min={min}
 					max={max}
