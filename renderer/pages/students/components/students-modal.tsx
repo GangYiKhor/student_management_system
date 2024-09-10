@@ -16,7 +16,7 @@ import ThinSeparator from '../../../components/thin-seperator';
 import { useCustomQuery } from '../../../hooks/use-custom-query';
 import { useGet } from '../../../hooks/use-get';
 import { useGetClassComboBoxOptions } from '../../../hooks/use-get-class-options';
-import { useGetFormOptions } from '../../../hooks/use-get-form-options';
+import { useGetFormOptionsIdOnly } from '../../../hooks/use-get-form-options';
 import {
 	CLASS_COUNT,
 	PACKAGE_API_PATH,
@@ -82,7 +82,7 @@ export function StudentsModal({ closeModal, data, handler, handleActivate }: Rea
 	const verifyInputs = useVerifyInputs({ formData, setFormData });
 	const isDirty = useIsDirty({ formData, data: passedData, classData });
 
-	const getForms = useGetFormOptions();
+	const getForms = useGetFormOptionsIdOnly();
 	const getClass = useGetClassComboBoxOptions();
 	const getPackage = useGet<PackagesGetDto, PackagesGetResponses>(PACKAGE_API_PATH);
 	const getStudentClasses = useGet<void, StudentClassesGetResponses>(

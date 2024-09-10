@@ -10,7 +10,7 @@ import { useFormContext } from '../../../components/providers/form-providers';
 import Row from '../../../components/row';
 import Separator from '../../../components/separator';
 import { useGetOptions } from '../../../hooks/use-get';
-import { useGetFormOptions } from '../../../hooks/use-get-form-options';
+import { useGetFormOptionsIdOnly } from '../../../hooks/use-get-form-options';
 import { TEACHER_API_PATH } from '../../../utils/constants/constants';
 import {
 	GrayButtonClass,
@@ -40,7 +40,7 @@ export function ClassesModal({ closeModal, data, handler }: Readonly<PropType>) 
 	const verifyInputs = useVerifyInputs({ formData, setFormData });
 	const isDirty = useIsDirty({ formData, data });
 
-	const getForms = useGetFormOptions();
+	const getForms = useGetFormOptionsIdOnly();
 	const getTeachers = useGetOptions<TeachersGetDto, TeachersGetResponse>(
 		TEACHER_API_PATH,
 		value => value.teacher_name,

@@ -10,7 +10,7 @@ import { useFormContext } from '../../../components/providers/form-providers';
 import Row from '../../../components/row';
 import Separator from '../../../components/separator';
 import { useCustomQuery } from '../../../hooks/use-custom-query';
-import { useGetStudentComboBoxOptions } from '../../../hooks/use-get-student-options';
+import { useGetStudentComboBoxOptionsIdOnly } from '../../../hooks/use-get-student-options';
 import { dateOperator } from '../../../utils/dateOperations';
 import {
 	GrayButtonClass,
@@ -38,7 +38,7 @@ export function VouchersModal({ closeModal, data, handler }: Readonly<PropType>)
 	const verifyInputs = useVerifyInputs({ formData, setFormData });
 	const isDirty = useIsDirty({ formData, data });
 
-	const getStudents = useGetStudentComboBoxOptions(true);
+	const getStudents = useGetStudentComboBoxOptionsIdOnly();
 	const { data: studentOptions } = useCustomQuery<{ id: number; student_name: string }[]>({
 		queryKey: ['students'],
 		queryFn: () => getStudents({ orderBy: 'student_name asc' }),
@@ -222,7 +222,12 @@ export function VouchersModal({ closeModal, data, handler }: Readonly<PropType>)
 
 					<Row>
 						<DateInput label="Start Date" name="start_date" required />
-						<DateInput label="Expiry Date" name="expired_at" min={formData.start_date?.value} />
+						<DateInput
+							label="Expiry Date"
+							name="expired_at"
+							min={formData.start_date?.value}
+							required
+						/>
 						<SelectInput
 							label="Duration"
 							name="duration"

@@ -5,7 +5,7 @@ import { SearchBar } from '../../../components/search-bar';
 import { GeneralSearch } from '../../../components/searches/general-search';
 import { StatusSearch } from '../../../components/searches/status-search';
 import { useCustomQuery } from '../../../hooks/use-custom-query';
-import { useGetStudentComboBoxOptions } from '../../../hooks/use-get-student-options';
+import { useGetStudentComboBoxOptionsIdOnly } from '../../../hooks/use-get-student-options';
 import { BlueButtonClass } from '../../../utils/tailwindClass/button';
 import { SearchBarButtons } from '../../../utils/types/search-bar-button';
 import { SearchDataType } from '../types';
@@ -33,7 +33,7 @@ export function VouchersSearchAdd({
 		},
 	];
 
-	const getStudents = useGetStudentComboBoxOptions(true);
+	const getStudents = useGetStudentComboBoxOptionsIdOnly();
 	const { data: studentOptions } = useCustomQuery<{ id: number; student_name: string }[]>({
 		queryKey: ['students'],
 		queryFn: () => getStudents({ orderBy: 'student_name asc' }),
@@ -60,7 +60,7 @@ export function VouchersSearchAdd({
 				label="Student"
 				name="student_search_id"
 				columns={['id', 'student_name']}
-				options={[{ id: -1, student_name: 'Everyone' }, ...studentOptions]}
+				options={[{ id: -1, student_name: 'Everyone' }, ...(studentOptions ?? [])]}
 				labelColumn="student_name"
 				valueParser={value => value?.id}
 				leftLabel

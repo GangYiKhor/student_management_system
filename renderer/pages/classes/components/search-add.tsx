@@ -6,7 +6,7 @@ import { SearchBar } from '../../../components/search-bar';
 import { GeneralSearch } from '../../../components/searches/general-search';
 import { StatusSearch } from '../../../components/searches/status-search';
 import { useGetOptions } from '../../../hooks/use-get';
-import { useGetFormOptions } from '../../../hooks/use-get-form-options';
+import { useGetFormOptionsIdOnly } from '../../../hooks/use-get-form-options';
 import { TEACHER_API_PATH } from '../../../utils/constants/constants';
 import { BlueButtonClass } from '../../../utils/tailwindClass/button';
 import { TeachersGetDto } from '../../../utils/types/dtos/teachers/get';
@@ -44,7 +44,7 @@ export function ClassesSearchAdd({
 		},
 	];
 
-	const getForms = useGetFormOptions();
+	const getForms = useGetFormOptionsIdOnly();
 	const getTeachers = useGetOptions<TeachersGetDto, TeachersGetResponse>(
 		TEACHER_API_PATH,
 		value => value.teacher_name,

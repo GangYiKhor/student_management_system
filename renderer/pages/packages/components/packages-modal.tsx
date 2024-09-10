@@ -7,7 +7,7 @@ import Modal, { ModalButtons } from '../../../components/modal';
 import { useFormContext } from '../../../components/providers/form-providers';
 import Row from '../../../components/row';
 import Separator from '../../../components/separator';
-import { useGetFormOptions } from '../../../hooks/use-get-form-options';
+import { useGetFormOptionsIdOnly } from '../../../hooks/use-get-form-options';
 import {
 	GrayButtonClass,
 	GreenButtonClass,
@@ -33,7 +33,7 @@ export function PackagesModal({ closeModal, handler, data }: Readonly<PropType>)
 	const verifyInputs = useVerifyInputs({ formData, setFormData });
 	const isDirty = useIsDirty({ formData, data });
 
-	const getForms = useGetFormOptions();
+	const getForms = useGetFormOptionsIdOnly();
 
 	const modalButtons: ModalButtons = [
 		{

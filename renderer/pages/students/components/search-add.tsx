@@ -6,7 +6,7 @@ import { TextInput } from '../../../components/inputs/text-input';
 import { useFormContext } from '../../../components/providers/form-providers';
 import { SearchBar } from '../../../components/search-bar';
 import { StatusSearch } from '../../../components/searches/status-search';
-import { useGetFormOptions } from '../../../hooks/use-get-form-options';
+import { useGetFormOptionsIdOnly } from '../../../hooks/use-get-form-options';
 import { BlueButtonClass } from '../../../utils/tailwindClass/button';
 import { SearchBarButtons } from '../../../utils/types/search-bar-button';
 import { SearchDataType } from '../types';
@@ -40,7 +40,7 @@ export function StudentsSearchAdd({
 		},
 	];
 
-	const getForms = useGetFormOptions();
+	const getForms = useGetFormOptionsIdOnly();
 
 	useEffect(() => {
 		setSearch(formData.text?.value);

@@ -23,13 +23,13 @@ const parseGetOnlyIdData = (data: StudentsGetResponses) =>
 		return { id: value?.id, student_name: value?.student_name };
 	});
 
-export function useGetStudentComboBoxOptions(onlyId = false) {
-	if (onlyId) {
-		return useGet<StudentsGetDto, StudentsGetResponses>(STUDENT_API_PATH, parseGetData);
-	} else {
-		return useGet<StudentsGetDto, { id: number; student_name: string }[]>(
-			STUDENT_API_PATH,
-			parseGetOnlyIdData,
-		);
-	}
+export function useGetStudentComboBoxOptions() {
+	return useGet<StudentsGetDto, StudentsGetResponses>(STUDENT_API_PATH, parseGetData);
+}
+
+export function useGetStudentComboBoxOptionsIdOnly() {
+	return useGet<StudentsGetDto, { id: number; student_name: string }[]>(
+		STUDENT_API_PATH,
+		parseGetOnlyIdData,
+	);
 }

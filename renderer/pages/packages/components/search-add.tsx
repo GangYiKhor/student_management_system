@@ -5,7 +5,7 @@ import { useFormContext } from '../../../components/providers/form-providers';
 import { SearchBar } from '../../../components/search-bar';
 import { GeneralSearch } from '../../../components/searches/general-search';
 import { StatusSearch } from '../../../components/searches/status-search';
-import { useGetFormOptions } from '../../../hooks/use-get-form-options';
+import { useGetFormOptionsIdOnly } from '../../../hooks/use-get-form-options';
 import { BlueButtonClass } from '../../../utils/tailwindClass/button';
 import { SearchBarButtons } from '../../../utils/types/search-bar-button';
 import { SearchDataType } from '../types';
@@ -35,7 +35,7 @@ export function PackagesSearchAdd({
 		},
 	];
 
-	const getForms = useGetFormOptions();
+	const getForms = useGetFormOptionsIdOnly();
 
 	useEffect(() => {
 		setSearch(formData.general?.value);
