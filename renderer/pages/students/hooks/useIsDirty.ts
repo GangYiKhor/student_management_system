@@ -44,7 +44,7 @@ export function useIsDirty({ formData, data, classData }: Readonly<PropType>) {
 			isDirty ||= formData.address?.value?.trim() !== '';
 
 			for (let i = 0; i < CLASS_COUNT; i++) {
-				isDirty ||= formData[`class_${i}`] !== undefined;
+				isDirty ||= formData[`class_${i}`]?.value !== undefined;
 			}
 		}
 

@@ -12,6 +12,7 @@ import {
 	isSameDayOrAfter,
 	isSameDayOrBefore,
 	parseDateTime,
+	removeTimezoneOffset,
 } from '../../utils/dateOperations';
 import { ContainerFlexRowGrow } from '../../utils/tailwindClass/containers';
 import { TextBoxClass } from '../../utils/tailwindClass/inputs';
@@ -113,6 +114,8 @@ export function DateRangeInput({
 	};
 
 	const onSelectDate = (value: Date) => {
+		value = removeTimezoneOffset(value);
+
 		const updateStart = () => {
 			setStartDate(value);
 			setFormData({ name: startName, value });

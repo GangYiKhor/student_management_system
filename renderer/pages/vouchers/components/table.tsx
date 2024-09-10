@@ -28,9 +28,9 @@ const columns: TableColumnType<VouchersGetResponse>[] = [
 		columnName: 'discount',
 		valueParser: value => {
 			if (value.is_percentage) {
-				return value?.discount.toFixed(2) + ' %';
+				return value?.discount?.toFixed(2) + ' %';
 			} else {
-				return 'RM ' + value?.discount.toFixed(2);
+				return 'RM ' + value?.discount?.toFixed(2);
 			}
 		},
 	},
@@ -83,7 +83,7 @@ export function VoucherTable({ data, search, refetch, setOrderBy }: Readonly<Pro
 			filteredData = filteredData.filter(
 				value =>
 					'#' + value.id.toLowerCase() === search ||
-					value.student.student_name?.toLowerCase().includes(search),
+					value.student?.student_name?.toLowerCase().includes(search),
 			);
 		}
 

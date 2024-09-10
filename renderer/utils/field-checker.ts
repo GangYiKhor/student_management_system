@@ -10,16 +10,12 @@ export function fieldCheckerRequired(
 	setFormData: GenericSetFormData,
 	setNotification: (value: SetNotification) => void,
 ): boolean {
-	if (typeof formData[formName]?.value === 'string') {
-		if (!formData[formName].value?.trim()) {
-			setFormData({ name: formName, valid: false });
-			setNotification(EmptyFieldMessage(fieldName));
-			valid = false;
-		}
-	} else if (formData[formName]?.value === undefined) {
+	let invalid = formData[formName]?.value === undefined;
+	invalid ||= typeof formData[formName]?.value === 'string' && !formData[formName].value?.trim();
+	if (invalid) {
 		setFormData({ name: formName, valid: false });
 		setNotification(EmptyFieldMessage(fieldName));
-		valid = false;
+		return false;
 	}
 
 	return valid;

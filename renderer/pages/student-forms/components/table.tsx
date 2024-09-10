@@ -90,7 +90,7 @@ export function StudentFormsTable({
 
 	useEffect(() => {
 		let filteredData = data;
-		if (search.trim()) {
+		if (search?.trim()) {
 			search = search.trim().toLowerCase();
 			filteredData = filteredData.filter(
 				value => '#' + value.id === search || value.form_name?.toLowerCase().includes(search),

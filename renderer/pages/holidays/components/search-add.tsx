@@ -4,7 +4,7 @@ import { SelectInput } from '../../../components/inputs/select-input';
 import { useFormContext } from '../../../components/providers/form-providers';
 import { SearchBar } from '../../../components/search-bar';
 import { GeneralSearch } from '../../../components/searches/general-search';
-import { getToday } from '../../../utils/dateOperations';
+import { getToday, removeTimezoneOffset } from '../../../utils/dateOperations';
 import { tryParseInt } from '../../../utils/numberParsers';
 import { BlueButtonClass } from '../../../utils/tailwindClass/button';
 import { SearchBarButtons } from '../../../utils/types/search-bar-button';
@@ -90,8 +90,8 @@ export function HolidaysSearchAdd({
 				}
 		}
 
-		setFormData({ name: 'start_date', value: firstDate });
-		setFormData({ name: 'end_date', value: secondDate });
+		setFormData({ name: 'start_date', value: removeTimezoneOffset(firstDate) });
+		setFormData({ name: 'end_date', value: removeTimezoneOffset(secondDate) });
 	}, [formData.period?.value]);
 
 	useEffect(() => {

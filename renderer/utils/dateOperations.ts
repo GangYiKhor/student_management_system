@@ -173,6 +173,10 @@ export function getUTCToday(): Date {
 	return dateOperator(date, -date.getTimezoneOffset(), 'm');
 }
 
+export function removeTimezoneOffset(value: Date): Date {
+	return dateOperator(value, -value.getTimezoneOffset(), 'm');
+}
+
 export function toDateOnly(value: Date): Date {
 	value.setHours(0, 0, 0, 0);
 	return value;

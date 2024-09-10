@@ -3,13 +3,13 @@ export function phoneNumberFormatRevert(input: string): string {
 }
 
 export function phoneNumberFormat(input: string): string {
-	if (input === undefined) {
+	if (input === undefined || input === null) {
 		return input;
 	}
 
-	input = input.replace(/-/g, '').replace(/\s/g, '').trim();
+	input = input?.replace(/-/g, '').replace(/\s/g, '').trim();
 
-	if (!input.includes(' ')) {
+	if (!input?.includes(' ')) {
 		let starting = '';
 		let middle = '';
 		let ending = '';
