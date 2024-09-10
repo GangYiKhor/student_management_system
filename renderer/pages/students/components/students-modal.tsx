@@ -197,6 +197,11 @@ export function StudentsModal({ closeModal, data, handler, handleActivate }: Rea
 					const result = await handler(submitData, classIds);
 
 					setConfirmation(false);
+					if (!data) {
+						closeModal();
+						return;
+					}
+
 					setPassedData(prev => ({
 						id: result.student_id,
 						is_active: true,
