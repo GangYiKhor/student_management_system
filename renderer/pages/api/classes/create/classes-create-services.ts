@@ -16,7 +16,7 @@ export async function classesCreateServices(dto: ClassCreateDto): Promise<void> 
 	});
 
 	if (existingRecord) {
-		throw new ExistedError('Clashed Class With ID: ' + existingRecord.id, 'Duplicate Class!');
+		throw new ExistedError('Clashed Class With ID: ' + existingRecord.id, 'Clashed Class!');
 	}
 
 	await prisma.class_registration.create({ data: dto });

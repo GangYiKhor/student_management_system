@@ -1,4 +1,3 @@
-import { getUTCToday } from '../../../../utils/dateOperations';
 import { parseOrderBy } from '../../../../utils/parseOrderBy';
 import prisma from '../../../../utils/prisma-client';
 import { PackagesGetDto, PackagesGetQueryDto } from '../../../../utils/types/dtos/packages/get';
@@ -9,14 +8,12 @@ export async function packagesGetServices(
 ): Promise<PackagesGetResponses> {
 	const { orderBy: order, subject_count, is_active, ...where } = dto;
 
-	const today = getUTCToday();
-	const tomorrow = getUTCToday();
-	tomorrow.setDate(tomorrow.getDate() + 1);
+	const now = new Date();
 	if (is_active) {
-		where.start_date = { lt: tomorrow };
-		where.OR = [{ end_date: { gte: today } }, { end_date: null }];
+		where.start_date = { lte: now };
+		where.OR = [{ end_date: { gte: now } }, { end_date: null }];
 	} else if (is_active === false) {
-		where.OR = [{ start_date: { gte: tomorrow } }, { end_date: { lt: today } }];
+		where.OR = [{ start_date: { gt: now } }, { end_date: { lt: now } }];
 	}
 
 	if (subject_count) {

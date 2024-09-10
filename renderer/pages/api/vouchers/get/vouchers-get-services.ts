@@ -1,4 +1,3 @@
-import { getUTCToday } from '../../../../utils/dateOperations';
 import { tryParseInt } from '../../../../utils/numberParsers';
 import { parseOrderBy } from '../../../../utils/parseOrderBy';
 import prisma from '../../../../utils/prisma-client';
@@ -10,15 +9,13 @@ export async function vouchersGetServices(
 ): Promise<VouchersGetResponses> {
 	const { orderBy: order, is_active, ...where } = dto;
 
-	const today = getUTCToday();
-	const tomorrow = getUTCToday();
-	tomorrow.setDate(tomorrow.getDate() + 1);
+	const now = new Date();
 	if (is_active) {
-		where.start_date = { lt: tomorrow };
-		where.expired_at = { gte: today };
+		where.start_date = { lte: now };
+		where.expired_at = { gte: now };
 		where.used = false;
 	} else if (is_active === false) {
-		where.OR = [{ start_date: { gte: tomorrow } }, { expired_at: { lt: today } }, { used: true }];
+		where.OR = [{ start_date: { gt: now } }, { expired_at: { lt: now } }, { used: true }];
 	}
 
 	const orderBy = parseOrderBy(order, { student: { student_name: 'asc' } }, [
