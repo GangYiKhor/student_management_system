@@ -18,42 +18,47 @@ model form {
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 model receipt {
-  id               Int             @id @default(autoincrement())
-  student_id       Int
-  date             DateTime        @default(dbgenerated("CURRENT_DATE")) @db.Date
-  payment_year     Int
-  jan              Float           @default(0) @db.Real
-  feb              Float           @default(0) @db.Real
-  mar              Float           @default(0) @db.Real
-  apr              Float           @default(0) @db.Real
-  may              Float           @default(0) @db.Real
-  jun              Float           @default(0) @db.Real
-  jul              Float           @default(0) @db.Real
-  aug              Float           @default(0) @db.Real
-  sep              Float           @default(0) @db.Real
-  oct              Float           @default(0) @db.Real
-  nov              Float           @default(0) @db.Real
-  dec              Float           @default(0) @db.Real
-  package_discount Float           @db.Real
-  reg_fees         Float           @db.Real
-  incentive        Float           @db.Real
-  voucher_id       String?         @db.VarChar(255)
-  voucher_discount Float           @db.Real
-  tax              Float           @db.Real
-  remarks          String?         @db.VarChar(255)
-  status           String          @db.VarChar(20)
-  student          student         @relation(fields: [student_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  receipt_class    receipt_class[]
+  id                    Int             @id @default(autoincrement())
+  student_id            Int
+  student_name          String          @db.VarChar(255)
+  form_id               Int
+  form_name             String          @db.VarChar(255)
+  date                  DateTime        @default(dbgenerated("CURRENT_DATE")) @db.Date
+  payment_year          Int
+  jan                   Float           @default(0) @db.Real
+  feb                   Float           @default(0) @db.Real
+  mar                   Float           @default(0) @db.Real
+  apr                   Float           @default(0) @db.Real
+  may                   Float           @default(0) @db.Real
+  jun                   Float           @default(0) @db.Real
+  jul                   Float           @default(0) @db.Real
+  aug                   Float           @default(0) @db.Real
+  sep                   Float           @default(0) @db.Real
+  oct                   Float           @default(0) @db.Real
+  nov                   Float           @default(0) @db.Real
+  dec                   Float           @default(0) @db.Real
+  package_discount      Float           @default(0) @db.Real
+  reg_fees              Float           @default(0) @db.Real
+  incentive             Float           @default(0) @db.Real
+  voucher_id            String?         @db.VarChar(255)
+  voucher_discount      Float           @default(0) @db.Real
+  voucher_is_percentage Boolean         @default(false)
+  tax                   Float           @default(0) @db.Real
+  tax_inclusive         Boolean
+  remarks               String?         @db.VarChar(255)
+  status                String?         @db.VarChar(20)
+  receipt_class         receipt_class[]
 }
 
 model receipt_class {
-  receipt_id       Int
-  class_id         Int
-  fees             Float              @db.Real
-  is_package       Boolean
-  package_discount Float              @db.Real
-  Renamedclass     class_registration @relation(fields: [class_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  receipt          receipt            @relation(fields: [receipt_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  receipt_id   Int
+  class_id     Int
+  class_name   String  @db.VarChar(255)
+  teacher_id   Int
+  teacher_name String  @db.VarChar(255)
+  fees         Float   @db.Real
+  is_package   Boolean
+  receipt      receipt @relation(fields: [receipt_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@id([receipt_id, class_id])
 }
@@ -83,7 +88,6 @@ model student {
   email               String?         @db.VarChar(255)
   address             String?         @db.VarChar(255)
   is_active           Boolean         @default(true)
-  receipt             receipt[]
   form                form            @relation(fields: [form_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   student_class       student_class[]
   voucher             voucher[]
@@ -137,7 +141,6 @@ model class_registration {
   is_package    Boolean
   form          form            @relation(fields: [form_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   teacher       teacher         @relation(fields: [teacher_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  receipt_class receipt_class[]
   student_class student_class[]
 }
 
@@ -166,7 +169,7 @@ model voucher {
   id            String   @id @db.VarChar(255)
   student_id    Int?
   discount      Float    @db.Real
-  is_percentage Boolean  @default(false)
+  is_percentage Boolean
   start_date    DateTime @default(dbgenerated("CURRENT_DATE")) @db.Date
   expired_at    DateTime @db.Date
   used          Boolean  @default(false)
