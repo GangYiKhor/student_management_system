@@ -8,7 +8,7 @@ export const PageName = 'Vouchers';
 export const BackendPath = VOUCHER_API_PATH;
 
 export const defaultSort: DefaultSort = {
-	field: 'student_name',
+	field: 'start_date',
 	asc: true,
 };
 
