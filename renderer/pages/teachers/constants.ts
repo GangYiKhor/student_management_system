@@ -12,13 +12,13 @@ export const defaultSort: DefaultSort = {
 
 export const defaultSortString: string = `${defaultSort.field} ${defaultSort.asc ? 'asc' : 'desc'}`;
 
-export const formDefaultValue: FormDataType = {
+export const formDefaultValue = (): FormDataType => ({
 	teacher_name: { value: '', valid: true },
 	phone_number: { value: '', valid: true },
 	ic: { value: '', valid: true },
 	email: { value: '', valid: true },
 	address: { value: '', valid: true },
-};
+});
 
 export const formDefaultValueFilled = (data: EditData): FormDataType => ({
 	teacher_name: { value: data?.teacher_name, valid: true },

@@ -24,7 +24,7 @@ export const defaultSort: DefaultSort = {
 
 export const defaultSortString: string = `${defaultSort.field} ${defaultSort.asc ? 'asc' : 'desc'}`;
 
-export const formDefaultValue: FormDataType = {
+export const formDefaultValue = (): FormDataType => ({
 	teacher_id: { value: undefined, valid: true },
 	class_name: { value: '', valid: true },
 	start_date: { value: undefined, valid: true },
@@ -36,7 +36,7 @@ export const formDefaultValue: FormDataType = {
 	end_time: { value: undefined, valid: true },
 	fees: { value: undefined, valid: true },
 	is_package: { value: undefined, valid: true },
-};
+});
 
 export const formDefaultValueFilled = (data: EditData): FormDataType => ({
 	teacher_id: { value: data?.teacher_id, valid: true },

@@ -69,7 +69,7 @@ function Holidays() {
 						<LastUpdatedAt lastUpdatedAt={dataUpdatedAt} refetch={refetch} />
 
 						{toggleModal ? (
-							<FormProvider defaultValue={formDefaultValue}>
+							<FormProvider defaultValue={formDefaultValue()}>
 								<HolidaysModal closeModal={() => setToggleModal(false)} handler={handleAdd} />
 							</FormProvider>
 						) : null}

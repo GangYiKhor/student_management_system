@@ -67,7 +67,7 @@ function Taxes() {
 						<LastUpdatedAt lastUpdatedAt={dataUpdatedAt} refetch={refetch} />
 
 						{toggleModal ? (
-							<FormProvider defaultValue={formDefaultValue}>
+							<FormProvider defaultValue={formDefaultValue()}>
 								<TaxesModal closeModal={() => setToggleModal(false)} handler={handleAdd} />
 							</FormProvider>
 						) : null}

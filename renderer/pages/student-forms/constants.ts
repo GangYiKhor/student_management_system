@@ -12,9 +12,9 @@ export const defaultSort: DefaultSort = {
 
 export const defaultSortString: string = `${defaultSort.field} ${defaultSort.asc ? 'asc' : 'desc'}`;
 
-export const formDefaultValue: FormDataType = {
+export const formDefaultValue = (): FormDataType => ({
 	form_name: { value: '', valid: true },
-};
+});
 
 export const formDefaultValueFilled = (data: EditData): FormDataType => ({
 	form_name: { value: data?.form_name, valid: true },

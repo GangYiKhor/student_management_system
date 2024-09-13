@@ -77,7 +77,7 @@ function Packages() {
 						<LastUpdatedAt lastUpdatedAt={dataUpdatedAt} refetch={refetch} />
 
 						{toggleModal ? (
-							<FormProvider defaultValue={formDefaultValue}>
+							<FormProvider defaultValue={formDefaultValue()}>
 								<PackagesModal closeModal={() => setToggleModal(false)} handler={handleAdd} />
 							</FormProvider>
 						) : null}

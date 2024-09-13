@@ -14,14 +14,14 @@ export const defaultSort: DefaultSort = {
 
 export const defaultSortString: string = `${defaultSort.field} ${defaultSort.asc ? 'asc' : 'desc'}`;
 
-export const formDefaultValue: FormDataType = {
+export const formDefaultValue = (): FormDataType => ({
 	form_id: { value: undefined, valid: true },
 	start_date: { value: undefined, valid: true },
 	end_date: { value: undefined, valid: true },
 	subject_count_from: { value: undefined, valid: true },
 	subject_count_to: { value: undefined, valid: true },
 	discount_per_subject: { value: undefined, valid: true },
-};
+});
 
 export const formDefaultValueFilled = (data: EditData): FormDataType => ({
 	form_id: { value: data?.form_id, valid: true },

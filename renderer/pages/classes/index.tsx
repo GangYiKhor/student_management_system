@@ -83,7 +83,7 @@ function ClassRegistration() {
 						<LastUpdatedAt lastUpdatedAt={dataUpdatedAt} refetch={refetch} />
 
 						{toggleModal ? (
-							<FormProvider defaultValue={formDefaultValue}>
+							<FormProvider defaultValue={formDefaultValue()}>
 								<ClassesModal closeModal={() => setToggleModal(false)} handler={handleAdd} />
 							</FormProvider>
 						) : null}

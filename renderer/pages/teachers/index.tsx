@@ -67,7 +67,7 @@ function Teachers() {
 						<LastUpdatedAt lastUpdatedAt={dataUpdatedAt} refetch={refetch} />
 
 						{toggleModal ? (
-							<FormProvider defaultValue={formDefaultValue}>
+							<FormProvider defaultValue={formDefaultValue()}>
 								<TeachersModal closeModal={() => setToggleModal(false)} handler={handleAdd} />
 							</FormProvider>
 						) : null}
