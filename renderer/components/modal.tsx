@@ -134,6 +134,7 @@ export default function Modal({
 									? await value.action()
 									: value.action()
 							}
+							disabled={value?.disabled}
 						>
 							{value.text}
 						</button>
