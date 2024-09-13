@@ -1,4 +1,5 @@
 import { padStart } from 'lodash';
+import { MONTH, MONTH_SHORT } from './constants/constants';
 
 /**
  * Before 1970 results in invalid date
@@ -80,6 +81,8 @@ export function dateFormatter(
 	dateString = dateString.replaceAll('y', year.substring(2));
 
 	const month = (value.getMonth() + 1).toString();
+	dateString = dateString.replace('MMMM', MONTH[+month - 1]);
+	dateString = dateString.replace('MMM', MONTH_SHORT[+month - 1]);
 	dateString = dateString.replaceAll('MM', padStart(month, 2, '0'));
 	dateString = dateString.replaceAll('M', month);
 
@@ -174,7 +177,10 @@ export function getUTCToday(): Date {
 }
 
 export function removeTimezoneOffset(value: Date): Date {
-	return dateOperator(value, -value.getTimezoneOffset(), 'm');
+	if (value) {
+		return dateOperator(value, -value.getTimezoneOffset(), 'm');
+	}
+	return value;
 }
 
 export function toDateOnly(value: Date): Date {
