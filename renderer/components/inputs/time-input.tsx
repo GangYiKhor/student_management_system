@@ -20,10 +20,20 @@ type PropType = {
 	min?: Date;
 	max?: Date;
 	required?: boolean;
+	locked?: boolean;
 	leftLabel?: boolean;
 };
 
-export function TimeInput({ id, label, name, min, max, required, leftLabel }: Readonly<PropType>) {
+export function TimeInput({
+	id,
+	label,
+	name,
+	min,
+	max,
+	required,
+	locked,
+	leftLabel,
+}: Readonly<PropType>) {
 	id = id ?? kebabCase(name);
 	const containerClass = leftLabel ? ContainerFlexRowGrow : ContainerFlexColGrow;
 	const labelClass = leftLabel ? LabelLeftClass : LabelTopClass;
@@ -59,6 +69,7 @@ export function TimeInput({ id, label, name, min, max, required, leftLabel }: Re
 				min={dateFormatter(min, { format: 'hh:mm' })}
 				max={dateFormatter(max, { format: 'hh:mm' })}
 				required={required}
+				disabled={locked}
 				className={clsx(inputClass, (formData[name]?.valid ?? true) || InvalidTextBoxClass)}
 			/>
 		</div>

@@ -19,6 +19,8 @@ type PropType = {
 	onFocusFormat?: (input: string) => string;
 	onBlurFormat?: (input: string) => string;
 	required?: boolean;
+	locked?: boolean;
+	notResizable?: boolean;
 };
 
 export function TextAreaInput({
@@ -30,6 +32,8 @@ export function TextAreaInput({
 	onFocusFormat,
 	onBlurFormat,
 	required,
+	locked,
+	notResizable,
 }: Readonly<PropType>) {
 	id = id ?? kebabCase(name);
 	const { formData, setFormData } = useFormContext();
@@ -71,11 +75,13 @@ export function TextAreaInput({
 				onFocus={onFocus}
 				onBlur={onBlur}
 				required={required}
+				disabled={locked}
 				className={clsx(
 					TextBoxBottomClass,
 					(formData[name]?.valid ?? true) || InvalidTextBoxClass,
 					'min-h-[80px]',
 					'max-h-[300px]',
+					notResizable && 'resize-none',
 				)}
 			></textarea>
 		</div>

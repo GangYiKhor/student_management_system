@@ -26,6 +26,7 @@ type PropType = {
 	required?: boolean;
 	locked?: boolean;
 	leftLabel?: boolean;
+	labelClassAddOn?: string;
 };
 
 export function TextInput({
@@ -42,6 +43,7 @@ export function TextInput({
 	required,
 	locked,
 	leftLabel,
+	labelClassAddOn,
 }: Readonly<PropType>) {
 	id = id ?? kebabCase(name);
 	const containerClass = leftLabel ? ContainerFlexRowGrow : ContainerFlexColGrow;
@@ -81,7 +83,7 @@ export function TextInput({
 
 	return (
 		<div className={containerClass}>
-			<label htmlFor={id} className={labelClass}>
+			<label htmlFor={id} className={clsx(labelClass, labelClassAddOn)}>
 				{label}:<RequiredIcon required={required} />
 			</label>
 
@@ -99,6 +101,7 @@ export function TextInput({
 					onFocus={onFocus}
 					onBlur={onBlur}
 					required={required}
+					disabled={locked}
 					className={clsx('flex-1', 'px-1', 'bg-transparent', 'focus:outline-none')}
 				/>
 

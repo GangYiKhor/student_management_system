@@ -82,6 +82,7 @@ export function NumberInput({
 					max={max}
 					step={step}
 					required={required}
+					disabled={locked}
 					className={clsx('flex-1', 'px-1', 'bg-transparent', 'focus:outline-none')}
 				/>
 

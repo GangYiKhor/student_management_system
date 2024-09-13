@@ -21,10 +21,20 @@ type PropType = {
 	min?: Date;
 	max?: Date;
 	required?: boolean;
+	locked?: boolean;
 	leftLabel?: boolean;
 };
 
-export function DateInput({ id, label, name, min, max, required, leftLabel }: Readonly<PropType>) {
+export function DateInput({
+	id,
+	label,
+	name,
+	min,
+	max,
+	required,
+	locked,
+	leftLabel,
+}: Readonly<PropType>) {
 	id = id ?? kebabCase(name);
 	const containerClass = leftLabel ? ContainerFlexRowGrow : ContainerFlexColGrow;
 	const labelClass = leftLabel ? LabelLeftClass : LabelTopClass;
@@ -72,10 +82,11 @@ export function DateInput({ id, label, name, min, max, required, leftLabel }: Re
 					id={id}
 					name={name}
 					value={input}
-					onChange={onChange}
+					onChange={locked ? () => {} : onChange}
 					min={dateFormatter(min)}
 					max={dateFormatter(max)}
 					required={required}
+					disabled={locked}
 					className={clsx('flex-1', 'px-1', 'bg-transparent', 'focus:outline-none')}
 				/>
 				<button onClick={onClear}>
