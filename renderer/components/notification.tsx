@@ -67,7 +67,7 @@ export function CustomNotification() {
 	}, [notifications]);
 
 	return (
-		<div className={containerClass}>
+		<div className={clsx(containerClass, 'no-print')}>
 			{notifications?.map(value => (
 				<div key={value.id} className={getNotificationContainerClass(value.type)}>
 					<div className={clsx('flex', 'items-center')}>

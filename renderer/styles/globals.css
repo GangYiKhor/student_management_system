@@ -49,3 +49,9 @@
 input[type='number']::-webkit-inner-spin-button {
 	display: none;
 }
+
+@media print {
+	.no-print {
+		display: none !important;
+	}
+}

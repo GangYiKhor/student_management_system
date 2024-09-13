@@ -44,6 +44,6 @@ export function Tooltip() {
 	}, [tooltip]);
 
 	return tooltip ? (
-		<div className={clsx(tooltipClass, visible ? '' : 'invisible')}>{tooltip}</div>
+		<div className={clsx(tooltipClass, visible ? '' : 'invisible', 'no-print')}>{tooltip}</div>
 	) : null;
 }

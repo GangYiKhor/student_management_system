@@ -1,7 +1,7 @@
 export const MENU_ITEMS = [
 	{ image: '/images/home.png', href: '/coming-soon', text: 'Home' },
 	{ image: '/images/student.png', href: '/students', text: 'Students' },
-	{ image: '/images/receipt.png', href: '/coming-soon', text: 'Receipts' },
+	{ image: '/images/receipt.png', href: '/receipts', text: 'Receipts' },
 	{ image: '/images/collection.png', href: '/coming-soon', text: 'Collections' },
 	{ image: '/images/class.png', href: '/classes', text: 'Classes' },
 	{ image: '/images/package.png', href: '/packages', text: 'Packages' },
@@ -52,6 +52,10 @@ export const MONTH_SHORT = {
 	10: 'Nov',
 	11: 'Dec',
 };
+export const MONTH_OPTIONS = Object.entries(MONTH).map(value => ({
+	value: value[0],
+	label: value[1],
+}));
 
 export const CLASS_API_PATH = '/api/classes';
 export const VOUCHER_API_PATH = '/api/vouchers';
@@ -62,3 +66,5 @@ export const PACKAGE_API_PATH = '/api/packages';
 export const TAX_API_PATH = '/api/taxes';
 export const STUDENT_API_PATH = '/api/students';
 export const STUDENT_CLASS_API_PATH = '/api/student-classes';
+export const RECEIPT_API_PATH = '/api/receipts';
+export const RECEIPT_GENERATE_API_PATH = '/api/receipt-generate';

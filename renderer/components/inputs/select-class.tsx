@@ -26,6 +26,7 @@ type PropType = {
 	form?: number | string;
 	onUpdate?: () => any;
 	options?: ClassesGetResponses;
+	queryKey?: string;
 	labelClassAddOn?: string;
 	onlyId?: boolean;
 	required?: boolean;
@@ -38,6 +39,7 @@ export function SelectClass({
 	form,
 	onUpdate,
 	options,
+	queryKey,
 	labelClassAddOn,
 	onlyId,
 	required,
@@ -45,7 +47,7 @@ export function SelectClass({
 	const getClass = useGetClassComboBoxOptions();
 
 	const { data, refetch } = useCustomQuery<ClassesGetResponses>({
-		queryKey: ['classes'],
+		queryKey: ['classes', queryKey],
 		queryFn: () =>
 			getClass({
 				form_id: tryParseInt(form),
