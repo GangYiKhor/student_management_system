@@ -6,6 +6,7 @@ export type VouchersGetDto = {
 	expired_at?: Date | { lte?: Date; gte?: Date; lt?: Date; gt?: Date };
 	used?: boolean;
 	is_active?: boolean;
+	include_everyone?: boolean;
 	orderBy?: string;
 };
 

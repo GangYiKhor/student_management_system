@@ -5,9 +5,9 @@ import { VouchersGetDto, VouchersGetQueryDto } from '../../../../utils/types/dto
 import { VouchersGetResponses } from '../../../../utils/types/responses/vouchers/get';
 
 export async function vouchersGetServices(
-	dto: VouchersGetDto & { OR?: { [key: string]: any }[] },
+	dto: VouchersGetDto & { AND?: { [key: string]: any }[]; OR?: { [key: string]: any }[] },
 ): Promise<VouchersGetResponses> {
-	const { orderBy: order, is_active, ...where } = dto;
+	const { orderBy: order, is_active, include_everyone, ...where } = dto;
 
 	const now = new Date();
 	if (is_active) {
@@ -24,6 +24,13 @@ export async function vouchersGetServices(
 
 	if (where.student_id < 0) {
 		where.student_id = null;
+	} else if (include_everyone) {
+		where.AND = [
+			{ OR: [{ student_id: where.student_id }, { student_id: null }] },
+			{ OR: where.OR },
+		];
+		where.student_id = undefined;
+		where.OR = undefined;
 	}
 
 	return prisma.voucher.findMany({
@@ -37,6 +44,7 @@ export function voucherGetParseDto(query: VouchersGetQueryDto): VouchersGetDto {
 	return {
 		student_id: tryParseInt(query.student_id),
 		is_active: query.is_active ? query.is_active === 'true' : undefined,
+		include_everyone: query.include_everyone ? query.include_everyone === 'true' : undefined,
 		orderBy: query.orderBy,
 	};
 }

@@ -25,7 +25,7 @@ export function useCustomQuery<Res = any>({
 	const { setNotification } = useNotificationContext();
 
 	const { data, isLoading, error, isError, dataUpdatedAt, refetch } = useQuery<
-		Res | [],
+		Res,
 		AxiosError<ErrorResponse>
 	>({
 		queryKey,
