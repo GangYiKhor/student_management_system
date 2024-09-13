@@ -27,6 +27,7 @@ type PropType = {
 	onUpdate?: () => any;
 	options?: ClassesGetResponses;
 	labelClassAddOn?: string;
+	onlyId?: boolean;
 	required?: boolean;
 };
 
@@ -38,6 +39,7 @@ export function SelectClass({
 	onUpdate,
 	options,
 	labelClassAddOn,
+	onlyId,
 	required,
 }: Readonly<PropType>) {
 	const getClass = useGetClassComboBoxOptions();
@@ -66,6 +68,7 @@ export function SelectClass({
 			name={name}
 			options={options ?? data}
 			columnParsers={columnParsers}
+			valueParser={onlyId ? value => value?.id : undefined}
 			labelColumn="class_name"
 			onUpdate={onUpdate}
 			required={required}
