@@ -41,7 +41,7 @@ export function VouchersModal({ closeModal, data, handler }: Readonly<PropType>)
 	const getStudents = useGetStudentComboBoxOptionsIdOnly();
 	const { data: studentOptions } = useCustomQuery<{ id: number; student_name: string }[]>({
 		queryKey: ['students'],
-		queryFn: () => getStudents({ orderBy: 'student_name asc' }),
+		queryFn: () => getStudents({ is_active: true, orderBy: 'student_name asc' }),
 	});
 
 	useEffect(() => {
