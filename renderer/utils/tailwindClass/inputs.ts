@@ -44,8 +44,11 @@ export const DisabledTextBoxClass = clsx(
 	'dark:bg-gray-700',
 	'transition-[border-color]',
 	'rounded-md',
-	'select-none',
 );
+
+export const DisabledTextBoxRightClass = clsx(DisabledTextBoxClass, 'ml-1', 'mr-2');
+
+export const DisabledTextBoxBottomClass = clsx(DisabledTextBoxClass, 'mb-3');
 
 export const InvalidTextBoxClass = clsx(
 	'error',
