@@ -30,6 +30,7 @@ type PropType = {
 	labelClassAddOn?: string;
 	onlyId?: boolean;
 	required?: boolean;
+	locked?: boolean;
 };
 
 export function SelectClass({
@@ -43,6 +44,7 @@ export function SelectClass({
 	labelClassAddOn,
 	onlyId,
 	required,
+	locked,
 }: Readonly<PropType>) {
 	const getClass = useGetClassComboBoxOptions();
 
@@ -76,6 +78,7 @@ export function SelectClass({
 			required={required}
 			leftLabel
 			labelClassAddOn={labelClassAddOn}
+			locked={locked}
 		/>
 	);
 }

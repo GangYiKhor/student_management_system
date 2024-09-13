@@ -5,6 +5,8 @@ import { KeyboardEvent, useEffect, useRef, useState } from 'react';
 import { getPropertyValue } from '../../utils/propertyParser';
 import { ContainerFlexColGrow, ContainerFlexRowGrow } from '../../utils/tailwindClass/containers';
 import {
+	DisabledTextBoxBottomClass,
+	DisabledTextBoxRightClass,
 	DropdownCellClass,
 	DropdownClass,
 	DropdownRowClass,
@@ -41,6 +43,7 @@ type PropType = {
 	onUpdate?: () => any;
 	notSearchable?: boolean;
 	required?: boolean;
+	locked?: boolean;
 	leftLabel?: boolean;
 	labelClassAddOn?: string;
 };
@@ -64,6 +67,7 @@ export function ComboBox({
 	onUpdate,
 	notSearchable,
 	required,
+	locked,
 	leftLabel,
 	labelClassAddOn,
 }: Readonly<PropType>) {
@@ -84,11 +88,11 @@ export function ComboBox({
 	if (leftLabel) {
 		containerClass = ContainerFlexRowGrow;
 		labelClass = LabelLeftClass;
-		inputClass = clsx(inputClass, TextBoxRightClass);
+		inputClass = clsx(inputClass, locked ? DisabledTextBoxRightClass : TextBoxRightClass);
 	} else {
 		containerClass = ContainerFlexColGrow;
 		labelClass = LabelTopClass;
-		inputClass = clsx(inputClass, TextBoxBottomClass);
+		inputClass = clsx(inputClass, locked ? DisabledTextBoxBottomClass : TextBoxBottomClass);
 	}
 
 	const { formData, setFormData } = useFormContext();
@@ -203,20 +207,23 @@ export function ComboBox({
 						id={id}
 						name={name}
 						value={input}
-						onChange={onChange}
+						onChange={locked ? () => {} : onChange}
 						onClick={show}
 						onBlur={onBlur}
-						onKeyDown={onKeyDown}
+						onKeyDown={locked ? () => {} : onKeyDown}
 						placeholder={placeholder}
 						className={InputTextClass}
+						disabled={locked}
 					/>
 				)}
 
 				<button onClick={show}>{showDropdown ? <ChevronUp /> : <ChevronDown />}</button>
 
-				<button onClick={onClear}>
-					<CloseButtonIcon />
-				</button>
+				{!locked ? (
+					<button onClick={onClear}>
+						<CloseButtonIcon />
+					</button>
+				) : null}
 
 				{showDropdown ? (
 					<div className={DropdownClass} ref={dropdownRef}>
@@ -227,32 +234,31 @@ export function ComboBox({
 										DropdownRowClass,
 										formData?.[name]?.value === undefined ? DropdownSelectedRow : '',
 									)}
-									onClick={() => onSelect(undefined)}
+									onClick={locked ? () => {} : () => onSelect(undefined)}
 								>
 									<td colSpan={columns.length} className={clsx(DropdownCellClass, GrayText)}>
 										{placeholder}
 									</td>
 								</tr>
 
-								{options.map((value, index) => (
-									<tr
-										key={`${labelParser(value)}-${index}`}
-										className={clsx(
-											DropdownRowClass,
-											isEqual(value, formData?.[name]?.value) ? DropdownSelectedRow : '',
-											input?.toLowerCase() === labelParser(value)?.toLowerCase()
-												? DropdownSelectedRow
-												: '',
-										)}
-										onClick={() => onSelect(value)}
-									>
-										{columnParsers.map(({ column, parser }) => (
-											<td key={column} className={DropdownCellClass}>
-												{parser(value)}
-											</td>
-										))}
-									</tr>
-								))}
+								{options
+									.filter(value => !locked || isEqual(value, formData?.[name]?.value)) // Is disabled, show current only
+									.map((value, index) => (
+										<tr
+											key={`${labelParser(value)}-${index}`}
+											className={clsx(
+												DropdownRowClass,
+												isEqual(value, formData?.[name]?.value) ? DropdownSelectedRow : '',
+											)}
+											onClick={() => onSelect(value)}
+										>
+											{columnParsers.map(({ column, parser }) => (
+												<td key={column} className={DropdownCellClass}>
+													{parser(value)}
+												</td>
+											))}
+										</tr>
+									))}
 							</tbody>
 						</table>
 					</div>

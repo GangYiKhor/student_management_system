@@ -5,6 +5,9 @@ import { useEffect, useState } from 'react';
 import { tryParseInt } from '../../utils/numberParsers';
 import { ContainerFlexColGrow, ContainerFlexRowGrow } from '../../utils/tailwindClass/containers';
 import {
+	DisabledTextBoxBottomClass,
+	DisabledTextBoxRightClass,
+	InputTextClass,
 	InvalidTextBoxClass,
 	LabelLeftClass,
 	LabelTopClass,
@@ -45,9 +48,19 @@ export function SelectInput({
 	labelClassAddOn = '',
 }: Readonly<PropType>) {
 	id = id ?? kebabCase(name);
-	const containerClass = leftLabel ? ContainerFlexRowGrow : ContainerFlexColGrow;
-	const labelClass = leftLabel ? LabelLeftClass : LabelTopClass;
-	const inputClass = leftLabel ? TextBoxRightClass : TextBoxBottomClass;
+	let containerClass: string;
+	let labelClass: string;
+	let inputClass: string;
+
+	if (leftLabel) {
+		containerClass = ContainerFlexRowGrow;
+		labelClass = LabelLeftClass;
+		inputClass = locked ? DisabledTextBoxRightClass : TextBoxRightClass;
+	} else {
+		containerClass = ContainerFlexColGrow;
+		labelClass = LabelTopClass;
+		inputClass = locked ? DisabledTextBoxBottomClass : TextBoxBottomClass;
+	}
 
 	const { formData, setFormData } = useFormContext();
 	const [input, setInput] = useState<string>('');
@@ -123,7 +136,7 @@ export function SelectInput({
 					onClick={() => (queryFn ? refetch() : null)}
 					required={required}
 					disabled={locked}
-					className={clsx('flex-1', 'px-1', 'bg-transparent', 'focus:outline-none')}
+					className={InputTextClass}
 				>
 					<option value="" disabled={required} className={clsx('bg-bglight', 'dark:bg-bgdark')}>
 						{placeholder ?? `Select a ${label}`}
@@ -140,9 +153,11 @@ export function SelectInput({
 					))}
 				</select>
 
-				<button onClick={onClear} disabled={locked}>
-					<CloseButtonIcon disabled={locked} />
-				</button>
+				{!locked ? (
+					<button onClick={onClear}>
+						<CloseButtonIcon disabled={locked} />
+					</button>
+				) : null}
 			</div>
 		</div>
 	);

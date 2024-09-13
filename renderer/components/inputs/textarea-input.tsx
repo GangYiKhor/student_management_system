@@ -3,6 +3,7 @@ import { kebabCase } from 'lodash';
 import React, { useEffect, useState } from 'react';
 import { ContainerFlexColGrow } from '../../utils/tailwindClass/containers';
 import {
+	DisabledTextBoxBottomClass,
 	InvalidTextBoxClass,
 	LabelTopClass,
 	TextBoxBottomClass,
@@ -77,11 +78,11 @@ export function TextAreaInput({
 				required={required}
 				disabled={locked}
 				className={clsx(
-					TextBoxBottomClass,
+					locked ? DisabledTextBoxBottomClass : TextBoxBottomClass,
 					(formData[name]?.valid ?? true) || InvalidTextBoxClass,
 					'min-h-[80px]',
 					'max-h-[300px]',
-					notResizable && 'resize-none',
+					(locked || notResizable) && 'resize-none',
 				)}
 			></textarea>
 		</div>

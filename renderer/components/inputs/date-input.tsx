@@ -4,6 +4,8 @@ import React, { useEffect, useState } from 'react';
 import { dateFormatter, parseDateTime } from '../../utils/dateOperations';
 import { ContainerFlexColGrow, ContainerFlexRowGrow } from '../../utils/tailwindClass/containers';
 import {
+	DisabledTextBoxBottomClass,
+	DisabledTextBoxRightClass,
 	InvalidTextBoxClass,
 	LabelLeftClass,
 	LabelTopClass,
@@ -36,9 +38,19 @@ export function DateInput({
 	leftLabel,
 }: Readonly<PropType>) {
 	id = id ?? kebabCase(name);
-	const containerClass = leftLabel ? ContainerFlexRowGrow : ContainerFlexColGrow;
-	const labelClass = leftLabel ? LabelLeftClass : LabelTopClass;
-	const inputClass = leftLabel ? TextBoxRightClass : TextBoxBottomClass;
+	let containerClass: string;
+	let labelClass: string;
+	let inputClass: string;
+
+	if (leftLabel) {
+		containerClass = ContainerFlexRowGrow;
+		labelClass = LabelLeftClass;
+		inputClass = locked ? DisabledTextBoxRightClass : TextBoxRightClass;
+	} else {
+		containerClass = ContainerFlexColGrow;
+		labelClass = LabelTopClass;
+		inputClass = locked ? DisabledTextBoxBottomClass : TextBoxBottomClass;
+	}
 
 	const { formData, setFormData } = useFormContext();
 	const [input, setInput] = useState<string>('');
@@ -89,9 +101,11 @@ export function DateInput({
 					disabled={locked}
 					className={clsx('flex-1', 'px-1', 'bg-transparent', 'focus:outline-none')}
 				/>
-				<button onClick={onClear}>
-					<CloseButtonIcon />
-				</button>
+				{!locked ? (
+					<button onClick={onClear}>
+						<CloseButtonIcon />
+					</button>
+				) : null}
 			</div>
 		</div>
 	);

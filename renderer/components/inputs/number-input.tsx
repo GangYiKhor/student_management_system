@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react';
 import { tryParseFloat } from '../../utils/numberParsers';
 import { ContainerFlexColGrow, ContainerFlexRowGrow } from '../../utils/tailwindClass/containers';
 import {
+	DisabledTextBoxBottomClass,
+	DisabledTextBoxRightClass,
 	InvalidTextBoxClass,
 	LabelLeftClass,
 	LabelTopClass,
@@ -43,9 +45,19 @@ export function NumberInput({
 	leftLabel,
 }: Readonly<PropType>) {
 	id = id ?? kebabCase(name);
-	const containerClass = leftLabel ? ContainerFlexRowGrow : ContainerFlexColGrow;
-	const labelClass = leftLabel ? LabelLeftClass : LabelTopClass;
-	const inputClass = clsx(ContainerFlexRowGrow, leftLabel ? TextBoxRightClass : TextBoxBottomClass);
+	let containerClass: string;
+	let labelClass: string;
+	let inputClass: string;
+
+	if (leftLabel) {
+		containerClass = ContainerFlexRowGrow;
+		labelClass = LabelLeftClass;
+		inputClass = locked ? DisabledTextBoxRightClass : TextBoxRightClass;
+	} else {
+		containerClass = ContainerFlexColGrow;
+		labelClass = LabelTopClass;
+		inputClass = locked ? DisabledTextBoxBottomClass : TextBoxBottomClass;
+	}
 
 	const { formData, setFormData } = useFormContext();
 	const [input, setInput] = useState<string>('');

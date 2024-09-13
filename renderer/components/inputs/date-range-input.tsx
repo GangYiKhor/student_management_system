@@ -14,6 +14,7 @@ import {
 	parseDateTime,
 	removeTimezoneOffset,
 } from '../../utils/dateOperations';
+import { EmptyLightButtonClass } from '../../utils/tailwindClass/button';
 import { ContainerFlexRowGrow } from '../../utils/tailwindClass/containers';
 import { TextBoxClass } from '../../utils/tailwindClass/inputs';
 import { GrayText } from '../../utils/tailwindClass/text';
@@ -63,10 +64,10 @@ const calendarDateClass = clsx(
 	'p-1',
 	'w-8',
 	'h-8',
-	'hover:bg-indigo-300',
-	'dark:hover:bg-indigo-700',
-	'active:bg-indigo-400',
-	'dark:active:bg-indigo-600',
+	'enabled:hover:bg-indigo-300',
+	'enabled:dark:hover:bg-indigo-700',
+	'enabled:active:bg-indigo-400',
+	'enabled:dark:active:bg-indigo-600',
 	'select-none',
 	'rounded-full',
 );
@@ -87,6 +88,18 @@ const dateInputClass = clsx(
 	'rounded-t-sm',
 );
 
+const disabledDateInputClass = clsx(
+	'flex-1',
+	'text-center',
+	'min-w-[120px]',
+	'border-b-2',
+	'border-gray-400',
+	'rounded-t-sm',
+	'text-gray-600',
+	'dark:text-gray-400',
+	'hover:cursor-default',
+);
+
 type PropType = {
 	label: string;
 	startName: string;
@@ -94,6 +107,7 @@ type PropType = {
 	min?: Date;
 	max?: Date;
 	required?: boolean;
+	locked?: boolean;
 };
 
 export function DateRangeInput({
@@ -103,6 +117,7 @@ export function DateRangeInput({
 	min,
 	max,
 	required,
+	locked,
 }: Readonly<PropType>) {
 	const { formData, setFormData } = useFormContext();
 	const [showDatePicker, setShowDatePicker] = useState(false);
@@ -159,20 +174,30 @@ export function DateRangeInput({
 				{label}:<RequiredIcon required={required} />
 			</p>
 
-			<div className={clsx(ContainerFlexRowGrow, TextBoxClass, 'gap-2', 'relative')}>
-				<button className={dateInputClass} onClick={onClick}>
+			<div
+				className={clsx(
+					ContainerFlexRowGrow,
+					TextBoxClass,
+					locked && clsx('bg-gray-200', 'dark:bg-gray-700'),
+					'gap-2',
+					'relative',
+				)}
+			>
+				<button className={locked ? disabledDateInputClass : dateInputClass} onClick={onClick}>
 					{dateFormatter(startDate, { defaultValue: 'yyyy-MM-dd' })}
 				</button>
 
 				<Minus width={10} />
 
-				<button className={dateInputClass} onClick={onClick}>
+				<button className={locked ? disabledDateInputClass : dateInputClass} onClick={onClick}>
 					{dateFormatter(endDate, { defaultValue: 'yyyy-MM-dd' })}
 				</button>
 
-				<button onClick={onClear}>
-					<CloseButtonIcon />
-				</button>
+				{!locked ? (
+					<button onClick={onClear}>
+						<CloseButtonIcon />
+					</button>
+				) : null}
 
 				{showDatePicker ? (
 					<CalendarPicker
@@ -180,8 +205,10 @@ export function DateRangeInput({
 						endDate={endDate}
 						min={min}
 						max={max}
-						onSelect={onSelectDate}
+						onSelect={locked ? () => {} : onSelectDate}
 						onClose={onClose}
+						onClear={locked ? () => {} : onClear}
+						locked={locked}
 					/>
 				) : null}
 			</div>
@@ -194,8 +221,10 @@ type CalendarPickerPropType = {
 	endDate?: Date;
 	onSelect?: (value: Date) => void;
 	onClose: () => void;
+	onClear: () => void;
 	min?: Date;
 	max?: Date;
+	locked?: boolean;
 };
 
 function CalendarPicker({
@@ -203,8 +232,10 @@ function CalendarPicker({
 	endDate,
 	onSelect,
 	onClose,
+	onClear,
 	min,
 	max,
+	locked,
 }: Readonly<CalendarPickerPropType>) {
 	const [startMonth, setStartMonth] = useState((startDate ?? endDate ?? new Date()).getMonth());
 	const [endMonth, setEndMonth] = useState(
@@ -325,7 +356,7 @@ function CalendarPicker({
 															: null,
 														value.getMonth() !== month ? GrayText : null,
 													)}
-													disabled={isBefore(value, min) || isAfter(value, max)}
+													disabled={locked || isBefore(value, min) || isAfter(value, max)}
 													onClick={() => onSelect?.(value) /* NOSONAR */}
 												>
 													{value.getDate()}
@@ -339,6 +370,17 @@ function CalendarPicker({
 					</div>
 				))}
 			</div>
+
+			{!locked ? (
+				<div className={clsx('flex', 'justify-end', 'mt-1')}>
+					<button
+						className={clsx('underline', 'px-2', 'py-1', 'rounded-md', EmptyLightButtonClass)}
+						onClick={() => onClear()}
+					>
+						Clear
+					</button>
+				</div>
+			) : null}
 		</div>
 	);
 }
