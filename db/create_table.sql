@@ -93,7 +93,8 @@ CREATE TABLE "voucher" (
 );
 
 CREATE TABLE "receipt" (
-	"id" SERIAL PRIMARY KEY,
+	"id" INT PRIMARY KEY,
+	"receipt_no" VARCHAR(255) NOT NULL,
 	"student_id" INT NOT NULL,
 	"student_name" VARCHAR(255) NOT NULL,
 	"form_id" INT NOT NULL,
@@ -112,14 +113,19 @@ CREATE TABLE "receipt" (
 	"oct" REAL NOT NULL DEFAULT 0,
 	"nov" REAL NOT NULL DEFAULT 0,
 	"dec" REAL NOT NULL DEFAULT 0,
-	"package_discount" REAL NOT NULL DEFAULT 0,
+	"class_fees_per_month" REAL NOT NULL DEFAULT 0,
+	"package_discount_per_month" REAL NOT NULL DEFAULT 0,
+	"total_class_fees" REAL NOT NULL DEFAULT 0,
+	"total_package_discount" REAL NOT NULL DEFAULT 0,
 	"reg_fees" REAL NOT NULL DEFAULT 0,
 	"incentive" REAL NOT NULL DEFAULT 0,
 	"voucher_id" VARCHAR(255),
 	"voucher_discount" REAL NOT NULL DEFAULT 0,
-	"voucher_is_percentage" BOOLEAN NOT NULL DEFAULT FALSE,
-	"tax" REAL NOT NULL,
-	"tax_inclusive" BOOLEAN NOT NULL,
+	"voucher_desc" VARCHAR(255),
+	"tax_amount" REAL NOT NULL DEFAULT 0,
+	"tax_desc" VARCHAR(255) NOT NULL,
+	"subtotal" REAL NOT NULL DEFAULT 0,
+	"total" REAL NOT NULL DEFAULT 0,
 	"remarks" VARCHAR(255),
 	"status" VARCHAR(20),
 );
@@ -127,10 +133,12 @@ CREATE TABLE "receipt" (
 CREATE TABLE "receipt_class" (
 	"receipt_id" INT NOT NULL,
 	"class_id" INT NOT NULL,
+	"sequence" INT NOT NULL,
 	"class_name" VARCHAR(255) NOT NULL,
 	"teacher_id" INT NOT NULL,
 	"teacher_name" VARCHAR(255) NOT NULL,
 	"fees" REAL NOT NULL,
+	"package_discount" REAL NOT NULL DEFAULT 0,
 	"is_package" BOOLEAN NOT NULL,
 	PRIMARY KEY ("receipt_id", "class_id"),
 );
