@@ -2,7 +2,6 @@ import Head from 'next/head';
 import React, { useState } from 'react';
 import { LastUpdatedAt } from '../../components/last-updated';
 import { Loader } from '../../components/loader';
-import { FormProvider } from '../../components/providers/form-providers';
 import { useNotificationContext } from '../../components/providers/notification-providers';
 import { useCustomQuery } from '../../hooks/use-custom-query';
 import { useGet } from '../../hooks/use-get';
@@ -17,18 +16,10 @@ import { StudentFormsGetResponses } from '../../utils/types/responses/student-fo
 import { StudentFormsSearchAdd } from './components/search-add';
 import { StudentFormsModal } from './components/student-forms-modal';
 import { StudentFormsTable } from './components/table';
-import {
-	BackendPath,
-	PageName,
-	defaultSortString,
-	formDefaultValue,
-	searchDefaultValue,
-} from './constants';
+import { BackendPath, PageName, defaultSortString } from './constants';
 
 function StudentForms() {
 	const { setNotification } = useNotificationContext();
-	const [search, setSearch] = useState<string>(searchDefaultValue.general.value);
-	const [isActive, setIsActive] = useState<boolean>(searchDefaultValue.status.value);
 	const [orderBy, setOrderBy] = useState<string>(defaultSortString);
 	const [toggleModal, setToggleModal] = useState(false);
 
@@ -36,7 +27,7 @@ function StudentForms() {
 	const getForms = useGet<StudentFormsGetDto, StudentFormsGetResponses>(BackendPath);
 
 	const { data, isLoading, dataUpdatedAt, refetch } = useCustomQuery<StudentFormsGetResponses>({
-		queryKey: ['forms'],
+		queryKey: ['student-form-list'],
 		queryFn: () => getForms({ orderBy }),
 		fetchOnVariable: [orderBy],
 	});
@@ -60,29 +51,17 @@ function StudentForms() {
 			<Layout headerTitle={PageName}>
 				<Loader isLoading={isLoading}>
 					<div className={ContentContainer}>
-						<FormProvider defaultValue={searchDefaultValue}>
-							<StudentFormsSearchAdd
-								setSearch={setSearch}
-								setIsActive={setIsActive}
-								setToggleModal={setToggleModal}
-							/>
-						</FormProvider>
-
+						<StudentFormsSearchAdd setToggleModal={setToggleModal} />
 						<StudentFormsTable
 							data={data}
-							search={search}
-							status={isActive}
 							refetch={refetch}
 							handler={handleUpdate}
 							setOrderBy={setOrderBy}
 						/>
-
 						<LastUpdatedAt lastUpdatedAt={dataUpdatedAt} refetch={refetch} />
 
 						{toggleModal ? (
-							<FormProvider defaultValue={formDefaultValue()}>
-								<StudentFormsModal closeModal={() => setToggleModal(false)} handler={handleAdd} />
-							</FormProvider>
+							<StudentFormsModal closeModal={() => setToggleModal(false)} handler={handleAdd} />
 						) : null}
 					</div>
 				</Loader>

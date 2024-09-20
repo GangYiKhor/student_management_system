@@ -1,7 +1,6 @@
 import { QueryObserverResult } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
 import React, { useCallback, useState } from 'react';
-import { FormProvider } from '../../../components/providers/form-providers';
 import { TableColumnType, TableTemplate } from '../../../components/tables/table-template';
 import { usePost } from '../../../hooks/use-post';
 import { STUDENT_CLASS_API_PATH } from '../../../utils/constants/constants';
@@ -14,7 +13,7 @@ import {
 	StudentsGetResponses,
 } from '../../../utils/types/responses/students/get';
 import { StudentUpdateResponse } from '../../../utils/types/responses/students/update';
-import { BackendPath, defaultSort, formDefaultValueFilled } from '../constants';
+import { BackendPath, defaultSort } from '../constants';
 import { EditData } from '../types';
 import { StudentsModal } from './students-modal';
 
@@ -86,14 +85,12 @@ export function StudentsTable({ data, refetch, setOrderBy }: Readonly<PropType>)
 			/>
 
 			{selected ? (
-				<FormProvider defaultValue={formDefaultValueFilled(selected)}>
-					<StudentsModal
-						closeModal={() => setSelected(undefined)}
-						handler={handleUpdate}
-						handleActivate={handleActivate}
-						data={selected}
-					/>
-				</FormProvider>
+				<StudentsModal
+					closeModal={() => setSelected(undefined)}
+					handler={handleUpdate}
+					handleActivate={handleActivate}
+					data={selected}
+				/>
 			) : null}
 		</React.Fragment>
 	);

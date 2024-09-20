@@ -6,6 +6,8 @@ import { EditData, FormDataType, SearchDataType } from './types';
 
 export const PageName = 'Holidays';
 export const BackendPath = HOLIDAY_API_PATH;
+export const SearchFormId = 'holidays-searchbar';
+export const EditFormId = 'holidays-edit';
 
 export const defaultSort: DefaultSort = {
 	field: 'date',
@@ -24,12 +26,12 @@ export const formDefaultValueFilled = (data: EditData): FormDataType => ({
 	description: { value: data?.description, valid: true },
 });
 
-export const searchDefaultValue: SearchDataType = {
+export const searchDefaultValue = (): SearchDataType => ({
 	general: { value: '', valid: true },
 	start_date: { value: getToday(), valid: true },
 	end_date: { value: undefined, valid: true },
-	period: { value: null, valid: true },
-};
+	period: { value: '30', valid: true },
+});
 
 export const parseGetData = (data: HolidaysGetResponses) =>
 	data.map(value => {

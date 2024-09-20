@@ -4,6 +4,8 @@ import { EditData, FormDataType, SearchDataType } from './types';
 
 export const PageName = 'Teachers';
 export const BackendPath = TEACHER_API_PATH;
+export const SearchFormId = 'teachers-searchbar';
+export const EditFormId = 'teachers-edit';
 
 export const defaultSort: DefaultSort = {
 	field: 'teacher_name',
@@ -28,7 +30,7 @@ export const formDefaultValueFilled = (data: EditData): FormDataType => ({
 	address: { value: data?.address, valid: true },
 });
 
-export const searchDefaultValue: SearchDataType = {
+export const searchDefaultValue = (): SearchDataType => ({
 	general: { value: '', valid: true },
 	status: { value: true, valid: true },
-};
+});

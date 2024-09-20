@@ -7,6 +7,9 @@ import { EditData, FormDataType, SearchDataType, ViewFormDataType } from './type
 export const PageName = 'Receipts';
 export const BackendPath = RECEIPT_API_PATH;
 export const PrintPreviewSize = 'width=700px,height=535px';
+export const SearchFormId = 'receipts-searchbar';
+export const CreateFormId = 'receipts-create';
+export const EditFormId = 'receipts-edit';
 
 export const defaultSort: DefaultSort = {
 	field: 'id',
@@ -78,7 +81,7 @@ export const viewFormValue = (data: EditData): ViewFormDataType => {
 	return formData;
 };
 
-export const searchDefaultValue: SearchDataType = {
+export const searchDefaultValue = (): SearchDataType => ({
 	general: { value: '', valid: true },
 	student_id: { value: undefined, valid: true },
 	class_id: { value: undefined, valid: true },
@@ -88,7 +91,7 @@ export const searchDefaultValue: SearchDataType = {
 	payment_year: { value: undefined, valid: true },
 	payment_month: { value: undefined, valid: true },
 	voucher_id: { value: undefined, valid: true },
-};
+});
 
 export const parseGetData = (data: ReceiptsGetResponses) =>
 	data.map(value => {

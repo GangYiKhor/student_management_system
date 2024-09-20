@@ -8,7 +8,7 @@ export async function classUpdateServices(id: number, dto: ClassUpdateDto): Prom
 		where: {
 			teacher_id,
 			start_date: { lte: end_date ?? undefined },
-			end_date: { gte: start_date ?? undefined },
+			OR: [{ end_date: { gte: start_date ?? undefined } }, { end_date: null }],
 			day,
 			start_time: { lt: end_time ?? undefined },
 			end_time: { gt: start_time ?? undefined },

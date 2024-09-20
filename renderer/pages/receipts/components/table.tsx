@@ -3,7 +3,7 @@ import { AxiosError } from 'axios';
 import clsx from 'clsx';
 import { PrinterIcon } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
-import { FormProvider } from '../../../components/providers/form-providers';
+import { useFormContextWithId } from '../../../components/providers/form-providers';
 import { TableColumnType, TableTemplate } from '../../../components/tables/table-template';
 import { usePost } from '../../../hooks/use-post';
 import { dateFormatter } from '../../../utils/dateOperations';
@@ -16,8 +16,8 @@ import {
 	ReceiptsGetResponses,
 } from '../../../utils/types/responses/receipts/get';
 import { ReceiptUpdateResponse } from '../../../utils/types/responses/receipts/update';
-import { BackendPath, defaultSort, PrintPreviewSize, viewFormValue } from '../constants';
-import { EditData } from '../types';
+import { BackendPath, defaultSort, PrintPreviewSize, SearchFormId } from '../constants';
+import { EditData, SearchDataType } from '../types';
 import { ReceiptsViewModal } from './receipts-view-modal';
 
 const columns: TableColumnType<ReceiptsGetResponse>[] = [
@@ -62,12 +62,12 @@ const columns: TableColumnType<ReceiptsGetResponse>[] = [
 
 type PropType = {
 	data: ReceiptsGetResponses;
-	search?: string;
 	refetch: () => Promise<QueryObserverResult<ReceiptsGetResponses, AxiosError<ErrorResponse, any>>>;
 	setOrderBy: (value: string) => void;
 };
 
-export function ReceiptTable({ data, search, refetch, setOrderBy }: Readonly<PropType>) {
+export function ReceiptTable({ data, refetch, setOrderBy }: Readonly<PropType>) {
+	const { formData } = useFormContextWithId<SearchDataType>(SearchFormId);
 	const [tableData, setTableData] = useState<ReceiptsGetResponses>([]);
 	const [selected, setSelected] = useState<EditData>(undefined);
 	const postClass = usePost<ReceiptUpdateDto, ReceiptUpdateResponse>(BackendPath);
@@ -84,8 +84,8 @@ export function ReceiptTable({ data, search, refetch, setOrderBy }: Readonly<Pro
 
 	useEffect(() => {
 		let filteredData = data;
+		const search = formData?.general?.value?.trim().toLowerCase();
 		if (search) {
-			search = search.trim().toLowerCase();
 			filteredData = filteredData.filter(
 				value =>
 					'#' + value.id === search ||
@@ -97,7 +97,7 @@ export function ReceiptTable({ data, search, refetch, setOrderBy }: Readonly<Pro
 		}
 
 		setTableData(filteredData);
-	}, [data, search]);
+	}, [data, formData?.general?.value]);
 
 	return (
 		<React.Fragment>
@@ -110,13 +110,11 @@ export function ReceiptTable({ data, search, refetch, setOrderBy }: Readonly<Pro
 			/>
 
 			{selected ? (
-				<FormProvider defaultValue={viewFormValue(selected)}>
-					<ReceiptsViewModal
-						closeModal={() => setSelected(undefined)}
-						handleUpdate={handleUpdate}
-						data={selected}
-					/>
-				</FormProvider>
+				<ReceiptsViewModal
+					closeModal={() => setSelected(undefined)}
+					handleUpdate={handleUpdate}
+					data={selected}
+				/>
 			) : null}
 		</React.Fragment>
 	);

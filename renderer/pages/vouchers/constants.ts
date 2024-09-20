@@ -6,6 +6,8 @@ import { EditData, FormDataType, SearchDataType } from './types';
 
 export const PageName = 'Vouchers';
 export const BackendPath = VOUCHER_API_PATH;
+export const SearchFormId = 'vouchers-searchbar';
+export const EditFormId = 'vouchers-edit';
 
 export const defaultSort: DefaultSort = {
 	field: 'start_date',
@@ -36,11 +38,11 @@ export const formDefaultValueFilled = (data: EditData): FormDataType => ({
 	duration: { value: '', valid: true },
 });
 
-export const searchDefaultValue: SearchDataType = {
+export const searchDefaultValue = (): SearchDataType => ({
 	general: { value: '', valid: true },
 	student_search_id: { value: undefined, valid: true },
 	status: { value: true, valid: true },
-};
+});
 
 export const parseGetData = (data: VouchersGetResponses) =>
 	data.map(value => {

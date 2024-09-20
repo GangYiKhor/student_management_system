@@ -1,10 +1,11 @@
 import clsx from 'clsx';
 import React, { useState } from 'react';
 import { DateInput } from '../../../components/inputs/date-input';
+import { Form } from '../../../components/inputs/form';
 import { NumberInput } from '../../../components/inputs/number-input';
 import { SelectInput } from '../../../components/inputs/select-input';
 import Modal, { ModalButtons } from '../../../components/modal';
-import { useFormContext } from '../../../components/providers/form-providers';
+import { useFormContextWithId } from '../../../components/providers/form-providers';
 import Row from '../../../components/row';
 import Separator from '../../../components/separator';
 import { useGetFormOptionsIdOnly } from '../../../hooks/use-get-form-options';
@@ -15,6 +16,7 @@ import {
 } from '../../../utils/tailwindClass/button';
 import { PackageCreateDto } from '../../../utils/types/dtos/packages/create';
 import { PackageUpdateDto } from '../../../utils/types/dtos/packages/update';
+import { EditFormId, formDefaultValue, formDefaultValueFilled } from '../constants';
 import { useIsDirty } from '../hooks/useIsDirty';
 import { useVerifyInputs } from '../hooks/useVerifyInputs';
 import { EditData, FormDataType } from '../types';
@@ -26,7 +28,7 @@ type PropType = {
 };
 
 export function PackagesModal({ closeModal, handler, data }: Readonly<PropType>) {
-	const { formData, setFormData } = useFormContext<FormDataType>();
+	const { formData, setFormData } = useFormContextWithId<FormDataType>(EditFormId);
 	const [confirmation, setConfirmation] = useState(false);
 	const [closeConfirmation, setCloseConfirmation] = useState(false);
 
@@ -55,12 +57,12 @@ export function PackagesModal({ closeModal, handler, data }: Readonly<PropType>)
 			action: async () => {
 				try {
 					const submitData: PackageCreateDto | PackageUpdateDto = {
-						form_id: formData.form_id?.value,
-						start_date: formData.start_date?.value,
-						end_date: formData.end_date?.value ?? null,
-						subject_count_from: formData.subject_count_from?.value,
-						subject_count_to: formData.subject_count_to?.value,
-						discount_per_subject: formData.discount_per_subject?.value,
+						form_id: formData?.form_id?.value,
+						start_date: formData?.start_date?.value,
+						end_date: formData?.end_date?.value ?? null,
+						subject_count_from: formData?.subject_count_from?.value,
+						subject_count_to: formData?.subject_count_to?.value,
+						discount_per_subject: formData?.discount_per_subject?.value,
 					};
 
 					await handler(submitData);
@@ -97,47 +99,52 @@ export function PackagesModal({ closeModal, handler, data }: Readonly<PropType>)
 				closeOnBlur={false}
 				buttons={modalButtons}
 			>
-				<div className={clsx('grid')}>
-					<SelectInput
-						label="Form"
-						name="form_id"
-						queryFn={() => getForms({ is_active: true, orderBy: 'form_name asc' })}
-						required
-					/>
+				<Form
+					formId={EditFormId}
+					defaultValue={data ? formDefaultValueFilled(data) : formDefaultValue()}
+				>
+					<div className={clsx('grid')}>
+						<SelectInput
+							label="Form"
+							name="form_id"
+							queryFn={() => getForms({ is_active: true, orderBy: 'form_name asc' })}
+							required
+						/>
 
-					<Row>
+						<Row>
+							<NumberInput
+								label="Subject Count From"
+								name="subject_count_from"
+								min={0}
+								step={1}
+								required
+							/>
+							<NumberInput
+								label="Subject Count To"
+								name="subject_count_to"
+								min={formData?.subject_count_from?.value}
+								step={1}
+								required
+							/>
+						</Row>
+
 						<NumberInput
-							label="Subject Count From"
-							name="subject_count_from"
+							label="Discount Per Subject"
+							name="discount_per_subject"
+							prefix="RM"
 							min={0}
-							step={1}
+							step={0.01}
 							required
 						/>
-						<NumberInput
-							label="Subject Count To"
-							name="subject_count_to"
-							min={formData.subject_count_from?.value}
-							step={1}
-							required
-						/>
-					</Row>
 
-					<NumberInput
-						label="Discount Per Subject"
-						name="discount_per_subject"
-						prefix="RM"
-						min={0}
-						step={0.01}
-						required
-					/>
+						<Separator />
 
-					<Separator />
-
-					<Row>
-						<DateInput label="Start Date" name="start_date" required />
-						<DateInput label="End Date" name="end_date" min={formData.start_date?.value} />
-					</Row>
-				</div>
+						<Row>
+							<DateInput label="Start Date" name="start_date" required />
+							<DateInput label="End Date" name="end_date" min={formData?.start_date?.value} />
+						</Row>
+					</div>
+				</Form>
 			</Modal>
 
 			{confirmation ? (

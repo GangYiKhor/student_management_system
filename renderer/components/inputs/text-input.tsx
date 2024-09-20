@@ -11,8 +11,8 @@ import {
 	TextBoxBottomClass,
 	TextBoxRightClass,
 } from '../../utils/tailwindClass/inputs';
-import { useFormContext } from '../providers/form-providers';
 import { RequiredIcon } from '../required';
+import { useFormHandlerContext } from './form';
 
 type PropType = {
 	id?: string;
@@ -62,7 +62,7 @@ export function TextInput({
 		inputClass = locked ? DisabledTextBoxBottomClass : TextBoxBottomClass;
 	}
 
-	const { formData, setFormData } = useFormContext();
+	const { formData, setFormData } = useFormHandlerContext();
 	const [input, setInput] = useState<string>('');
 
 	const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -72,7 +72,7 @@ export function TextInput({
 		}
 
 		setFormData({
-			name,
+			path: name,
 			value: onBlurFormat?.(value) ?? value,
 			valid: true,
 		});
@@ -99,7 +99,13 @@ export function TextInput({
 				{label}:<RequiredIcon required={required} />
 			</label>
 
-			<div className={clsx(inputClass, (formData[name]?.valid ?? true) || InvalidTextBoxClass)}>
+			<div
+				className={clsx(
+					'flex flex-1',
+					inputClass,
+					(formData?.[name]?.valid ?? true) || InvalidTextBoxClass,
+				)}
+			>
 				{prefix ? <span className="pr-1">{prefix}</span> : null}
 
 				<input

@@ -1,7 +1,7 @@
 import { QueryObserverResult } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
 import React, { useEffect, useState } from 'react';
-import { FormProvider } from '../../../components/providers/form-providers';
+import { useFormContextWithId } from '../../../components/providers/form-providers';
 import { TableColumnType, TableTemplate } from '../../../components/tables/table-template';
 import { usePost } from '../../../hooks/use-post';
 import { dateFormatter } from '../../../utils/dateOperations';
@@ -11,8 +11,8 @@ import {
 	HolidaysGetResponse,
 	HolidaysGetResponses,
 } from '../../../utils/types/responses/holidays/get';
-import { BackendPath, defaultSort, formDefaultValueFilled } from '../constants';
-import { EditData } from '../types';
+import { BackendPath, defaultSort, SearchFormId } from '../constants';
+import { EditData, SearchDataType } from '../types';
 import { HolidaysModal } from './holidays-modal';
 
 const columns: TableColumnType<HolidaysGetResponse>[] = [
@@ -27,12 +27,12 @@ const columns: TableColumnType<HolidaysGetResponse>[] = [
 
 type PropType = {
 	data: HolidaysGetResponses;
-	search?: string;
 	refetch: () => Promise<QueryObserverResult<HolidaysGetResponses, AxiosError<ErrorResponse, any>>>;
 	setOrderBy: (value: string) => void;
 };
 
-export function HolidaysTable({ data, search, refetch, setOrderBy }: Readonly<PropType>) {
+export function HolidaysTable({ data, refetch, setOrderBy }: Readonly<PropType>) {
+	const { formData } = useFormContextWithId<SearchDataType>(SearchFormId);
 	const [tableData, setTableData] = useState<HolidaysGetResponses>([]);
 	const [selected, setSelected] = useState<EditData>(undefined);
 	const postHoliday = usePost<HolidayUpdateDto, void>(BackendPath);
@@ -48,15 +48,15 @@ export function HolidaysTable({ data, search, refetch, setOrderBy }: Readonly<Pr
 
 	useEffect(() => {
 		let filteredData = data;
+		const search = formData?.general?.value?.trim().toLowerCase();
 		if (search) {
-			search = search.trim().toLowerCase();
 			filteredData = filteredData.filter(
 				value => '#' + value.id === search || value.description?.toLowerCase().includes(search),
 			);
 		}
 
 		setTableData(filteredData);
-	}, [data, search]);
+	}, [data, formData?.general?.value]);
 
 	return (
 		<React.Fragment>
@@ -69,13 +69,11 @@ export function HolidaysTable({ data, search, refetch, setOrderBy }: Readonly<Pr
 			/>
 
 			{selected ? (
-				<FormProvider defaultValue={formDefaultValueFilled(selected)}>
-					<HolidaysModal
-						closeModal={() => setSelected(undefined)}
-						handler={handleUpdate}
-						data={selected}
-					/>
-				</FormProvider>
+				<HolidaysModal
+					closeModal={() => setSelected(undefined)}
+					handler={handleUpdate}
+					data={selected}
+				/>
 			) : null}
 		</React.Fragment>
 	);

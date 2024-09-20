@@ -36,7 +36,7 @@ export const DisabledTextBoxClass = clsx(
 	'py-1',
 	'px-2',
 	'text-gray-600',
-	'dark:text-gray-400',
+	'dark:text-gray-300',
 	'border-2',
 	'border-gray-300',
 	'dark:border-gray-800',

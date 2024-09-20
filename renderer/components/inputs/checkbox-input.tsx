@@ -1,8 +1,8 @@
 import clsx from 'clsx';
 import { kebabCase } from 'lodash';
 import { useEffect, useState } from 'react';
-import { useFormContext } from '../providers/form-providers';
 import { RequiredIcon } from '../required';
+import { useFormHandlerContext } from './form';
 
 type PropType = {
 	id?: string;
@@ -27,11 +27,11 @@ export function CheckboxInput({
 }: Readonly<PropType>) {
 	id = id ?? kebabCase(name);
 
-	const { formData, setFormData } = useFormContext();
+	const { formData, setFormData } = useFormHandlerContext();
 	const [checked, setChecked] = useState<boolean>(false);
 
 	const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		setFormData({ name, value: valueParser(e.target.checked), valid: true });
+		setFormData({ path: name, value: valueParser(e.target.checked), valid: true });
 		setChecked(e.target.checked);
 	};
 

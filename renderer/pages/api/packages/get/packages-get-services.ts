@@ -1,3 +1,4 @@
+import { tryParseFloat, tryParseInt } from '../../../../utils/numberParsers';
 import { parseOrderBy } from '../../../../utils/parseOrderBy';
 import prisma from '../../../../utils/prisma-client';
 import { PackagesGetDto, PackagesGetQueryDto } from '../../../../utils/types/dtos/packages/get';
@@ -16,7 +17,7 @@ export async function packagesGetServices(
 		where.OR = [{ start_date: { gt: now } }, { end_date: { lt: now } }];
 	}
 
-	if (subject_count) {
+	if (typeof subject_count == 'number') {
 		where.subject_count_from = { lte: subject_count };
 		where.subject_count_to = { gte: subject_count };
 	}
@@ -36,11 +37,11 @@ export function packagesGetParseDto(query: PackagesGetQueryDto): PackagesGetDto 
 	return {
 		start_date: query.start_date ? new Date(query.start_date) : undefined,
 		end_date: query.end_date ? new Date(query.end_date) : undefined,
-		form_id: parseInt(query.form_id) || undefined,
-		subject_count: parseInt(query.subject_count) || undefined,
-		subject_count_from: parseInt(query.subject_count_from) || undefined,
-		subject_count_to: parseInt(query.subject_count_to) || undefined,
-		discount_per_subject: parseFloat(query.discount_per_subject) || undefined,
+		form_id: tryParseInt(query.form_id),
+		subject_count: tryParseInt(query.subject_count),
+		subject_count_from: tryParseInt(query.subject_count_from),
+		subject_count_to: tryParseInt(query.subject_count_to),
+		discount_per_subject: tryParseFloat(query.discount_per_subject),
 		is_active: query.is_active ? query.is_active === 'true' : undefined,
 		orderBy: query.orderBy,
 	};

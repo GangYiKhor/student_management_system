@@ -13,8 +13,8 @@ import {
 	TextBoxRightClass,
 } from '../../utils/tailwindClass/inputs';
 import { CloseButtonIcon } from '../close-button-icon';
-import { useFormContext } from '../providers/form-providers';
 import { RequiredIcon } from '../required';
+import { useFormHandlerContext } from './form';
 
 type PropType = {
 	id?: string;
@@ -52,19 +52,19 @@ export function DateInput({
 		inputClass = locked ? DisabledTextBoxBottomClass : TextBoxBottomClass;
 	}
 
-	const { formData, setFormData } = useFormContext();
+	const { formData, setFormData } = useFormHandlerContext();
 	const [input, setInput] = useState<string>('');
 
 	const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		if (e.target.value === '') {
-			setFormData({ name, value: null, valid: true });
+			setFormData({ path: name, value: null, valid: true });
 		}
-		setFormData({ name, value: parseDateTime(e.target.value), valid: true });
+		setFormData({ path: name, value: parseDateTime(e.target.value), valid: true });
 		setInput(e.target.value);
 	};
 
 	const onClear = () => {
-		setFormData({ name, value: null, valid: true });
+		setFormData({ path: name, value: null, valid: true });
 		setInput('');
 	};
 
@@ -85,7 +85,7 @@ export function DateInput({
 				className={clsx(
 					ContainerFlexRowGrow,
 					inputClass,
-					(formData[name]?.valid ?? true) || InvalidTextBoxClass,
+					(formData?.[name]?.valid ?? true) || InvalidTextBoxClass,
 					'items-center',
 				)}
 			>

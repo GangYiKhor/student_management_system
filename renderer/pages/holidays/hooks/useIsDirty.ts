@@ -11,11 +11,11 @@ export function useIsDirty({ formData, data }: Readonly<PropType>) {
 		let isDirty = false;
 
 		if (data) {
-			isDirty ||= !isSameDay(formData.date?.value, data.date);
-			isDirty ||= formData.description?.value !== data.description;
+			isDirty ||= !isSameDay(formData?.date?.value, data.date);
+			isDirty ||= formData?.description?.value !== data.description;
 		} else {
-			isDirty ||= formData.date?.value !== undefined;
-			isDirty ||= formData.description?.value.trim() !== '';
+			isDirty ||= formData?.date?.value !== undefined;
+			isDirty ||= formData?.description?.value.trim() !== '';
 		}
 
 		return isDirty;

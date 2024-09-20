@@ -6,6 +6,8 @@ import { EditData, FormDataType, SearchDataType } from './types';
 
 export const PageName = 'Packages';
 export const BackendPath = PACKAGE_API_PATH;
+export const SearchFormId = 'packages-searchbar';
+export const EditFormId = 'packages-edit';
 
 export const defaultSort: DefaultSort = {
 	field: 'form_name',
@@ -32,12 +34,12 @@ export const formDefaultValueFilled = (data: EditData): FormDataType => ({
 	discount_per_subject: { value: data?.discount_per_subject, valid: true },
 });
 
-export const searchDefaultValue: SearchDataType = {
+export const searchDefaultValue = (): SearchDataType => ({
 	general: { value: '', valid: true },
 	form_id: { value: undefined, valid: true },
 	subject_count: { value: undefined, valid: true },
 	status: { value: true, valid: true },
-};
+});
 
 export const parseGetData = (data: PackagesGetResponses) =>
 	data.map(value => {

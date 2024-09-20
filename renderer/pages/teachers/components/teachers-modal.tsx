@@ -1,9 +1,10 @@
 import clsx from 'clsx';
 import React, { useState } from 'react';
+import { Form } from '../../../components/inputs/form';
 import { TextInput } from '../../../components/inputs/text-input';
 import { TextAreaInput } from '../../../components/inputs/textarea-input';
 import Modal, { ModalButtons } from '../../../components/modal';
-import { useFormContext } from '../../../components/providers/form-providers';
+import { useFormContextWithId } from '../../../components/providers/form-providers';
 import Separator from '../../../components/separator';
 import { icFormat, icFormatRevert } from '../../../utils/formatting/icFormatting';
 import {
@@ -17,6 +18,7 @@ import {
 } from '../../../utils/tailwindClass/button';
 import { TeacherCreateDto } from '../../../utils/types/dtos/teachers/create';
 import { TeacherUpdateDto } from '../../../utils/types/dtos/teachers/update';
+import { EditFormId, formDefaultValue, formDefaultValueFilled } from '../constants';
 import { useIsDirty } from '../hooks/useIsDirty';
 import { useVerifyInputs } from '../hooks/useVerifyInputs';
 import { EditData, FormDataType } from '../types';
@@ -29,7 +31,7 @@ type PropType = {
 };
 
 export function TeachersModal({ closeModal, handler, handleActivate, data }: Readonly<PropType>) {
-	const { formData, setFormData } = useFormContext<FormDataType>();
+	const { formData, setFormData } = useFormContextWithId<FormDataType>(EditFormId);
 	const [confirmation, setConfirmation] = useState(false);
 	const [closeConfirmation, setCloseConfirmation] = useState(false);
 
@@ -64,11 +66,11 @@ export function TeachersModal({ closeModal, handler, handleActivate, data }: Rea
 			action: async () => {
 				try {
 					const submitData: TeacherCreateDto | TeacherUpdateDto = {
-						teacher_name: formData.teacher_name?.value?.trim(),
-						ic: formData.ic?.value?.trim() || null,
-						phone_number: formData.phone_number?.value.trim(),
-						email: formData.email?.value?.trim() || null,
-						address: formData.address?.value?.trim() || null,
+						teacher_name: formData?.teacher_name?.value?.trim(),
+						ic: formData?.ic?.value?.trim() || null,
+						phone_number: formData?.phone_number?.value.trim(),
+						email: formData?.email?.value?.trim() || null,
+						address: formData?.address?.value?.trim() || null,
 					};
 
 					await handler(submitData);
@@ -100,37 +102,42 @@ export function TeachersModal({ closeModal, handler, handleActivate, data }: Rea
 	return (
 		<React.Fragment>
 			<Modal
-				title={data ? 'Create Teacher' : 'Edit Teacher'}
+				title={data ? 'Edit Teacher' : 'Create Teacher'}
 				closeModal={() => (isDirty() ? setCloseConfirmation(true) : closeModal())}
 				closeOnBlur={false}
 				buttons={modalButtons}
 			>
-				<div className={clsx('grid')}>
-					<TextInput label="Teacher Name" name="teacher_name" required />
+				<Form
+					formId={EditFormId}
+					defaultValue={data ? formDefaultValueFilled(data) : formDefaultValue()}
+				>
+					<div className={clsx('grid')}>
+						<TextInput label="Teacher Name" name="teacher_name" required />
 
-					<TextInput
-						label="Phone Number"
-						name="phone_number"
-						placeholder="0123456789"
-						onFocusFormat={phoneNumberFormatRevert}
-						onBlurFormat={phoneNumberFormat}
-						required
-					/>
+						<TextInput
+							label="Phone Number"
+							name="phone_number"
+							placeholder="0123456789"
+							onFocusFormat={phoneNumberFormatRevert}
+							onBlurFormat={phoneNumberFormat}
+							required
+						/>
 
-					<Separator />
+						<Separator />
 
-					<TextInput
-						label="IC"
-						name="ic"
-						placeholder="010203070506"
-						onFocusFormat={icFormatRevert}
-						onBlurFormat={icFormat}
-					/>
+						<TextInput
+							label="IC"
+							name="ic"
+							placeholder="010203070506"
+							onFocusFormat={icFormatRevert}
+							onBlurFormat={icFormat}
+						/>
 
-					<TextInput label="Email" name="email" email />
+						<TextInput label="Email" name="email" email />
 
-					<TextAreaInput label="Address" name="address" maxLength={200} />
-				</div>
+						<TextAreaInput label="Address" name="address" maxLength={200} />
+					</div>
+				</Form>
 			</Modal>
 
 			{confirmation ? (

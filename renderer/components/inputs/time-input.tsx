@@ -12,8 +12,8 @@ import {
 	TextBoxBottomClass,
 	TextBoxRightClass,
 } from '../../utils/tailwindClass/inputs';
-import { useFormContext } from '../providers/form-providers';
 import { RequiredIcon } from '../required';
+import { useFormHandlerContext } from './form';
 
 type PropType = {
 	id?: string;
@@ -51,11 +51,11 @@ export function TimeInput({
 		inputClass = locked ? DisabledTextBoxBottomClass : TextBoxBottomClass;
 	}
 
-	const { formData, setFormData } = useFormContext();
+	const { formData, setFormData } = useFormHandlerContext();
 	const [input, setInput] = useState<string>('');
 
 	const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		setFormData({ name, value: parseDateTime(e.target.value, null), valid: true });
+		setFormData({ path: name, value: parseDateTime(e.target.value, null), valid: true });
 		setInput(e.target.value);
 	};
 
@@ -82,7 +82,7 @@ export function TimeInput({
 				max={dateFormatter(max, { format: 'hh:mm' })}
 				required={required}
 				disabled={locked}
-				className={clsx(inputClass, (formData[name]?.valid ?? true) || InvalidTextBoxClass)}
+				className={clsx(inputClass, (formData?.[name]?.valid ?? true) || InvalidTextBoxClass)}
 			/>
 		</div>
 	);

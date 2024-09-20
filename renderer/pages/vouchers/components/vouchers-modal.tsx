@@ -2,11 +2,12 @@ import clsx from 'clsx';
 import React, { useEffect, useState } from 'react';
 import { ComboBox } from '../../../components/inputs/combo-box';
 import { DateInput } from '../../../components/inputs/date-input';
+import { Form } from '../../../components/inputs/form';
 import { NumberInput } from '../../../components/inputs/number-input';
 import { SelectInput } from '../../../components/inputs/select-input';
 import { TextInput } from '../../../components/inputs/text-input';
 import Modal, { ModalButtons } from '../../../components/modal';
-import { useFormContext } from '../../../components/providers/form-providers';
+import { useFormContextWithId } from '../../../components/providers/form-providers';
 import Row from '../../../components/row';
 import Separator from '../../../components/separator';
 import { useCustomQuery } from '../../../hooks/use-custom-query';
@@ -20,6 +21,7 @@ import {
 import { GrayInfoText } from '../../../utils/tailwindClass/text';
 import { VoucherCreateDto } from '../../../utils/types/dtos/vouchers/create';
 import { VoucherUpdateDto } from '../../../utils/types/dtos/vouchers/update';
+import { EditFormId, formDefaultValue, formDefaultValueFilled } from '../constants';
 import { useIsDirty } from '../hooks/useIsDirty';
 import { useVerifyInputs } from '../hooks/useVerifyInputs';
 import { EditData, FormDataType } from '../types';
@@ -31,7 +33,7 @@ type PropType = {
 };
 
 export function VouchersModal({ closeModal, data, handler }: Readonly<PropType>) {
-	const { formData, setFormData } = useFormContext<FormDataType>();
+	const { formData, setFormData } = useFormContextWithId<FormDataType>(EditFormId);
 	const [confirmation, setConfirmation] = useState(false);
 	const [closeConfirmation, setCloseConfirmation] = useState(false);
 
@@ -46,14 +48,14 @@ export function VouchersModal({ closeModal, data, handler }: Readonly<PropType>)
 
 	useEffect(() => {
 		if (formData?.duration?.value && formData?.start_date?.value == undefined) {
-			setFormData({ name: 'start_date', valid: false });
+			setFormData({ path: 'start_date', valid: false });
 			return;
 		}
 
 		switch (formData?.duration?.value) {
 			case '1W':
 				setFormData({
-					name: 'expired_at',
+					path: 'expired_at',
 					value: dateOperator(formData?.start_date?.value, 7, 'd'),
 					valid: true,
 				});
@@ -61,7 +63,7 @@ export function VouchersModal({ closeModal, data, handler }: Readonly<PropType>)
 
 			case '3W':
 				setFormData({
-					name: 'expired_at',
+					path: 'expired_at',
 					value: dateOperator(formData?.start_date?.value, 21, 'd'),
 					valid: true,
 				});
@@ -69,7 +71,7 @@ export function VouchersModal({ closeModal, data, handler }: Readonly<PropType>)
 
 			case '1M':
 				setFormData({
-					name: 'expired_at',
+					path: 'expired_at',
 					value: dateOperator(formData?.start_date?.value, 1, 'M'),
 					valid: true,
 				});
@@ -77,7 +79,7 @@ export function VouchersModal({ closeModal, data, handler }: Readonly<PropType>)
 
 			case '3M':
 				setFormData({
-					name: 'expired_at',
+					path: 'expired_at',
 					value: dateOperator(formData?.start_date?.value, 3, 'M'),
 					valid: true,
 				});
@@ -85,7 +87,7 @@ export function VouchersModal({ closeModal, data, handler }: Readonly<PropType>)
 
 			case '1Y':
 				setFormData({
-					name: 'expired_at',
+					path: 'expired_at',
 					value: dateOperator(formData?.start_date?.value, 1, 'y'),
 					valid: true,
 				});
@@ -113,13 +115,13 @@ export function VouchersModal({ closeModal, data, handler }: Readonly<PropType>)
 			action: async () => {
 				try {
 					const submitData: VoucherCreateDto | VoucherUpdateDto = {
-						id: formData.id?.value,
-						student_id: formData.student_id?.value ?? null,
-						discount: formData.discount?.value,
-						is_percentage: formData.is_percentage?.value,
-						start_date: formData.start_date?.value,
-						expired_at: formData.expired_at?.value,
-						used: formData.used?.value,
+						id: formData?.id?.value,
+						student_id: formData?.student_id?.value ?? null,
+						discount: formData?.discount?.value,
+						is_percentage: formData?.is_percentage?.value,
+						start_date: formData?.start_date?.value,
+						expired_at: formData?.expired_at?.value,
+						used: formData?.used?.value,
 					};
 
 					await handler(submitData);
@@ -156,94 +158,99 @@ export function VouchersModal({ closeModal, data, handler }: Readonly<PropType>)
 				closeOnBlur={false}
 				buttons={modalButtons}
 			>
-				<div className={clsx('grid')}>
-					<Row>
-						<TextInput
-							label="Voucher ID"
-							name="id"
-							placeholder="Voucher123"
-							maxLength={50}
-							required
-							locked={!!data}
-						/>
+				<Form
+					formId={EditFormId}
+					defaultValue={data ? formDefaultValueFilled(data) : formDefaultValue()}
+				>
+					<div className={clsx('grid')}>
+						<Row>
+							<TextInput
+								label="Voucher ID"
+								name="id"
+								placeholder="Voucher123"
+								maxLength={50}
+								required
+								locked={!!data}
+							/>
 
-						<SelectInput
-							label="Condition"
-							name="used"
-							placeholder=""
-							options={[
-								{ label: 'Used', value: true },
-								{ label: 'Available', value: false },
-							]}
-							required
-						/>
-					</Row>
+							<SelectInput
+								label="Condition"
+								name="used"
+								placeholder=""
+								options={[
+									{ label: 'Used', value: true },
+									{ label: 'Available', value: false },
+								]}
+								required
+							/>
+						</Row>
 
-					<ComboBox
-						id="student-id"
-						label="For Student"
-						name="student_id"
-						placeholder="Everyone"
-						columns={['id', 'student_name']}
-						options={studentOptions}
-						labelColumn="student_name"
-						valueParser={value => value?.id}
-					/>
-					<span className={GrayInfoText}>
-						If specify student, it can only be used by that student once
-					</span>
-					<br />
-
-					<Row>
-						<SelectInput
-							label="Voucher Type"
-							name="is_percentage"
-							placeholder=""
-							options={[
-								{ label: 'Percentage (%)', value: true },
-								{ label: 'Value (RM)', value: false },
-							]}
-							required
-							locked={!!data}
+						<ComboBox
+							id="student-id"
+							label="For Student"
+							name="student_id"
+							placeholder="Everyone"
+							columns={['id', 'student_name']}
+							options={studentOptions}
+							labelColumn="student_name"
+							valueParser={value => value?.id}
 						/>
+						<span className={GrayInfoText}>
+							If specify student, it can only be used by that student once
+						</span>
+						<br />
 
-						<NumberInput
-							label="Discount"
-							name="discount"
-							prefix={formData?.is_percentage?.value ? null : 'RM'}
-							suffix={formData?.is_percentage?.value ? '%' : null}
-							min={0}
-							max={formData?.is_percentage?.value ? 100 : null}
-							step={0.01}
-							required
-							locked={!!data}
-						/>
-					</Row>
+						<Row>
+							<SelectInput
+								label="Voucher Type"
+								name="is_percentage"
+								placeholder=""
+								options={[
+									{ label: 'Percentage (%)', value: true },
+									{ label: 'Value (RM)', value: false },
+								]}
+								required
+								locked={!!data}
+							/>
 
-					<Separator />
+							<NumberInput
+								label="Discount"
+								name="discount"
+								prefix={formData?.is_percentage?.value ? null : 'RM'}
+								suffix={formData?.is_percentage?.value ? '%' : null}
+								min={0}
+								max={formData?.is_percentage?.value ? 100 : null}
+								step={0.01}
+								required
+								locked={!!data}
+							/>
+						</Row>
 
-					<Row>
-						<DateInput label="Start Date" name="start_date" required />
-						<DateInput
-							label="Expiry Date"
-							name="expired_at"
-							min={formData.start_date?.value}
-							required
-						/>
-						<SelectInput
-							label="Duration"
-							name="duration"
-							placeholder="Custom"
-							options={[
-								{ label: '1 Week', value: '1W' },
-								{ label: '3 Weeks', value: '3W' },
-								{ label: '1 Month', value: '1M' },
-								{ label: '3 Month', value: '3M' },
-								{ label: '1 Year', value: '1Y' },
-							]}
-						/>
-					</Row>
-				</div>
+						<Separator />
+
+						<Row>
+							<DateInput label="Start Date" name="start_date" required />
+							<DateInput
+								label="Expiry Date"
+								name="expired_at"
+								min={formData?.start_date?.value}
+								required
+							/>
+							<SelectInput
+								label="Duration"
+								name="duration"
+								placeholder="Custom"
+								options={[
+									{ label: '1 Week', value: '1W' },
+									{ label: '3 Weeks', value: '3W' },
+									{ label: '1 Month', value: '1M' },
+									{ label: '3 Month', value: '3M' },
+									{ label: '1 Year', value: '1Y' },
+								]}
+							/>
+						</Row>
+					</div>
+				</Form>
 			</Modal>
 
 			{confirmation ? (

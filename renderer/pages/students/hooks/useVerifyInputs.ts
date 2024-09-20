@@ -5,13 +5,14 @@ import {
 	fieldCheckerRequiredValue,
 	fieldCheckerValue,
 } from '../../../utils/field-checker';
+import { GenericSetSingleFormData } from '../../../utils/types/form';
 import { ClassesGetResponse } from '../../../utils/types/responses/classes/get';
 import { verifyEmail, verifyPhoneNumber } from '../../../utils/verifications';
 import { FormDataType } from '../types';
 
 type PropType = {
 	formData: FormDataType;
-	setFormData: (value: { name: string; value?: any; valid?: boolean }) => void;
+	setFormData: GenericSetSingleFormData;
 };
 
 export function useVerifyInputs({ formData, setFormData }: PropType) {
@@ -83,13 +84,13 @@ export function useVerifyInputs({ formData, setFormData }: PropType) {
 		const classChoice = new Set<number>();
 		let classValid = true;
 		for (let i = 0; i < CLASS_COUNT; i++) {
-			const value = formData[`class_${i}`]?.value;
+			const value = formData?.[`class_${i}`]?.value;
 			if (value !== undefined && value !== null) {
-				if (classChoice.has((formData[`class_${i}`]?.value as ClassesGetResponse).id)) {
+				if (classChoice.has((formData?.[`class_${i}`]?.value as ClassesGetResponse).id)) {
 					formData[`class_${i}`].valid = false;
 					classValid = false;
 				} else {
-					classChoice.add((formData[`class_${i}`].value as ClassesGetResponse).id);
+					classChoice.add((formData?.[`class_${i}`].value as ClassesGetResponse).id);
 				}
 			}
 		}

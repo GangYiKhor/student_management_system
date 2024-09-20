@@ -2,7 +2,7 @@ import Head from 'next/head';
 import React, { useState } from 'react';
 import { LastUpdatedAt } from '../../components/last-updated';
 import { Loader } from '../../components/loader';
-import { FormProvider } from '../../components/providers/form-providers';
+import { useFormContextWithId } from '../../components/providers/form-providers';
 import { useNotificationContext } from '../../components/providers/notification-providers';
 import { useCustomQuery } from '../../hooks/use-custom-query';
 import { useGet } from '../../hooks/use-get';
@@ -16,29 +16,26 @@ import { HolidaysGetResponses } from '../../utils/types/responses/holidays/get';
 import { HolidaysModal } from './components/holidays-modal';
 import { HolidaysSearchAdd } from './components/search-add';
 import { HolidaysTable } from './components/table';
-import {
-	BackendPath,
-	PageName,
-	defaultSortString,
-	formDefaultValue,
-	parseGetData,
-	searchDefaultValue,
-} from './constants';
+import { BackendPath, PageName, SearchFormId, defaultSortString, parseGetData } from './constants';
+import { SearchDataType } from './types';
 
 function Holidays() {
 	const { setNotification } = useNotificationContext();
-	const [search, setSearch] = useState<string>(searchDefaultValue.general.value);
-	const [startDate, setStartDate] = useState<Date>(searchDefaultValue.start_date.value);
-	const [endDate, setEndDate] = useState<Date>(searchDefaultValue.end_date.value);
+	const { formData } = useFormContextWithId<SearchDataType>(SearchFormId);
 	const [orderBy, setOrderBy] = useState<string>(defaultSortString);
 	const [toggleModal, setToggleModal] = useState(false);
 
 	const getHolidays = useGet<HolidaysGetDto, HolidaysGetResponses>(BackendPath, parseGetData);
 	const postHoliday = usePost<HolidayCreateDto, void>(BackendPath);
 	const { data, isLoading, dataUpdatedAt, refetch } = useCustomQuery<HolidaysGetResponses>({
-		queryKey: ['holidays'],
-		queryFn: () => getHolidays({ startDate, endDate, orderBy }),
-		fetchOnVariable: [startDate, endDate, orderBy],
+		queryKey: ['holiday-list'],
+		queryFn: () =>
+			getHolidays({
+				startDate: formData?.start_date?.value,
+				endDate: formData?.end_date?.value,
+				orderBy,
+			}),
+		fetchOnVariable: [formData?.start_date?.value, formData?.end_date?.value, orderBy],
 	});
 
 	const handleAdd = async (data: HolidayCreateDto) => {
@@ -55,23 +52,12 @@ function Holidays() {
 			<Layout headerTitle={PageName}>
 				<Loader isLoading={isLoading}>
 					<div className={ContentContainer}>
-						<FormProvider defaultValue={searchDefaultValue}>
-							<HolidaysSearchAdd
-								setSearch={setSearch}
-								setStartDate={setStartDate}
-								setEndDate={setEndDate}
-								setToggleModal={setToggleModal}
-							/>
-						</FormProvider>
-
-						<HolidaysTable data={data} search={search} refetch={refetch} setOrderBy={setOrderBy} />
-
+						<HolidaysSearchAdd setToggleModal={setToggleModal} />
+						<HolidaysTable data={data} refetch={refetch} setOrderBy={setOrderBy} />
 						<LastUpdatedAt lastUpdatedAt={dataUpdatedAt} refetch={refetch} />
 
 						{toggleModal ? (
-							<FormProvider defaultValue={formDefaultValue()}>
-								<HolidaysModal closeModal={() => setToggleModal(false)} handler={handleAdd} />
-							</FormProvider>
+							<HolidaysModal closeModal={() => setToggleModal(false)} handler={handleAdd} />
 						) : null}
 					</div>
 				</Loader>

@@ -24,6 +24,10 @@ export const DAY = {
 	6: 'Saturday',
 	7: 'Sunday',
 };
+export const DAY_OPTIONS = Object.entries(DAY).map(value => ({
+	value: parseInt(value[0]),
+	label: value[1],
+}));
 export const MONTH = {
 	0: 'January',
 	1: 'February',
@@ -53,7 +57,7 @@ export const MONTH_SHORT = {
 	11: 'Dec',
 };
 export const MONTH_OPTIONS = Object.entries(MONTH).map(value => ({
-	value: value[0],
+	value: parseInt(value[0]),
 	label: value[1],
 }));
 

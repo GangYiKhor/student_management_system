@@ -1,7 +1,7 @@
 import { QueryObserverResult } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
 import React, { useEffect, useState } from 'react';
-import { FormProvider } from '../../../components/providers/form-providers';
+import { useFormContextWithId } from '../../../components/providers/form-providers';
 import { TableColumnType, TableTemplate } from '../../../components/tables/table-template';
 import { usePost } from '../../../hooks/use-post';
 import { DAY } from '../../../utils/constants/constants';
@@ -18,8 +18,8 @@ import {
 	ClassesGetResponses,
 } from '../../../utils/types/responses/classes/get';
 import { ErrorResponse } from '../../../utils/types/responses/error';
-import { BackendPath, defaultSort, formDefaultValueFilled } from '../constants';
-import { EditData } from '../types';
+import { BackendPath, defaultSort, SearchFormId } from '../constants';
+import { EditData, SearchDataType } from '../types';
 import { ClassesModal } from './classes-modal';
 
 const getStatus = (start_date: Date, end_date: Date) => {
@@ -88,12 +88,12 @@ const columns: TableColumnType<ClassesGetResponse>[] = [
 
 type PropType = {
 	data: ClassesGetResponses;
-	search?: string;
 	refetch: () => Promise<QueryObserverResult<ClassesGetResponses, AxiosError<ErrorResponse, any>>>;
 	setOrderBy: (value: string) => void;
 };
 
-export function ClassTable({ data, search, refetch, setOrderBy }: Readonly<PropType>) {
+export function ClassTable({ data, refetch, setOrderBy }: Readonly<PropType>) {
+	const { formData } = useFormContextWithId<SearchDataType>(SearchFormId);
 	const [tableData, setTableData] = useState<ClassesGetResponses>([]);
 	const [selected, setSelected] = useState<EditData>(undefined);
 	const postClass = usePost<ClassUpdateDto, void>(BackendPath);
@@ -109,8 +109,8 @@ export function ClassTable({ data, search, refetch, setOrderBy }: Readonly<PropT
 
 	useEffect(() => {
 		let filteredData = data;
+		const search = formData?.general?.value?.trim().toLowerCase();
 		if (search) {
-			search = search.trim().toLowerCase();
 			filteredData = filteredData.filter(
 				value =>
 					'#' + value.id === search ||
@@ -121,7 +121,7 @@ export function ClassTable({ data, search, refetch, setOrderBy }: Readonly<PropT
 		}
 
 		setTableData(filteredData);
-	}, [data, search]);
+	}, [data, formData?.general?.value]);
 
 	return (
 		<React.Fragment>
@@ -134,13 +134,11 @@ export function ClassTable({ data, search, refetch, setOrderBy }: Readonly<PropT
 			/>
 
 			{selected ? (
-				<FormProvider defaultValue={formDefaultValueFilled(selected)}>
-					<ClassesModal
-						closeModal={() => setSelected(undefined)}
-						handler={handleUpdate}
-						data={selected}
-					/>
-				</FormProvider>
+				<ClassesModal
+					closeModal={() => setSelected(undefined)}
+					handler={handleUpdate}
+					data={selected}
+				/>
 			) : null}
 		</React.Fragment>
 	);

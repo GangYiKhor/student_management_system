@@ -1,10 +1,10 @@
 import { QueryObserverResult } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
 import React, { useEffect, useState } from 'react';
-import { FormProvider } from '../../../components/providers/form-providers';
+import { useFormContextWithId } from '../../../components/providers/form-providers';
 import { TableColumnType, TableTemplate } from '../../../components/tables/table-template';
 import { usePost } from '../../../hooks/use-post';
-import { dateFormatter } from '../../../utils/dateOperations';
+import { dateFormatter, getToday, isSameDayOrAfter } from '../../../utils/dateOperations';
 import { GreenBoldText, RedBoldText } from '../../../utils/tailwindClass/text';
 import { VoucherUpdateDto } from '../../../utils/types/dtos/vouchers/update';
 import { ErrorResponse } from '../../../utils/types/responses/error';
@@ -12,8 +12,8 @@ import {
 	VouchersGetResponse,
 	VouchersGetResponses,
 } from '../../../utils/types/responses/vouchers/get';
-import { BackendPath, defaultSort, formDefaultValueFilled } from '../constants';
-import { EditData } from '../types';
+import { BackendPath, defaultSort, SearchFormId } from '../constants';
+import { EditData, SearchDataType } from '../types';
 import { VouchersModal } from './vouchers-modal';
 
 const columns: TableColumnType<VouchersGetResponse>[] = [
@@ -24,7 +24,7 @@ const columns: TableColumnType<VouchersGetResponse>[] = [
 		valueParser: value => value?.student?.student_name || 'Everyone',
 	},
 	{
-		title: 'discount',
+		title: 'Discount',
 		columnName: 'discount',
 		valueParser: value => {
 			if (value.is_percentage) {
@@ -35,21 +35,31 @@ const columns: TableColumnType<VouchersGetResponse>[] = [
 		},
 	},
 	{
-		title: 'start_date',
+		title: 'Start Date',
 		columnName: 'start_date',
 		valueParser: value => dateFormatter(value?.start_date),
 	},
 	{
-		title: 'expired_at',
+		title: 'Expired At',
 		columnName: 'expired_at',
 		valueParser: value => dateFormatter(value?.expired_at),
 	},
 	{
-		title: 'used',
+		title: 'Status',
 		columnName: 'used',
 		valueParser: value => (
-			<span className={value.used ? RedBoldText : GreenBoldText}>
-				{value.used ? 'Used' : 'Unused'}
+			<span
+				className={
+					value?.used || !isSameDayOrAfter(value?.expired_at, getToday())
+						? RedBoldText
+						: GreenBoldText
+				}
+			>
+				{value?.used
+					? 'Used'
+					: !isSameDayOrAfter(value?.expired_at, getToday())
+						? 'Expired'
+						: 'Unused'}
 			</span>
 		),
 	},
@@ -57,12 +67,12 @@ const columns: TableColumnType<VouchersGetResponse>[] = [
 
 type PropType = {
 	data: VouchersGetResponses;
-	search?: string;
 	refetch: () => Promise<QueryObserverResult<VouchersGetResponses, AxiosError<ErrorResponse, any>>>;
 	setOrderBy: (value: string) => void;
 };
 
-export function VoucherTable({ data, search, refetch, setOrderBy }: Readonly<PropType>) {
+export function VoucherTable({ data, refetch, setOrderBy }: Readonly<PropType>) {
+	const { formData } = useFormContextWithId<SearchDataType>(SearchFormId);
 	const [tableData, setTableData] = useState<VouchersGetResponses>([]);
 	const [selected, setSelected] = useState<EditData>(undefined);
 	const postVoucher = usePost<VoucherUpdateDto, void>(BackendPath);
@@ -78,8 +88,8 @@ export function VoucherTable({ data, search, refetch, setOrderBy }: Readonly<Pro
 
 	useEffect(() => {
 		let filteredData = data;
+		const search = formData?.general?.value?.trim().toLowerCase();
 		if (search) {
-			search = search.trim().toLowerCase();
 			filteredData = filteredData.filter(
 				value =>
 					'#' + value.id.toLowerCase() === search ||
@@ -88,7 +98,7 @@ export function VoucherTable({ data, search, refetch, setOrderBy }: Readonly<Pro
 		}
 
 		setTableData(filteredData);
-	}, [data, search]);
+	}, [data, formData?.general?.value]);
 
 	return (
 		<React.Fragment>
@@ -101,13 +111,11 @@ export function VoucherTable({ data, search, refetch, setOrderBy }: Readonly<Pro
 			/>
 
 			{selected ? (
-				<FormProvider defaultValue={formDefaultValueFilled(selected)}>
-					<VouchersModal
-						closeModal={() => setSelected(undefined)}
-						handler={handleUpdate}
-						data={selected}
-					/>
-				</FormProvider>
+				<VouchersModal
+					closeModal={() => setSelected(undefined)}
+					handler={handleUpdate}
+					data={selected}
+				/>
 			) : null}
 		</React.Fragment>
 	);

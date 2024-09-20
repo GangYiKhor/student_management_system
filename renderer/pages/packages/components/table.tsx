@@ -1,7 +1,7 @@
 import { QueryObserverResult } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
 import React, { useEffect, useState } from 'react';
-import { FormProvider } from '../../../components/providers/form-providers';
+import { useFormContextWithId } from '../../../components/providers/form-providers';
 import { TableColumnType, TableTemplate } from '../../../components/tables/table-template';
 import { usePost } from '../../../hooks/use-post';
 import {
@@ -17,8 +17,8 @@ import {
 	PackagesGetResponse,
 	PackagesGetResponses,
 } from '../../../utils/types/responses/packages/get';
-import { BackendPath, defaultSort, formDefaultValueFilled } from '../constants';
-import { EditData } from '../types';
+import { BackendPath, defaultSort, SearchFormId } from '../constants';
+import { EditData, SearchDataType } from '../types';
 import { PackagesModal } from './packages-modal';
 
 const getActiveCssClass = (start_date: Date, end_date: Date) => {
@@ -74,12 +74,12 @@ const columns: TableColumnType<PackagesGetResponse>[] = [
 
 type PropType = {
 	data: PackagesGetResponses;
-	search?: string;
 	refetch: () => Promise<QueryObserverResult<PackagesGetResponses, AxiosError<ErrorResponse, any>>>;
 	setOrderBy: (value: string) => void;
 };
 
-export function PackagesTable({ data, search, refetch, setOrderBy }: Readonly<PropType>) {
+export function PackagesTable({ data, refetch, setOrderBy }: Readonly<PropType>) {
+	const { formData } = useFormContextWithId<SearchDataType>(SearchFormId);
 	const [tableData, setTableData] = useState<PackagesGetResponses>([]);
 	const [selected, setSelected] = useState<EditData>(undefined);
 	const postPackage = usePost<PackageUpdateDto, void>(BackendPath);
@@ -95,8 +95,8 @@ export function PackagesTable({ data, search, refetch, setOrderBy }: Readonly<Pr
 
 	useEffect(() => {
 		let filteredData = data;
+		const search = formData?.general?.value?.trim().toLowerCase();
 		if (search) {
-			search = search.trim().toLowerCase();
 			filteredData = filteredData.filter(
 				value =>
 					'#' + value.id === search ||
@@ -107,7 +107,7 @@ export function PackagesTable({ data, search, refetch, setOrderBy }: Readonly<Pr
 		}
 
 		setTableData(filteredData);
-	}, [data, search]);
+	}, [data, formData?.general?.value]);
 
 	return (
 		<React.Fragment>
@@ -120,13 +120,11 @@ export function PackagesTable({ data, search, refetch, setOrderBy }: Readonly<Pr
 			/>
 
 			{selected ? (
-				<FormProvider defaultValue={formDefaultValueFilled(selected)}>
-					<PackagesModal
-						closeModal={() => setSelected(undefined)}
-						handler={handleUpdate}
-						data={selected}
-					/>
-				</FormProvider>
+				<PackagesModal
+					closeModal={() => setSelected(undefined)}
+					handler={handleUpdate}
+					data={selected}
+				/>
 			) : null}
 		</React.Fragment>
 	);

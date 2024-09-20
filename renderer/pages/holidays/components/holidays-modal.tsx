@@ -1,9 +1,10 @@
 import clsx from 'clsx';
 import React, { useState } from 'react';
 import { DateInput } from '../../../components/inputs/date-input';
+import { Form } from '../../../components/inputs/form';
 import { TextInput } from '../../../components/inputs/text-input';
 import Modal, { ModalButtons } from '../../../components/modal';
-import { useFormContext } from '../../../components/providers/form-providers';
+import { useFormContextWithId } from '../../../components/providers/form-providers';
 import {
 	GrayButtonClass,
 	GreenButtonClass,
@@ -11,6 +12,7 @@ import {
 } from '../../../utils/tailwindClass/button';
 import { HolidayCreateDto } from '../../../utils/types/dtos/holidays/create';
 import { HolidayUpdateDto } from '../../../utils/types/dtos/holidays/update';
+import { EditFormId, formDefaultValue, formDefaultValueFilled } from '../constants';
 import { useIsDirty } from '../hooks/useIsDirty';
 import { useVerifyInputs } from '../hooks/useVerifyInputs';
 import { EditData, FormDataType } from '../types';
@@ -22,7 +24,7 @@ type PropType = {
 };
 
 export function HolidaysModal({ closeModal, data, handler }: Readonly<PropType>) {
-	const { formData, setFormData } = useFormContext<FormDataType>();
+	const { formData, setFormData } = useFormContextWithId<FormDataType>(EditFormId);
 	const [confirmation, setConfirmation] = useState(false);
 	const [closeConfirmation, setCloseConfirmation] = useState(false);
 
@@ -49,8 +51,8 @@ export function HolidaysModal({ closeModal, data, handler }: Readonly<PropType>)
 			action: async () => {
 				try {
 					const submitData: HolidayCreateDto | HolidayUpdateDto = {
-						date: formData.date.value,
-						description: formData.description.value,
+						date: formData?.date.value,
+						description: formData?.description.value,
 					};
 
 					await handler(submitData);
@@ -87,17 +89,22 @@ export function HolidaysModal({ closeModal, data, handler }: Readonly<PropType>)
 				closeOnBlur={false}
 				buttons={modalButtons}
 			>
-				<div className={clsx('grid')}>
-					<DateInput label="Date" name="date" required />
+				<Form
+					formId={EditFormId}
+					defaultValue={data ? formDefaultValueFilled(data) : formDefaultValue()}
+				>
+					<div className={clsx('grid')}>
+						<DateInput label="Date" name="date" required />
 
-					<TextInput
-						label="Description"
-						name="description"
-						placeholder="E.g. Labour Day"
-						maxLength={100}
-						required
-					/>
-				</div>
+						<TextInput
+							label="Description"
+							name="description"
+							placeholder="E.g. Labour Day"
+							maxLength={100}
+							required
+						/>
+					</div>
+				</Form>
 			</Modal>
 
 			{confirmation ? (

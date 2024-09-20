@@ -2,7 +2,7 @@ import { QueryObserverResult } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
 import clsx from 'clsx';
 import React, { useEffect, useState } from 'react';
-import { FormProvider } from '../../../components/providers/form-providers';
+import { useFormContextWithId } from '../../../components/providers/form-providers';
 import { TableColumnType, TableTemplate } from '../../../components/tables/table-template';
 import { usePost } from '../../../hooks/use-post';
 import { GreenButtonClass, RedButtonClass } from '../../../utils/tailwindClass/button';
@@ -13,8 +13,8 @@ import {
 	StudentFormsGetResponse,
 	StudentFormsGetResponses,
 } from '../../../utils/types/responses/student-forms/get';
-import { BackendPath, defaultSort, formDefaultValueFilled } from '../constants';
-import { EditData } from '../types';
+import { BackendPath, defaultSort, SearchFormId } from '../constants';
+import { EditData, SearchDataType } from '../types';
 import { StudentFormsModal } from './student-forms-modal';
 
 const columns = (handleAction: CallableFunction): TableColumnType<StudentFormsGetResponse>[] => {
@@ -50,8 +50,6 @@ const columns = (handleAction: CallableFunction): TableColumnType<StudentFormsGe
 
 type PropType = {
 	data: StudentFormsGetResponses;
-	search?: string;
-	status?: boolean;
 	refetch: () => Promise<
 		QueryObserverResult<StudentFormsGetResponses, AxiosError<ErrorResponse, any>>
 	>;
@@ -59,14 +57,8 @@ type PropType = {
 	setOrderBy: (value: string) => void;
 };
 
-export function StudentFormsTable({
-	data,
-	search,
-	status,
-	refetch,
-	handler,
-	setOrderBy,
-}: Readonly<PropType>) {
+export function StudentFormsTable({ data, refetch, handler, setOrderBy }: Readonly<PropType>) {
+	const { formData } = useFormContextWithId<SearchDataType>(SearchFormId);
 	const [tableData, setTableData] = useState<StudentFormsGetResponses>([]);
 	const [selected, setSelected] = useState<EditData>(undefined);
 	const postForm = usePost<StudentFormUpdateDto, void>(BackendPath);
@@ -90,19 +82,20 @@ export function StudentFormsTable({
 
 	useEffect(() => {
 		let filteredData = data;
-		if (search?.trim()) {
-			search = search.trim().toLowerCase();
+		const search = formData?.general?.value?.trim().toLowerCase();
+		if (search) {
 			filteredData = filteredData.filter(
 				value => '#' + value.id === search || value.form_name?.toLowerCase().includes(search),
 			);
 		}
 
+		const status = formData?.status?.value;
 		if (status !== undefined) {
 			filteredData = filteredData.filter(value => value.is_active === status);
 		}
 
 		setTableData(filteredData);
-	}, [data, search, status]);
+	}, [data, formData?.general?.value, formData?.status?.value]);
 
 	return (
 		<React.Fragment>
@@ -115,14 +108,12 @@ export function StudentFormsTable({
 			/>
 
 			{selected ? (
-				<FormProvider defaultValue={formDefaultValueFilled(selected)}>
-					<StudentFormsModal
-						closeModal={() => setSelected(undefined)}
-						handler={handleUpdate}
-						handleActivate={handleActivate}
-						data={selected}
-					/>
-				</FormProvider>
+				<StudentFormsModal
+					closeModal={() => setSelected(undefined)}
+					handler={handleUpdate}
+					handleActivate={handleActivate}
+					data={selected}
+				/>
 			) : null}
 		</React.Fragment>
 	);

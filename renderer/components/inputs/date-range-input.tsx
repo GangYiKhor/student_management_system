@@ -19,8 +19,8 @@ import { ContainerFlexRowGrow } from '../../utils/tailwindClass/containers';
 import { TextBoxClass } from '../../utils/tailwindClass/inputs';
 import { GrayText } from '../../utils/tailwindClass/text';
 import { CloseButtonIcon } from '../close-button-icon';
-import { useFormContext } from '../providers/form-providers';
 import { RequiredIcon } from '../required';
+import { useFormHandlerContext } from './form';
 
 const containerClass = clsx(ContainerFlexRowGrow, 'gap-2', 'items-center');
 
@@ -119,7 +119,7 @@ export function DateRangeInput({
 	required,
 	locked,
 }: Readonly<PropType>) {
-	const { formData, setFormData } = useFormContext();
+	const { formData, setFormData } = useFormHandlerContext();
 	const [showDatePicker, setShowDatePicker] = useState(false);
 	const [startDate, setStartDate] = useState<Date>(null);
 	const [endDate, setEndDate] = useState<Date>(null);
@@ -133,11 +133,11 @@ export function DateRangeInput({
 
 		const updateStart = () => {
 			setStartDate(value);
-			setFormData({ name: startName, value });
+			setFormData({ path: startName, value });
 		};
 		const updateEnd = () => {
 			setEndDate(value);
-			setFormData({ name: endName, value });
+			setFormData({ path: endName, value });
 		};
 
 		if (!startDate) {
@@ -152,8 +152,8 @@ export function DateRangeInput({
 	const onClear = () => {
 		setStartDate(null);
 		setEndDate(null);
-		setFormData({ name: startName, value: null });
-		setFormData({ name: endName, value: null });
+		setFormData({ path: startName, value: null });
+		setFormData({ path: endName, value: null });
 	};
 
 	const onClose = () => {

@@ -1,7 +1,7 @@
 import { QueryObserverResult } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
 import React, { useEffect, useState } from 'react';
-import { FormProvider } from '../../../components/providers/form-providers';
+import { useFormContextWithId } from '../../../components/providers/form-providers';
 import { TableColumnType, TableTemplate } from '../../../components/tables/table-template';
 import { usePost } from '../../../hooks/use-post';
 import { getToday } from '../../../utils/dateOperations';
@@ -12,8 +12,8 @@ import {
 	TeachersGetResponse,
 	TeachersGetResponses,
 } from '../../../utils/types/responses/teachers/get';
-import { BackendPath, defaultSort, formDefaultValueFilled } from '../constants';
-import { EditData } from '../types';
+import { BackendPath, defaultSort, SearchFormId } from '../constants';
+import { EditData, SearchDataType } from '../types';
 import { TeachersModal } from './teachers-modal';
 
 const columns: TableColumnType<TeachersGetResponse>[] = [
@@ -32,12 +32,12 @@ const columns: TableColumnType<TeachersGetResponse>[] = [
 
 type PropType = {
 	data: TeachersGetResponses;
-	search?: string;
 	refetch: () => Promise<QueryObserverResult<TeachersGetResponses, AxiosError<ErrorResponse, any>>>;
 	setOrderBy: (value: string) => void;
 };
 
-export function TeachersTable({ data, search, refetch, setOrderBy }: Readonly<PropType>) {
+export function TeachersTable({ data, refetch, setOrderBy }: Readonly<PropType>) {
+	const { formData } = useFormContextWithId<SearchDataType>(SearchFormId);
 	const [tableData, setTableData] = useState<TeachersGetResponses>([]);
 	const [selected, setSelected] = useState<EditData>(undefined);
 	const postTeacher = usePost<TeacherUpdateDto, void>(BackendPath);
@@ -62,8 +62,8 @@ export function TeachersTable({ data, search, refetch, setOrderBy }: Readonly<Pr
 
 	useEffect(() => {
 		let filteredData = data;
+		const search = formData?.general?.value?.trim().toLowerCase();
 		if (search) {
-			search = search.trim().toLowerCase();
 			filteredData = filteredData.filter(
 				value =>
 					'#' + value.id === search ||
@@ -76,7 +76,7 @@ export function TeachersTable({ data, search, refetch, setOrderBy }: Readonly<Pr
 		}
 
 		setTableData(filteredData);
-	}, [data, search]);
+	}, [data, formData?.general?.value]);
 
 	return (
 		<React.Fragment>
@@ -89,14 +89,12 @@ export function TeachersTable({ data, search, refetch, setOrderBy }: Readonly<Pr
 			/>
 
 			{selected ? (
-				<FormProvider defaultValue={formDefaultValueFilled(selected)}>
-					<TeachersModal
-						closeModal={() => setSelected(undefined)}
-						handler={handleUpdate}
-						handleActivate={handleActivate}
-						data={selected}
-					/>
-				</FormProvider>
+				<TeachersModal
+					closeModal={() => setSelected(undefined)}
+					handler={handleUpdate}
+					handleActivate={handleActivate}
+					data={selected}
+				/>
 			) : null}
 		</React.Fragment>
 	);

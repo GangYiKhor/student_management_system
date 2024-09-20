@@ -1,21 +1,16 @@
-import { useEffect } from 'react';
-import { useFormContext } from '../../../components/providers/form-providers';
+import { Form } from '../../../components/inputs/form';
 import { SearchBar } from '../../../components/search-bar';
 import { GeneralSearch } from '../../../components/searches/general-search';
 import { StatusSearch } from '../../../components/searches/status-search';
 import { BlueButtonClass } from '../../../utils/tailwindClass/button';
 import { SearchBarButtons } from '../../../utils/types/search-bar-button';
-import { SearchDataType } from '../types';
+import { searchDefaultValue, SearchFormId } from '../constants';
 
 type PropType = {
-	setSearch: (value: string) => void;
-	setIsActive: (value: boolean) => void;
 	setToggleModal: (value: boolean) => void;
 };
 
-export function TeachersSearchAdd({ setSearch, setIsActive, setToggleModal }: Readonly<PropType>) {
-	const { formData } = useFormContext<SearchDataType>();
-
+export function TeachersSearchAdd({ setToggleModal }: Readonly<PropType>) {
 	const buttons: SearchBarButtons = [
 		{
 			text: 'Register',
@@ -24,18 +19,12 @@ export function TeachersSearchAdd({ setSearch, setIsActive, setToggleModal }: Re
 		},
 	];
 
-	useEffect(() => {
-		setSearch(formData.general?.value);
-	}, [formData.general?.value]);
-
-	useEffect(() => {
-		setIsActive(formData.status?.value);
-	}, [formData.status?.value]);
-
 	return (
 		<SearchBar buttons={buttons}>
-			<GeneralSearch />
-			<StatusSearch />
+			<Form formId={SearchFormId} defaultValue={searchDefaultValue()}>
+				<GeneralSearch />
+				<StatusSearch />
+			</Form>
 		</SearchBar>
 	);
 }

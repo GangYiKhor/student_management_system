@@ -1,10 +1,11 @@
 import clsx from 'clsx';
 import React, { useState } from 'react';
 import { DateInput } from '../../../components/inputs/date-input';
+import { Form } from '../../../components/inputs/form';
 import { NumberInput } from '../../../components/inputs/number-input';
 import { SelectInput } from '../../../components/inputs/select-input';
 import Modal, { ModalButtons } from '../../../components/modal';
-import { useFormContext } from '../../../components/providers/form-providers';
+import { useFormContextWithId } from '../../../components/providers/form-providers';
 import Row from '../../../components/row';
 import Separator from '../../../components/separator';
 import {
@@ -14,6 +15,7 @@ import {
 } from '../../../utils/tailwindClass/button';
 import { TaxCreateDto } from '../../../utils/types/dtos/taxes/create';
 import { TaxUpdateDto } from '../../../utils/types/dtos/taxes/update';
+import { EditFormId, formDefaultValue, formDefaultValueFilled } from '../constants';
 import { useIsDirty } from '../hooks/useIsDirty';
 import { useVerifyInputs } from '../hooks/useVerifyInputs';
 import { EditData, FormDataType } from '../types';
@@ -25,7 +27,7 @@ type PropType = {
 };
 
 export function TaxesModal({ closeModal, data, handler }: Readonly<PropType>) {
-	const { formData, setFormData } = useFormContext<FormDataType>();
+	const { formData, setFormData } = useFormContextWithId<FormDataType>(EditFormId);
 	const [confirmation, setConfirmation] = useState(false);
 	const [closeConfirmation, setCloseConfirmation] = useState(false);
 
@@ -52,10 +54,10 @@ export function TaxesModal({ closeModal, data, handler }: Readonly<PropType>) {
 			action: async () => {
 				try {
 					const submitData: TaxCreateDto | TaxUpdateDto = {
-						percentage: formData.percentage?.value,
-						start_date: formData.start_date?.value,
-						end_date: formData.end_date?.value ?? null,
-						inclusive: formData.inclusive?.value,
+						percentage: formData?.percentage?.value,
+						start_date: formData?.start_date?.value,
+						end_date: formData?.end_date?.value ?? null,
+						inclusive: formData?.inclusive?.value,
 					};
 
 					await handler(submitData);
@@ -92,36 +94,41 @@ export function TaxesModal({ closeModal, data, handler }: Readonly<PropType>) {
 				closeOnBlur={false}
 				buttons={modalButtons}
 			>
-				<div className={clsx('grid')}>
-					<Row>
-						<NumberInput
-							label="Percentage"
-							name="percentage"
-							suffix="%"
-							min={0}
-							step={0.01}
-							required
-						/>
+				<Form
+					formId={EditFormId}
+					defaultValue={data ? formDefaultValueFilled(data) : formDefaultValue()}
+				>
+					<div className={clsx('grid')}>
+						<Row>
+							<NumberInput
+								label="Percentage"
+								name="percentage"
+								suffix="%"
+								min={0}
+								step={0.01}
+								required
+							/>
 
-						<SelectInput
-							label="Inclusive"
-							name="inclusive"
-							placeholder="Select a status"
-							options={[
-								{ value: true, label: 'Yes' },
-								{ value: false, label: 'No' },
-							]}
-							required
-						/>
-					</Row>
+							<SelectInput
+								label="Inclusive"
+								name="inclusive"
+								placeholder="Select a status"
+								options={[
+									{ value: true, label: 'Yes' },
+									{ value: false, label: 'No' },
+								]}
+								required
+							/>
+						</Row>
 
-					<Separator />
+						<Separator />
 
-					<Row>
-						<DateInput label="Start Date" name="start_date" required />
-						<DateInput label="End Date" name="end_date" min={formData.start_date?.value} />
-					</Row>
-				</div>
+						<Row>
+							<DateInput label="Start Date" name="start_date" required />
+							<DateInput label="End Date" name="end_date" min={formData?.start_date?.value} />
+						</Row>
+					</div>
+				</Form>
 			</Modal>
 
 			{confirmation ? (

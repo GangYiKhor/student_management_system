@@ -1,13 +1,14 @@
 import clsx from 'clsx';
 import React, { useEffect, useState } from 'react';
 import { DateInput } from '../../../components/inputs/date-input';
+import { Form } from '../../../components/inputs/form';
 import { NumberInput } from '../../../components/inputs/number-input';
 import { SelectClass } from '../../../components/inputs/select-class';
 import { SelectInput } from '../../../components/inputs/select-input';
 import { TextInput } from '../../../components/inputs/text-input';
 import { TextAreaInput } from '../../../components/inputs/textarea-input';
 import Modal, { ModalButtons } from '../../../components/modal';
-import { useFormContext } from '../../../components/providers/form-providers';
+import { useFormContextWithId } from '../../../components/providers/form-providers';
 import { useNotificationContext } from '../../../components/providers/notification-providers';
 import Row from '../../../components/row';
 import { Section } from '../../../components/section';
@@ -45,7 +46,12 @@ import { PackagesGetResponses } from '../../../utils/types/responses/packages/ge
 import { StudentClassesGetResponses } from '../../../utils/types/responses/student-classes/get';
 import { StudentCreateResponse } from '../../../utils/types/responses/students/create';
 import { StudentUpdateResponse } from '../../../utils/types/responses/students/update';
-import { parseGetStudentClassData } from '../constants';
+import {
+	EditFormId,
+	formDefaultValue,
+	formDefaultValueFilled,
+	parseGetStudentClassData,
+} from '../constants';
 import { useIsDirty } from '../hooks/useIsDirty';
 import { useVerifyInputs } from '../hooks/useVerifyInputs';
 import { EditData, FormDataType } from '../types';
@@ -69,7 +75,7 @@ type PropType = {
 };
 
 export function StudentsModal({ closeModal, data, handler, handleActivate }: Readonly<PropType>) {
-	const { formData, setFormData } = useFormContext<FormDataType>();
+	const { formData, setFormData } = useFormContextWithId<FormDataType>(EditFormId);
 	const [confirmation, setConfirmation] = useState<boolean>(false);
 	const [packageCount, setPackageCount] = useState<number>();
 	const [allFees, setAllFees] = useState<number>(0);
@@ -103,10 +109,10 @@ export function StudentsModal({ closeModal, data, handler, handleActivate }: Rea
 	});
 
 	const { data: classOptions } = useCustomQuery<ClassesGetResponses>({
-		queryKey: ['classes'],
+		queryKey: ['classes-options'],
 		queryFn: () =>
 			getClass({
-				form_id: tryParseInt(formData?.form_id?.value),
+				form_id: tryParseInt(formData?.form_id?.value, -1),
 				is_active: true,
 				orderBy: 'class_name asc',
 			}),
@@ -115,7 +121,7 @@ export function StudentsModal({ closeModal, data, handler, handleActivate }: Rea
 
 	useEffect(() => {
 		for (let i = 0; i < CLASS_COUNT; i++) {
-			setFormData({ name: `class_${i}`, value: null, valid: true });
+			setFormData({ path: `class_${i}`, value: null, valid: true });
 		}
 	}, [formData?.form_id?.value]);
 
@@ -134,19 +140,19 @@ export function StudentsModal({ closeModal, data, handler, handleActivate }: Rea
 	useEffect(() => {
 		if (classData) {
 			for (let i = 0; i < CLASS_COUNT; i++) {
-				setFormData({ name: `class_${i}`, value: classData[i]?.class ?? null, valid: true });
+				setFormData({ path: `class_${i}`, value: classData[i]?.class ?? null, valid: true });
 			}
 		}
 	}, [classData]);
 
 	useEffect(() => {
 		setPackageCount(getPackageCount(formData));
-	}, [formData]);
+	}, [JSON.stringify(formData)]);
 
 	useEffect(() => {
 		setAllFees(getAllFees(formData));
 		setAllFeesDiscounted(getAllFeesDiscounted(formData, packageData?.[0]));
-	}, [formData, packageData]);
+	}, [JSON.stringify(formData), packageData]);
 
 	const modalButtons: ModalButtons = [
 		{
@@ -176,22 +182,22 @@ export function StudentsModal({ closeModal, data, handler, handleActivate }: Rea
 			action: async () => {
 				try {
 					const submitData: StudentCreateDto | StudentUpdateDto = {
-						student_name: formData.student_name?.value?.trim() || '',
-						form_id: formData.form_id?.value,
-						reg_date: formData.reg_date?.value,
-						reg_year: formData.reg_year?.value,
-						gender: formData.gender?.value?.trim() || '',
-						ic: formData.ic?.value?.trim() || '',
-						school: formData.school?.value?.trim() || '',
-						phone_number: formData.phone_number?.value?.trim() || '',
-						parent_phone_number: formData.parent_phone_number?.value?.trim() || '',
-						email: formData.email?.value?.trim() || '',
-						address: formData.address?.value?.trim() || '',
+						student_name: formData?.student_name?.value?.trim() || '',
+						form_id: formData?.form_id?.value,
+						reg_date: formData?.reg_date?.value,
+						reg_year: formData?.reg_year?.value,
+						gender: formData?.gender?.value?.trim() || '',
+						ic: formData?.ic?.value?.trim() || '',
+						school: formData?.school?.value?.trim() || '',
+						phone_number: formData?.phone_number?.value?.trim() || '',
+						parent_phone_number: formData?.parent_phone_number?.value?.trim() || '',
+						email: formData?.email?.value?.trim() || '',
+						address: formData?.address?.value?.trim() || '',
 					};
 
 					const classIds: number[] = [];
 					for (let i = 0; i < CLASS_COUNT; i++) {
-						classIds.push((formData[`class_${i}`]?.value as ClassesGetResponse)?.id);
+						classIds.push((formData?.[`class_${i}`]?.value as ClassesGetResponse)?.id);
 					}
 
 					const result = await handler(submitData, classIds);
@@ -241,119 +247,123 @@ export function StudentsModal({ closeModal, data, handler, handleActivate }: Rea
 				closeOnBlur={false}
 				buttons={modalButtons}
 			>
-				<div className={clsx('grid')}>
-					<TextInput label="Name" name="student_name" maxLength={200} required />
-
-					<Row>
-						<SelectInput
-							label="Form"
-							name="form_id"
-							queryFn={() => getForms({ is_active: true, orderBy: 'form_name asc' })}
-							required
-						/>
-
-						<DateInput label="Reg Date" name="reg_date" required />
-
-						<NumberInput
-							label="Academic Year"
-							name="reg_year"
-							min={2000}
-							max={2200}
-							step={1}
-							required
-						/>
-					</Row>
-
-					<Section title="Student Details" hideable defaultHide={!!passedData}>
-						<SelectInput
-							label="Gender"
-							name="gender"
-							placeholder="Not Specified"
-							options={[
-								{ value: 'male', label: 'Male' },
-								{ value: 'female', label: 'Female' },
-							]}
-						/>
+				<Form
+					formId={EditFormId}
+					defaultValue={data ? formDefaultValueFilled(data) : formDefaultValue()}
+				>
+					<div className={clsx('grid')}>
+						<TextInput label="Name" name="student_name" maxLength={200} required />
 
 						<Row>
-							<TextInput
-								label="IC"
-								name="ic"
-								placeholder="010203070809"
-								maxLength={20}
-								onBlurFormat={icFormat}
-								onFocusFormat={icFormatRevert}
+							<SelectInput
+								label="Form"
+								name="form_id"
+								queryFn={() => getForms({ is_active: true, orderBy: 'form_name asc' })}
+								required
 							/>
 
-							<TextInput label="School" name="school" maxLength={200} />
-						</Row>
+							<DateInput label="Reg Date" name="reg_date" required />
 
-						<Row>
-							<TextInput
-								label="Phone Number"
-								name="phone_number"
-								placeholder="0123456789"
-								maxLength={20}
-								onBlurFormat={phoneNumberFormat}
-								onFocusFormat={phoneNumberFormatRevert}
-							/>
-
-							<TextInput
-								label="Parent H/P"
-								name="parent_phone_number"
-								placeholder="0123456789"
-								maxLength={20}
-								onBlurFormat={phoneNumberFormat}
-								onFocusFormat={phoneNumberFormatRevert}
+							<NumberInput
+								label="Academic Year"
+								name="reg_year"
+								min={2000}
+								max={2200}
+								step={1}
+								required
 							/>
 						</Row>
 
-						<TextInput email label="Email" name="email" maxLength={200} />
-						<TextAreaInput label="Address" name="address" maxLength={250} />
-					</Section>
+						<Section title="Student Details" hideable defaultHide={!!passedData}>
+							<SelectInput
+								label="Gender"
+								name="gender"
+								placeholder="Not Specified"
+								options={[
+									{ value: 'male', label: 'Male' },
+									{ value: 'female', label: 'Female' },
+								]}
+							/>
 
-					<Section title="Classes" hideable>
-						<div className={clsx('flex', 'flex-col', 'gap-1', 'pt-2', 'pb-4')}>
-							{new Array(CLASS_COUNT).fill(null).map((_, index) => {
-								const count = index + 1;
-								const formName = `class_${index}`;
-								return (
-									<div key={`class-${count}`} className={clsx('flex', 'items-center', 'gap-2')}>
-										<SelectClass
-											label={`${count}`}
-											name={formName}
-											onUpdate={() => setPackageCount(getPackageCount(formData))}
-											labelClassAddOn={clsx('w-6')}
-											options={classOptions}
-										/>
-										<span>RM</span>
-										<span className={clsx('w-12', 'text-right')}>
-											{getDiscountedFees(
-												formData[formName]?.value as ClassesGetResponse,
-												packageData?.[0],
-											)?.toFixed(2)}
-										</span>
-									</div>
-								);
-							})}
+							<Row>
+								<TextInput
+									label="IC"
+									name="ic"
+									placeholder="010203070809"
+									maxLength={20}
+									onBlurFormat={icFormat}
+									onFocusFormat={icFormatRevert}
+								/>
+
+								<TextInput label="School" name="school" maxLength={200} />
+							</Row>
+
+							<Row>
+								<TextInput
+									label="Phone Number"
+									name="phone_number"
+									placeholder="0123456789"
+									maxLength={20}
+									onBlurFormat={phoneNumberFormat}
+									onFocusFormat={phoneNumberFormatRevert}
+								/>
+
+								<TextInput
+									label="Parent H/P"
+									name="parent_phone_number"
+									placeholder="0123456789"
+									maxLength={20}
+									onBlurFormat={phoneNumberFormat}
+									onFocusFormat={phoneNumberFormatRevert}
+								/>
+							</Row>
+
+							<TextInput email label="Email" name="email" maxLength={200} />
+							<TextAreaInput label="Address" name="address" maxLength={250} />
+						</Section>
+
+						<Section title="Classes" hideable>
+							<div className={clsx('flex', 'flex-col', 'gap-1', 'pt-2', 'pb-4')}>
+								{new Array(CLASS_COUNT).fill(null).map((_, index) => {
+									const count = index + 1;
+									const formName = `class_${index}`;
+									return (
+										<div key={`class-${count}`} className={clsx('flex', 'items-center', 'gap-2')}>
+											<SelectClass
+												label={`${count}`}
+												name={formName}
+												labelClassAddOn={clsx('w-6')}
+												options={classOptions}
+											/>
+											<span>RM</span>
+											<span className={clsx('w-12', 'text-right')}>
+												{getDiscountedFees(
+													formData?.[formName]?.value as ClassesGetResponse,
+													packageData?.[0],
+												)?.toFixed(2)}
+											</span>
+										</div>
+									);
+								})}
+							</div>
+						</Section>
+						<Separator />
+						<div className={clsx('flex', 'justify-end')}>
+							<span>Fees: RM</span>
+							<span className={feesClass}>{allFees.toFixed(2)}</span>
 						</div>
-					</Section>
-					<Separator />
-					<div className={clsx('flex', 'justify-end')}>
-						<span>Fees: RM</span>
-						<span className={feesClass}>{allFees.toFixed(2)}</span>
+						<div className={clsx('flex', 'justify-end')}>
+							<span>Package Discount: -RM</span>
+							<span className={feesClass}>{(allFees - allFeesDiscounted).toFixed(2)}</span>
+						</div>
+						<ThinSeparator />
+						<div className={clsx('flex', 'justify-end')}>
+							<span>Total Fees: RM</span>
+							<span className={clsx(feesClass, GreenBoldText)}>{allFeesDiscounted.toFixed(2)}</span>
+						</div>
+						<ThinSeparator />
 					</div>
-					<div className={clsx('flex', 'justify-end')}>
-						<span>Package Discount: -RM</span>
-						<span className={feesClass}>{(allFees - allFeesDiscounted).toFixed(2)}</span>
-					</div>
-					<ThinSeparator />
-					<div className={clsx('flex', 'justify-end')}>
-						<span>Total Fees: RM</span>
-						<span className={clsx(feesClass, GreenBoldText)}>{allFeesDiscounted.toFixed(2)}</span>
-					</div>
-					<ThinSeparator />
-				</div>
+				</Form>
 			</Modal>
 
 			{confirmation ? (

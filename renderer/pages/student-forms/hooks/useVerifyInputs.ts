@@ -1,10 +1,11 @@
 import { useNotificationContext } from '../../../components/providers/notification-providers';
 import { fieldCheckerRequired } from '../../../utils/field-checker';
+import { GenericSetSingleFormData } from '../../../utils/types/form';
 import { FormDataType } from '../types';
 
 type PropType = {
 	formData: FormDataType;
-	setFormData: (value: { name: string; value?: any; valid?: boolean }) => void;
+	setFormData: GenericSetSingleFormData;
 };
 
 export function useVerifyInputs({ formData, setFormData }: PropType) {

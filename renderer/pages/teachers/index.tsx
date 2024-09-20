@@ -2,7 +2,7 @@ import Head from 'next/head';
 import React, { useState } from 'react';
 import { LastUpdatedAt } from '../../components/last-updated';
 import { Loader } from '../../components/loader';
-import { FormProvider } from '../../components/providers/form-providers';
+import { useFormContextWithId } from '../../components/providers/form-providers';
 import { useNotificationContext } from '../../components/providers/notification-providers';
 import { useCustomQuery } from '../../hooks/use-custom-query';
 import { useGet } from '../../hooks/use-get';
@@ -16,18 +16,12 @@ import { TeachersGetResponses } from '../../utils/types/responses/teachers/get';
 import { TeachersSearchAdd } from './components/search-add';
 import { TeachersTable } from './components/table';
 import { TeachersModal } from './components/teachers-modal';
-import {
-	BackendPath,
-	PageName,
-	defaultSortString,
-	formDefaultValue,
-	searchDefaultValue,
-} from './constants';
+import { BackendPath, PageName, SearchFormId, defaultSortString } from './constants';
+import { SearchDataType } from './types';
 
 function Teachers() {
 	const { setNotification } = useNotificationContext();
-	const [search, setSearch] = useState<string>(searchDefaultValue.general.value);
-	const [isActive, setIsActive] = useState<boolean>(searchDefaultValue.status.value);
+	const { formData } = useFormContextWithId<SearchDataType>(SearchFormId);
 	const [orderBy, setOrderBy] = useState<string>(defaultSortString);
 	const [toggleModal, setToggleModal] = useState(false);
 
@@ -35,9 +29,9 @@ function Teachers() {
 	const postTeacher = usePost<TeacherCreateDto, void>(BackendPath);
 
 	const { data, isLoading, dataUpdatedAt, refetch } = useCustomQuery<TeachersGetResponses>({
-		queryKey: ['teachers'],
-		queryFn: () => getTeachers({ is_active: isActive, orderBy }),
-		fetchOnVariable: [isActive, orderBy],
+		queryKey: ['teacher-list'],
+		queryFn: () => getTeachers({ is_active: formData?.status?.value, orderBy }),
+		fetchOnVariable: [formData?.status?.value, orderBy],
 	});
 
 	const handleAdd = async (data: TeacherCreateDto) => {
@@ -54,22 +48,12 @@ function Teachers() {
 			<Layout headerTitle={PageName}>
 				<Loader isLoading={isLoading}>
 					<div className={ContentContainer}>
-						<FormProvider defaultValue={searchDefaultValue}>
-							<TeachersSearchAdd
-								setSearch={setSearch}
-								setIsActive={setIsActive}
-								setToggleModal={setToggleModal}
-							/>
-						</FormProvider>
-
-						<TeachersTable data={data} search={search} refetch={refetch} setOrderBy={setOrderBy} />
-
+						<TeachersSearchAdd setToggleModal={setToggleModal} />
+						<TeachersTable data={data} refetch={refetch} setOrderBy={setOrderBy} />
 						<LastUpdatedAt lastUpdatedAt={dataUpdatedAt} refetch={refetch} />
 
 						{toggleModal ? (
-							<FormProvider defaultValue={formDefaultValue()}>
-								<TeachersModal closeModal={() => setToggleModal(false)} handler={handleAdd} />
-							</FormProvider>
+							<TeachersModal closeModal={() => setToggleModal(false)} handler={handleAdd} />
 						) : null}
 					</div>
 				</Loader>

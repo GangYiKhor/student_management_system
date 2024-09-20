@@ -5,11 +5,12 @@ import {
 	fieldCheckerRequiredValue,
 	fieldCheckerValue,
 } from '../../../utils/field-checker';
+import { GenericSetSingleFormData } from '../../../utils/types/form';
 import { FormDataType } from '../types';
 
 type PropType = {
 	formData: FormDataType;
-	setFormData: (value: { name: string; value?: any; valid?: boolean }) => void;
+	setFormData: GenericSetSingleFormData;
 };
 
 export function useVerifyInputs({ formData, setFormData }: PropType) {
@@ -44,7 +45,7 @@ export function useVerifyInputs({ formData, setFormData }: PropType) {
 			'End Date',
 			setFormData,
 			setNotification,
-			(value: Date) => isSameDayOrAfter(value, formData.start_date?.value),
+			(value: Date) => isSameDayOrAfter(value, formData?.start_date?.value),
 		);
 
 		valid = fieldCheckerRequired(

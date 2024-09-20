@@ -6,6 +6,8 @@ import { EditData, FormDataType, SearchDataType } from './types';
 
 export const PageName = 'Taxes';
 export const BackendPath = TAX_API_PATH;
+export const SearchFormId = 'taxes-searchbar';
+export const EditFormId = 'taxes-edit';
 
 export const defaultSort: DefaultSort = {
 	field: 'start_date',
@@ -28,10 +30,10 @@ export const formDefaultValueFilled = (data: EditData): FormDataType => ({
 	inclusive: { value: data?.inclusive, valid: true },
 });
 
-export const searchDefaultValue: SearchDataType = {
+export const searchDefaultValue = (): SearchDataType => ({
 	general: { value: '', valid: true },
 	status: { value: true, valid: true },
-};
+});
 
 export const parseGetData = (data: TaxesGetResponses) =>
 	data.map(value => {

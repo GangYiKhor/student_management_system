@@ -4,12 +4,13 @@ import {
 	fieldCheckerRequiredValue,
 	fieldCheckerValue,
 } from '../../../utils/field-checker';
+import { GenericSetSingleFormData } from '../../../utils/types/form';
 import { verifyEmail, verifyPhoneNumber } from '../../../utils/verifications';
 import { FormDataType } from '../types';
 
 type PropType = {
 	formData: FormDataType;
-	setFormData: (value: { name: string; value?: any; valid?: boolean }) => void;
+	setFormData: GenericSetSingleFormData;
 };
 
 export function useVerifyInputs({ formData, setFormData }: PropType) {

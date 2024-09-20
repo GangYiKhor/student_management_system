@@ -2,7 +2,7 @@ import Head from 'next/head';
 import React, { useState } from 'react';
 import { LastUpdatedAt } from '../../components/last-updated';
 import { Loader } from '../../components/loader';
-import { FormProvider } from '../../components/providers/form-providers';
+import { useFormContextWithId } from '../../components/providers/form-providers';
 import { useNotificationContext } from '../../components/providers/notification-providers';
 import { useCustomQuery } from '../../hooks/use-custom-query';
 import { useGet } from '../../hooks/use-get';
@@ -16,28 +16,21 @@ import { TaxesGetResponses } from '../../utils/types/responses/taxes/get';
 import { TaxesSearchAdd } from './components/search-add';
 import { HolidaysTable } from './components/table';
 import { TaxesModal } from './components/taxes-modal';
-import {
-	BackendPath,
-	PageName,
-	defaultSortString,
-	formDefaultValue,
-	parseGetData,
-	searchDefaultValue,
-} from './constants';
+import { BackendPath, PageName, SearchFormId, defaultSortString, parseGetData } from './constants';
+import { SearchDataType } from './types';
 
 function Taxes() {
 	const { setNotification } = useNotificationContext();
-	const [search, setSearch] = useState<string>(searchDefaultValue.general.value);
-	const [isActive, setIsActive] = useState<boolean>(searchDefaultValue.status.value);
+	const { formData } = useFormContextWithId<SearchDataType>(SearchFormId);
 	const [orderBy, setOrderBy] = useState<string>(defaultSortString);
 	const [toggleModal, setToggleModal] = useState(false);
 
 	const getTaxes = useGet<TaxesGetDto, TaxesGetResponses>(BackendPath, parseGetData);
 	const postTax = usePost<TaxCreateDto, void>(BackendPath);
 	const { data, isLoading, dataUpdatedAt, refetch } = useCustomQuery<TaxesGetResponses>({
-		queryKey: ['taxes'],
-		queryFn: () => getTaxes({ is_active: isActive, orderBy }),
-		fetchOnVariable: [isActive, orderBy],
+		queryKey: ['tax-list'],
+		queryFn: () => getTaxes({ is_active: formData?.status?.value, orderBy }),
+		fetchOnVariable: [formData?.status?.value, orderBy],
 	});
 
 	const handleAdd = async (data: TaxCreateDto) => {
@@ -54,22 +47,12 @@ function Taxes() {
 			<Layout headerTitle={PageName}>
 				<Loader isLoading={isLoading}>
 					<div className={ContentContainer}>
-						<FormProvider defaultValue={searchDefaultValue}>
-							<TaxesSearchAdd
-								setSearch={setSearch}
-								setIsActive={setIsActive}
-								setToggleModal={setToggleModal}
-							/>
-						</FormProvider>
-
-						<HolidaysTable data={data} search={search} refetch={refetch} setOrderBy={setOrderBy} />
-
+						<TaxesSearchAdd setToggleModal={setToggleModal} />
+						<HolidaysTable data={data} refetch={refetch} setOrderBy={setOrderBy} />
 						<LastUpdatedAt lastUpdatedAt={dataUpdatedAt} refetch={refetch} />
 
 						{toggleModal ? (
-							<FormProvider defaultValue={formDefaultValue()}>
-								<TaxesModal closeModal={() => setToggleModal(false)} handler={handleAdd} />
-							</FormProvider>
+							<TaxesModal closeModal={() => setToggleModal(false)} handler={handleAdd} />
 						) : null}
 					</div>
 				</Loader>

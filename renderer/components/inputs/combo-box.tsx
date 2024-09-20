@@ -21,8 +21,8 @@ import {
 } from '../../utils/tailwindClass/inputs';
 import { GrayText } from '../../utils/tailwindClass/text';
 import { CloseButtonIcon } from '../close-button-icon';
-import { useFormContext } from '../providers/form-providers';
 import { RequiredIcon } from '../required';
+import { useFormHandlerContext } from './form';
 
 export type DropDownColumnParser<Data = any> = {
 	column: string;
@@ -95,7 +95,7 @@ export function ComboBox({
 		inputClass = clsx(inputClass, locked ? DisabledTextBoxBottomClass : TextBoxBottomClass);
 	}
 
-	const { formData, setFormData } = useFormContext();
+	const { formData, setFormData } = useFormHandlerContext();
 	const [input, setInput] = useState<string>('');
 	const [showDropdown, setShowDropdown] = useState(false);
 	const dropdownRef = useRef<HTMLDivElement>();
@@ -113,7 +113,7 @@ export function ComboBox({
 
 	const onSelect = (selected: { [key: string]: any }) => {
 		setInput(labelParser(selected) ?? '');
-		setFormData({ name, value: selected ? valueParser(selected) : null, valid: true });
+		setFormData({ path: name, value: selected ? valueParser(selected) : null, valid: true });
 		setShowDropdown(false);
 		onUpdate?.();
 	};
@@ -129,11 +129,11 @@ export function ComboBox({
 			});
 
 			if (foundIndex > -1) {
-				setFormData({ name, value: valueParser(options[foundIndex]), valid: true });
+				setFormData({ path: name, value: valueParser(options[foundIndex]), valid: true });
 				setShowDropdown(false);
 				onUpdate?.();
 			} else {
-				setFormData({ name, valid: false });
+				setFormData({ path: name, valid: false });
 			}
 		} else if (new RegExp(/[a-zA-Z0-9`~!@#$%^&*()_+={}[\]\\|;':",./<>?-]/).exec(e.key)) {
 			setShowDropdown(true);
@@ -148,10 +148,10 @@ export function ComboBox({
 		if (input === '') {
 			// If no text typed, do not set value
 		} else if (foundIndex < 0 && required) {
-			setFormData({ name, valid: false });
+			setFormData({ path: name, valid: false });
 		} else if (!isEqual(valueParser(options[foundIndex]), formData?.[name]?.value)) {
 			setInput(labelParser(options[foundIndex]));
-			setFormData({ name, value: valueParser(options[foundIndex]), valid: true });
+			setFormData({ path: name, value: valueParser(options[foundIndex]), valid: true });
 			onUpdate?.();
 		}
 
@@ -160,7 +160,8 @@ export function ComboBox({
 
 	const onClear = () => {
 		setInput('');
-		setFormData({ name, value: null, valid: true });
+		setFormData({ path: name, value: null, valid: true });
+		onUpdate?.();
 		setShowDropdown(false);
 	};
 
@@ -188,7 +189,7 @@ export function ComboBox({
 
 			<div
 				className={clsx(
-					(formData[name]?.valid ?? true) || InvalidTextBoxClass,
+					(formData?.[name]?.valid ?? true) || InvalidTextBoxClass,
 					inputClass,
 					showDropdown ? 'rounded-b-none' : '',
 				)}

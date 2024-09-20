@@ -15,8 +15,8 @@ import {
 	TextBoxRightClass,
 } from '../../utils/tailwindClass/inputs';
 import { CloseButtonIcon } from '../close-button-icon';
-import { useFormContext } from '../providers/form-providers';
 import { RequiredIcon } from '../required';
+import { useFormHandlerContext } from './form';
 
 type PropType = {
 	id?: string;
@@ -62,7 +62,7 @@ export function SelectInput({
 		inputClass = locked ? DisabledTextBoxBottomClass : TextBoxBottomClass;
 	}
 
-	const { formData, setFormData } = useFormContext();
+	const { formData, setFormData } = useFormHandlerContext();
 	const [input, setInput] = useState<string>('');
 
 	const { data, refetch } = useQuery({
@@ -79,11 +79,11 @@ export function SelectInput({
 
 	const onChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
 		if (e.target.value === '') {
-			setFormData({ name, value: placeholderValue, valid: true });
+			setFormData({ path: name, value: placeholderValue, valid: true });
 			setInput(e.target.value);
 		} else {
 			const newData = {
-				name,
+				path: name,
 				value: (options ?? data)?.[tryParseInt(e.target.value, 0)]?.value,
 				valid: true,
 			};
@@ -94,13 +94,14 @@ export function SelectInput({
 	};
 
 	const onClear = () => {
-		setFormData({ name, value: placeholderValue, valid: true });
+		setFormData({ path: name, value: placeholderValue, valid: true });
 		setInput('');
 	};
 
 	useEffect(() => {
 		if (formData?.[name]?.value === undefined) {
 			setInput('');
+			return;
 		}
 
 		const foundIndex = (options ?? data)?.findIndex(record => {
@@ -124,7 +125,7 @@ export function SelectInput({
 				className={clsx(
 					ContainerFlexRowGrow,
 					inputClass,
-					(formData[name]?.valid ?? true) || InvalidTextBoxClass,
+					(formData?.[name]?.valid ?? true) || InvalidTextBoxClass,
 					'items-center',
 				)}
 			>

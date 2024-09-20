@@ -8,8 +8,8 @@ import {
 	LabelTopClass,
 	TextBoxBottomClass,
 } from '../../utils/tailwindClass/inputs';
-import { useFormContext } from '../providers/form-providers';
 import { RequiredIcon } from '../required';
+import { useFormHandlerContext } from './form';
 
 type PropType = {
 	id?: string;
@@ -37,11 +37,11 @@ export function TextAreaInput({
 	notResizable,
 }: Readonly<PropType>) {
 	id = id ?? kebabCase(name);
-	const { formData, setFormData } = useFormContext();
+	const { formData, setFormData } = useFormHandlerContext();
 	const [input, setInput] = useState<string>('');
 
 	const onChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-		setFormData({ name, value: e.target.value, valid: true });
+		setFormData({ path: name, value: e.target.value, valid: true });
 		setInput(e.target.value);
 	};
 
@@ -79,7 +79,7 @@ export function TextAreaInput({
 				disabled={locked}
 				className={clsx(
 					locked ? DisabledTextBoxBottomClass : TextBoxBottomClass,
-					(formData[name]?.valid ?? true) || InvalidTextBoxClass,
+					(formData?.[name]?.valid ?? true) || InvalidTextBoxClass,
 					'min-h-[80px]',
 					'max-h-[300px]',
 					(locked || notResizable) && 'resize-none',

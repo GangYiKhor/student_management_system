@@ -7,6 +7,8 @@ import { EditData, FormDataType, SearchDataType } from './types';
 
 export const PageName = 'Students';
 export const BackendPath = STUDENT_API_PATH;
+export const SearchFormId = 'students-searchbar';
+export const EditFormId = 'students-edit';
 
 export const defaultSort: DefaultSort = {
 	field: 'student_name',
@@ -43,14 +45,14 @@ export const formDefaultValueFilled = (data: EditData): FormDataType => ({
 	address: { value: data?.address, valid: true },
 });
 
-export const searchDefaultValue: SearchDataType = {
+export const searchDefaultValue = (): SearchDataType => ({
 	text: { value: '', valid: true },
 	form_id: { value: undefined, valid: true },
 	reg_date_start: { value: undefined, valid: true },
 	reg_date_end: { value: undefined, valid: true },
 	reg_year: { value: new Date().getFullYear(), valid: true },
 	status: { value: true, valid: true },
-};
+});
 
 export const parseGetData = (data: StudentsGetResponses) =>
 	data.map(value => {

@@ -10,23 +10,23 @@ export function useIsDirty({ formData }: Readonly<PropType>) {
 	return () => {
 		let isDirty = false;
 
-		isDirty ||= formData.student?.value !== undefined;
-		isDirty ||= !isSameDay(formData.date?.value, getToday());
-		isDirty ||= formData.payment_year?.value !== new Date().getFullYear();
+		isDirty ||= formData?.student?.value !== undefined;
+		isDirty ||= !isSameDay(formData?.date?.value, getToday());
+		isDirty ||= formData?.payment_year?.value !== new Date().getFullYear();
 
 		const curMonth = new Date().getMonth();
 		isDirty = Object.entries(MONTH_SHORT).reduce(
 			(curCondition, [num, month]) =>
 				curCondition ||
-				formData[month.toLowerCase()]?.value !== (curMonth === parseInt(num) ? 1 : 0),
+				formData?.[month.toLowerCase()]?.value !== (curMonth === parseInt(num) ? 1 : 0),
 			isDirty,
 		);
 
-		isDirty ||= formData.reg_fees?.value !== undefined;
-		isDirty ||= formData.incentive?.value !== undefined;
-		isDirty ||= formData.voucher_id?.value.trim() !== '';
-		isDirty ||= formData.remarks?.value.trim() !== '';
-		isDirty ||= formData.status?.value.trim() !== '';
+		isDirty ||= formData?.reg_fees?.value !== undefined;
+		isDirty ||= formData?.incentive?.value !== undefined;
+		isDirty ||= formData?.voucher_id?.value.trim() !== '';
+		isDirty ||= formData?.remarks?.value.trim() !== '';
+		isDirty ||= formData?.status?.value.trim() !== '';
 
 		return isDirty;
 	};

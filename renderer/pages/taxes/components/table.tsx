@@ -1,7 +1,7 @@
 import { QueryObserverResult } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
 import React, { useEffect, useState } from 'react';
-import { FormProvider } from '../../../components/providers/form-providers';
+import { useFormContextWithId } from '../../../components/providers/form-providers';
 import { TableColumnType, TableTemplate } from '../../../components/tables/table-template';
 import { usePost } from '../../../hooks/use-post';
 import {
@@ -14,8 +14,8 @@ import { GreenBoldText, RedBoldText, YellowBoldText } from '../../../utils/tailw
 import { TaxUpdateDto } from '../../../utils/types/dtos/taxes/update';
 import { ErrorResponse } from '../../../utils/types/responses/error';
 import { TaxesGetResponse, TaxesGetResponses } from '../../../utils/types/responses/taxes/get';
-import { BackendPath, defaultSort, formDefaultValueFilled } from '../constants';
-import { EditData } from '../types';
+import { BackendPath, defaultSort, SearchFormId } from '../constants';
+import { EditData, SearchDataType } from '../types';
 import { TaxesModal } from './taxes-modal';
 
 const getActiveCssClass = (start_date: Date, end_date: Date) => {
@@ -70,12 +70,12 @@ const columns: TableColumnType<TaxesGetResponse>[] = [
 
 type PropType = {
 	data: TaxesGetResponses;
-	search?: string;
 	refetch: () => Promise<QueryObserverResult<TaxesGetResponses, AxiosError<ErrorResponse, any>>>;
 	setOrderBy: (value: string) => void;
 };
 
-export function HolidaysTable({ data, search, refetch, setOrderBy }: Readonly<PropType>) {
+export function HolidaysTable({ data, refetch, setOrderBy }: Readonly<PropType>) {
+	const { formData } = useFormContextWithId<SearchDataType>(SearchFormId);
 	const [tableData, setTableData] = useState<TaxesGetResponses>([]);
 	const [selected, setSelected] = useState<EditData>(undefined);
 	const postTax = usePost<TaxUpdateDto, void>(BackendPath);
@@ -91,13 +91,13 @@ export function HolidaysTable({ data, search, refetch, setOrderBy }: Readonly<Pr
 
 	useEffect(() => {
 		let filteredData = data;
+		const search = formData?.general?.value?.trim().toLowerCase();
 		if (search) {
-			search = search.trim().toLowerCase();
 			filteredData = filteredData.filter(value => '#' + value.id === search);
 		}
 
 		setTableData(filteredData);
-	}, [data, search]);
+	}, [data, formData?.general?.value]);
 
 	return (
 		<React.Fragment>
@@ -110,13 +110,11 @@ export function HolidaysTable({ data, search, refetch, setOrderBy }: Readonly<Pr
 			/>
 
 			{selected ? (
-				<FormProvider defaultValue={formDefaultValueFilled(selected)}>
-					<TaxesModal
-						closeModal={() => setSelected(undefined)}
-						handler={handleUpdate}
-						data={selected}
-					/>
-				</FormProvider>
+				<TaxesModal
+					closeModal={() => setSelected(undefined)}
+					handler={handleUpdate}
+					data={selected}
+				/>
 			) : null}
 		</React.Fragment>
 	);
