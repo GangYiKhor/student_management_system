@@ -5,16 +5,16 @@ import { HolidaysGetDto, HolidaysGetQueryDto } from '../../../../utils/types/dto
 import { HolidaysGetResponses } from '../../../../utils/types/responses/holidays/get';
 
 export async function holidaysGetServices(dto: HolidaysGetDto): Promise<HolidaysGetResponses> {
-	const { orderBy: order, startDate, endDate } = dto;
+	const { orderBy: order, start_date, end_date } = dto;
 
 	const where: { date?: { gte?: Date; lte?: Date } | Date } = {};
 
-	if (startDate && endDate) {
-		where.date = { gte: startDate, lte: endDate };
-	} else if (startDate) {
-		where.date = { gte: startDate };
-	} else if (endDate) {
-		where.date = { lte: endDate };
+	if (start_date && end_date) {
+		where.date = { gte: start_date, lte: end_date };
+	} else if (start_date) {
+		where.date = { gte: start_date };
+	} else if (end_date) {
+		where.date = { lte: end_date };
 	}
 
 	const orderBy = parseOrderBy(order, { date: 'asc' });
@@ -23,8 +23,8 @@ export async function holidaysGetServices(dto: HolidaysGetDto): Promise<Holidays
 
 export function holidaysGetParseDto(query: HolidaysGetQueryDto): HolidaysGetDto {
 	return {
-		startDate: parseDateTime(query.startDate),
-		endDate: parseDateTime(query.endDate),
+		start_date: parseDateTime(query.start_date),
+		end_date: parseDateTime(query.end_date),
 		orderBy: query.orderBy,
 	};
 }

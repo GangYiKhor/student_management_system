@@ -4,11 +4,13 @@ import { devLog } from '../../../../utils/devLog';
 import { ExistedError } from '../../../../utils/errors/ExistedError';
 import { ExtendedNextApiRequest } from '../../../../utils/extended-next-api-request';
 import { PackageCreateDto } from '../../../../utils/types/dtos/packages/create';
+import { ErrorResponse } from '../../../../utils/types/responses/error';
+import { PackagesCreateResponse } from '../../../../utils/types/responses/packages/create';
 import { packagesCreateServices } from './packages-create-services';
 
 export async function packagesCreateController(
 	req: ExtendedNextApiRequest<PackageCreateDto>,
-	res: NextApiResponse,
+	res: NextApiResponse<PackagesCreateResponse | ErrorResponse>,
 ) {
 	devLog('Create Packages Handler', req.body);
 

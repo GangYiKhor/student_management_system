@@ -4,11 +4,13 @@ import { devLog } from '../../../../utils/devLog';
 import { ExistedError } from '../../../../utils/errors/ExistedError';
 import { ExtendedNextApiRequest } from '../../../../utils/extended-next-api-request';
 import { VoucherCreateDto } from '../../../../utils/types/dtos/vouchers/create';
+import { ErrorResponse } from '../../../../utils/types/responses/error';
+import { VouchersCreateResponse } from '../../../../utils/types/responses/vouchers/create';
 import { vouchersCreateServices } from './vouchers-create-services';
 
 export async function vouchersCreateController(
 	req: ExtendedNextApiRequest<VoucherCreateDto>,
-	res: NextApiResponse,
+	res: NextApiResponse<VouchersCreateResponse | ErrorResponse>,
 ) {
 	devLog('Create Voucher Handler', req.body);
 

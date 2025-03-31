@@ -20,9 +20,9 @@ const columnParsers: DropDownColumnParser<ClassesGetResponses[0]> = [
 ];
 
 type PropType = {
-	id?: string;
+	id: string;
 	label?: string;
-	name: string;
+	name?: string;
 	form?: number | string;
 	onUpdate?: () => any;
 	options?: ClassesGetResponses;
@@ -35,7 +35,7 @@ type PropType = {
 
 export function SelectClass({
 	id,
-	label,
+	label = 'Class',
 	name,
 	form,
 	onUpdate,
@@ -47,6 +47,7 @@ export function SelectClass({
 	locked,
 }: Readonly<PropType>) {
 	const getClass = useGetClassComboBoxOptions();
+	name ??= label;
 
 	const { data, refetch } = useCustomQuery<ClassesGetResponses>({
 		queryKey: ['classes', queryKey],

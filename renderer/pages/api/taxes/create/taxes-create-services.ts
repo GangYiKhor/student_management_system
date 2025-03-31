@@ -1,8 +1,9 @@
 import { ExistedError } from '../../../../utils/errors/ExistedError';
 import prisma from '../../../../utils/prisma-client';
 import { TaxCreateDto } from '../../../../utils/types/dtos/taxes/create';
+import { TaxesCreateResponse } from '../../../../utils/types/responses/taxes/create';
 
-export async function taxesCreateServices(dto: TaxCreateDto): Promise<void> {
+export async function taxesCreateServices(dto: TaxCreateDto): Promise<TaxesCreateResponse> {
 	const { start_date, end_date } = dto;
 
 	if (await prisma.tax.findFirst({ where: { end_date: null } })) {
@@ -23,5 +24,6 @@ export async function taxesCreateServices(dto: TaxCreateDto): Promise<void> {
 		throw new ExistedError('Clashed Tax With ID: ' + existingRecord.id, 'Clashed Tax!');
 	}
 
-	await prisma.tax.create({ data: dto });
+	const result = await prisma.tax.create({ data: dto });
+	return { id: result.id };
 }

@@ -1,8 +1,8 @@
 import { QueryType } from '../../queryType';
 
 export type HolidaysGetDto = {
-	startDate?: Date;
-	endDate?: Date;
+	start_date?: Date;
+	end_date?: Date;
 	orderBy?: string;
 };
 

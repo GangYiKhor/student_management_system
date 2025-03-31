@@ -1,7 +1,5 @@
 export type GenericSingleFormDataType = { [key: string]: { value: any; valid: boolean } };
-export type GenericFormDataType = {
-	[key: string]: { [key: string]: { value: any; valid: boolean } };
-};
+export type GenericFormDataType = { [key: string]: GenericSingleFormDataType };
 export type GenericSetFormDataType = {
 	id: string;
 	path?: string;

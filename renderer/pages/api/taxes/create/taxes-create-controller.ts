@@ -4,11 +4,13 @@ import { devLog } from '../../../../utils/devLog';
 import { ExistedError } from '../../../../utils/errors/ExistedError';
 import { ExtendedNextApiRequest } from '../../../../utils/extended-next-api-request';
 import { TaxCreateDto } from '../../../../utils/types/dtos/taxes/create';
+import { ErrorResponse } from '../../../../utils/types/responses/error';
+import { TaxesCreateResponse } from '../../../../utils/types/responses/taxes/create';
 import { taxesCreateServices } from './taxes-create-services';
 
 export async function taxesCreateController(
 	req: ExtendedNextApiRequest<TaxCreateDto>,
-	res: NextApiResponse,
+	res: NextApiResponse<TaxesCreateResponse | ErrorResponse>,
 ) {
 	devLog('Create Tax Handler', req.body);
 

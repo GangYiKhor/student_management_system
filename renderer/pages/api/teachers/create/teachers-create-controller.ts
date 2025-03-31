@@ -3,17 +3,19 @@ import { DATABASE_ERROR } from '../../../../utils/constants/ErrorResponses';
 import { devLog } from '../../../../utils/devLog';
 import { ExtendedNextApiRequest } from '../../../../utils/extended-next-api-request';
 import { TeacherCreateDto } from '../../../../utils/types/dtos/teachers/create';
+import { ErrorResponse } from '../../../../utils/types/responses/error';
+import { TeachersCreateResponse } from '../../../../utils/types/responses/teachers/create';
 import { createTeachersServices } from './teachers-create-services';
 
 export async function createTeachersController(
 	req: ExtendedNextApiRequest<TeacherCreateDto>,
-	res: NextApiResponse,
+	res: NextApiResponse<TeachersCreateResponse | ErrorResponse>,
 ) {
 	devLog('Create Teachers Handler', req.body);
 
 	try {
-		await createTeachersServices(req.body);
-		res.status(201).end();
+		const result = await createTeachersServices(req.body);
+		res.status(201).json(result);
 	} catch (err) {
 		devLog('Create Teachers Handler: ERROR', err);
 		res.status(503).json(DATABASE_ERROR);

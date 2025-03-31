@@ -72,3 +72,5 @@ export const STUDENT_API_PATH = '/api/students';
 export const STUDENT_CLASS_API_PATH = '/api/student-classes';
 export const RECEIPT_API_PATH = '/api/receipts';
 export const RECEIPT_GENERATE_API_PATH = '/api/receipt-generate';
+
+export const RECEIPT_PRINT_PREVIEW_SIZE = 'width=700px,height=535px';

@@ -1,5 +1,5 @@
 import { readConfig } from '../../../../utils/configs';
-import { isSameDayOrBefore } from '../../../../utils/dateOperations';
+import { isDayAfter } from '../../../../utils/dateOperations';
 import { NotFoundError } from '../../../../utils/errors/NotFoundError';
 import prisma from '../../../../utils/prisma-client';
 import { ReceiptCreateDto } from '../../../../utils/types/dtos/receipts/create';
@@ -30,7 +30,7 @@ export async function receiptsCreateServices(
 		const voucher = await voucherGetServices(receiptData.voucher_id);
 		if (voucher?.used) {
 			throw new NotFoundError('The voucher has been used!', 'Invalid Voucher');
-		} else if (!isSameDayOrBefore(new Date(), voucher?.expired_at)) {
+		} else if (isDayAfter(new Date(), voucher?.expired_at)) {
 			throw new NotFoundError('The voucher is expired!', 'Invalid Voucher');
 		} else if (voucher?.student !== null && voucher?.student?.id !== receiptData?.student_id) {
 			throw new NotFoundError(

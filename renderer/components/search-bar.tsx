@@ -12,7 +12,7 @@ export function SearchBar({ buttons, children }: Readonly<PropType>) {
 			<div className={clsx('flex', 'flex-wrap', 'flex-row', 'items-baseline', 'gap-2')}>
 				{children}
 			</div>
-			<div className={clsx('flex', 'justify-end', 'gap-4', 'items-center')}>
+			<div className={clsx('flex', 'justify-end', 'gap-4', 'items-stretch')}>
 				{buttons?.map(({ text, className, onClick }) => (
 					<button key={text} className={className} onClick={onClick}>
 						{text}

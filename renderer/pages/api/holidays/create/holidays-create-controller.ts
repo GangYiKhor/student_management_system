@@ -4,11 +4,13 @@ import { devLog } from '../../../../utils/devLog';
 import { ExistedError } from '../../../../utils/errors/ExistedError';
 import { ExtendedNextApiRequest } from '../../../../utils/extended-next-api-request';
 import { HolidayCreateDto } from '../../../../utils/types/dtos/holidays/create';
+import { ErrorResponse } from '../../../../utils/types/responses/error';
+import { HolidaysCreateResponse } from '../../../../utils/types/responses/holidays/create';
 import { holidaysCreateServices } from './holidays-create-services';
 
 export async function holidaysCreateController(
 	req: ExtendedNextApiRequest<HolidayCreateDto>,
-	res: NextApiResponse,
+	res: NextApiResponse<HolidaysCreateResponse | ErrorResponse>,
 ) {
 	devLog('Create Holiday Handler', req.body);
 

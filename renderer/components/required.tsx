@@ -1,7 +1,7 @@
 import clsx from 'clsx';
 import { useTooltip } from '../hooks/use-tooltip';
 
-const requiredClass = clsx('text-red-500', 'dark:text-rose-400', 'text-bold');
+const requiredClass = clsx('text-red-500 dark:text-rose-400', 'text-bold', 'select-none');
 
 type PropType = {
 	required?: boolean;

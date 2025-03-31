@@ -184,7 +184,7 @@ export function removeTimezoneOffset(value: Date): Date {
 }
 
 export function toDateOnly(value: Date): Date {
-	value.setHours(0, 0, 0, 0);
+	value?.setHours(0, 0, 0, 0);
 	return value;
 }
 
@@ -194,6 +194,14 @@ export function isAfter(date1: Date, date2: Date): boolean {
 
 export function isBefore(date1: Date, date2: Date): boolean {
 	return date1?.getTime() < date2?.getTime();
+}
+
+export function isDayAfter(date1: Date, date2: Date): boolean {
+	return toDateOnly(date1)?.getTime() > toDateOnly(date2)?.getTime();
+}
+
+export function isDayBefore(date1: Date, date2: Date): boolean {
+	return toDateOnly(date1)?.getTime() < toDateOnly(date2)?.getTime();
 }
 
 export function isSameTime(date1: Date, date2: Date): boolean {
@@ -273,4 +281,20 @@ export function isCloserTo(mainDate: Date, date1: Date, date2: Date): number {
 		default:
 			return 1;
 	}
+}
+
+/**
+ * @returns `1: Monday, ... , 7: Sunday`
+ */
+export function getCurrentDayOfWeek(): number {
+	const date = new Date();
+	if (date.getDay() === 0) return 7;
+	return date.getDay();
+}
+
+/**
+ * @returns `0: Sunday, ... , 6: Saturday`
+ */
+export function getCurrentDayOfWeek0(): number {
+	return new Date().getDay();
 }

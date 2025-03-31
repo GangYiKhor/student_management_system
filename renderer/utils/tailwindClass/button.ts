@@ -99,6 +99,12 @@ const WhiteBlackColours = clsx(
 );
 
 export const EmptyLightButtonClass = clsx(EmptyColours, DefaultButtonClass);
+export const UnderlineButtonClass = clsx(
+	'font-bold underline',
+	'enabled:hover:opacity-80 enabled:hover:cursor-pointer',
+	'enabled:active:opacity-60',
+	'disabled:opacity-50 disabled:hover:cursor-not-allowed',
+);
 
 export const GreenXSButtonClass = clsx(GreenColours, DefaultButtonClass, ButtonXSClass);
 export const GreenButtonClass = clsx(GreenColours, DefaultButtonClass, ButtonSmallClass);

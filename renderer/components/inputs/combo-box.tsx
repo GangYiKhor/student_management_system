@@ -1,28 +1,38 @@
 import clsx from 'clsx';
-import { isEqual, kebabCase } from 'lodash';
+import { isEqual } from 'lodash';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { KeyboardEvent, useEffect, useRef, useState } from 'react';
 import { getPropertyValue } from '../../utils/propertyParser';
-import { ContainerFlexColGrow, ContainerFlexRowGrow } from '../../utils/tailwindClass/containers';
-import {
-	DisabledTextBoxBottomClass,
-	DisabledTextBoxRightClass,
-	DropdownCellClass,
-	DropdownClass,
-	DropdownRowClass,
-	DropdownSelectedRow,
-	DropdownTableClass,
-	InputTextClass,
-	InvalidTextBoxClass,
-	LabelLeftClass,
-	LabelTopClass,
-	TextBoxBottomClass,
-	TextBoxRightClass,
-} from '../../utils/tailwindClass/inputs';
 import { GrayText } from '../../utils/tailwindClass/text';
 import { CloseButtonIcon } from '../close-button-icon';
 import { RequiredIcon } from '../required';
 import { useFormHandlerContext } from './form';
+import {
+	ContainerFlexRowGrow,
+	getContainerClass,
+	getInputClass,
+	getLabelClass,
+	InputTextClass,
+	InvalidTextBoxClass,
+} from './input-css';
+
+const DropdownClass = clsx(
+	'absolute z-50 top-9',
+	'w-full max-h-[200px]',
+	'-mx-2',
+	'bg-slate-100 dark:bg-slate-900',
+	'border-x-2 border-b-2 border-gray-300 dark:border-gray-500 rounded-b-md',
+	'overflow-auto',
+);
+const DropdownTableClass = clsx('w-full');
+const DropdownRowClass = clsx(
+	'h-[30px]',
+	'hover:bg-slate-200 dark:hover:bg-slate-800 hover:cursor-pointer',
+	'active:bg-slate-300 dark:active:bg-slate-700',
+	'text-black dark:text-white',
+);
+const DropdownSelectedRow = clsx('font-bold', 'bg-slate-200 dark:bg-slate-800');
+const DropdownCellClass = clsx('px-3', 'select-none');
 
 export type DropDownColumnParser<Data = any> = {
 	column: string;
@@ -30,9 +40,10 @@ export type DropDownColumnParser<Data = any> = {
 }[];
 
 type PropType = {
-	id?: string;
+	id: string;
 	label: string;
-	name: string;
+	name?: string;
+	defaultValue?: any;
 	placeholder?: string;
 	options: { [key: string]: any }[];
 	columns?: string[];
@@ -57,6 +68,7 @@ export function ComboBox({
 	id,
 	label,
 	name,
+	defaultValue,
 	placeholder = 'Not Selected',
 	options,
 	columns,
@@ -71,36 +83,36 @@ export function ComboBox({
 	leftLabel,
 	labelClassAddOn,
 }: Readonly<PropType>) {
-	id = id ?? kebabCase(name);
-	columns = Array.from(new Set([labelColumn, ...(columns ?? Object.keys(options?.[0] ?? {}))]));
-	columnParsers =
-		columnParsers ??
-		columns?.map(column => ({
-			column,
-			parser: value => getPropertyValue(value, column),
-		})) ??
-		[];
-
-	let containerClass = '';
-	let labelClass = '';
-	let inputClass = clsx(ContainerFlexRowGrow, 'relative');
-
-	if (leftLabel) {
-		containerClass = ContainerFlexRowGrow;
-		labelClass = LabelLeftClass;
-		inputClass = clsx(inputClass, locked ? DisabledTextBoxRightClass : TextBoxRightClass);
-	} else {
-		containerClass = ContainerFlexColGrow;
-		labelClass = LabelTopClass;
-		inputClass = clsx(inputClass, locked ? DisabledTextBoxBottomClass : TextBoxBottomClass);
-	}
-
-	const { formData, setFormData } = useFormHandlerContext();
+	const {
+		formData,
+		initialiseForm,
+		updateFieldProperties,
+		updateFieldValue,
+		updateFieldValid,
+		formInitialised,
+		formLocked,
+		keepData,
+		keepDefault,
+	} = useFormHandlerContext();
 	const [input, setInput] = useState<string>('');
 	const [showDropdown, setShowDropdown] = useState(false);
 	const dropdownRef = useRef<HTMLDivElement>();
+	locked ||= formLocked;
+	name ??= label;
+
+	columns = Array.from(new Set([labelColumn, ...(columns ?? Object.keys(options?.[0] ?? {}))]));
+	columnParsers ??=
+		columns?.map(column => ({
+			column,
+			parser: value => getPropertyValue(value, column),
+		})) ?? [];
+
+	const containerClass = getContainerClass(leftLabel);
+	const labelClass = getLabelClass(leftLabel);
+	const inputClass = clsx(ContainerFlexRowGrow, 'relative', getInputClass(leftLabel, locked));
 
 	const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		if (locked) return;
 		setInput(e.target.value);
 
 		const foundIndex = options?.findIndex(record => {
@@ -112,8 +124,9 @@ export function ComboBox({
 	};
 
 	const onSelect = (selected: { [key: string]: any }) => {
+		if (locked) return;
 		setInput(labelParser(selected) ?? '');
-		setFormData({ path: name, value: selected ? valueParser(selected) : null, valid: true });
+		updateFieldValue([{ field: id, value: selected ? valueParser(selected) : null }]);
 		setShowDropdown(false);
 		onUpdate?.();
 	};
@@ -123,17 +136,18 @@ export function ComboBox({
 	};
 
 	const onKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+		if (locked) return;
 		if (e.key === 'Enter') {
 			const foundIndex = options?.findIndex(record => {
 				return labelParser(record) === input;
 			});
 
 			if (foundIndex > -1) {
-				setFormData({ path: name, value: valueParser(options[foundIndex]), valid: true });
+				updateFieldValue([{ field: id, value: valueParser(options[foundIndex]) }]);
 				setShowDropdown(false);
 				onUpdate?.();
 			} else {
-				setFormData({ path: name, valid: false });
+				updateFieldValid([{ field: id, valid: false }]);
 			}
 		} else if (new RegExp(/[a-zA-Z0-9`~!@#$%^&*()_+={}[\]\\|;':",./<>?-]/).exec(e.key)) {
 			setShowDropdown(true);
@@ -141,45 +155,67 @@ export function ComboBox({
 	};
 
 	const onBlur = () => {
-		const foundIndex = options?.findIndex(record => {
-			return labelParser(record).toLowerCase() === input?.toLowerCase();
-		});
+		if (input !== '') {
+			const foundIndex = options?.findIndex(record => {
+				return labelParser(record).toLowerCase() === input?.toLowerCase();
+			});
 
-		if (input === '') {
-			// If no text typed, do not set value
-		} else if (foundIndex < 0 && required) {
-			setFormData({ path: name, valid: false });
-		} else if (!isEqual(valueParser(options[foundIndex]), formData?.[name]?.value)) {
-			setInput(labelParser(options[foundIndex]));
-			setFormData({ path: name, value: valueParser(options[foundIndex]), valid: true });
-			onUpdate?.();
+			if (foundIndex < 0 && required) {
+				setInput('');
+			} else if (!isEqual(valueParser(options[foundIndex]), formData?.[id]?.value)) {
+				setInput(labelParser(options[foundIndex]));
+				updateFieldValue([{ field: id, value: valueParser(options[foundIndex]) }]);
+				onUpdate?.();
+			}
 		}
 
-		setTimeout(() => setShowDropdown(false), 300);
+		setTimeout(() => setShowDropdown(false), 100);
 	};
 
 	const onClear = () => {
 		setInput('');
-		setFormData({ path: name, value: null, valid: true });
+		updateFieldValue([{ field: id, value: null }]);
 		onUpdate?.();
 		setShowDropdown(false);
 	};
 
 	useEffect(() => {
-		if (formData?.[name]?.value === undefined) {
+		if (formData?.[id]?.value === undefined) {
 			setInput('');
 			return;
 		}
 
 		const foundIndex = options?.findIndex(record => {
-			return isEqual(valueParser(record), formData?.[name]?.value);
+			return isEqual(valueParser(record), formData?.[id]?.value);
 		});
 
 		const newData = foundIndex > -1 ? labelParser(options[foundIndex]) : '';
 		if (newData !== input) {
 			setInput(newData);
 		}
-	}, [formData?.[name]?.value, options]);
+	}, [formData?.[id]?.value, options]);
+
+	useEffect(() => {
+		if (formInitialised) {
+			updateFieldProperties([{ field: id, required }]);
+		}
+	}, [required]);
+
+	useEffect(() => {
+		if (formInitialised) {
+			if (!keepData || !formData?.[id]) {
+				initialiseForm([{ field: id, value: defaultValue, name, required }]);
+			} else {
+				const foundIndex = options?.findIndex(record => {
+					return isEqual(valueParser(record), formData?.[id]?.value);
+				});
+				setInput(foundIndex > -1 ? labelParser(options[foundIndex]) : '');
+				if (!keepDefault) {
+					updateFieldProperties([{ field: id, initialValue: defaultValue, required }]);
+				}
+			}
+		}
+	}, [formInitialised]);
 
 	return (
 		<div className={containerClass}>
@@ -189,7 +225,7 @@ export function ComboBox({
 
 			<div
 				className={clsx(
-					(formData?.[name]?.valid ?? true) || InvalidTextBoxClass,
+					formData?.[id]?.valid === false && InvalidTextBoxClass,
 					inputClass,
 					showDropdown ? 'rounded-b-none' : '',
 				)}
@@ -198,7 +234,7 @@ export function ComboBox({
 					<button
 						onClick={show}
 						onBlur={onBlur}
-						className={clsx(InputTextClass, input === '' ? GrayText : null)}
+						className={clsx(InputTextClass, input === '' && GrayText)}
 					>
 						{input || placeholder}
 					</button>
@@ -208,10 +244,10 @@ export function ComboBox({
 						id={id}
 						name={name}
 						value={input}
-						onChange={locked ? () => {} : onChange}
+						onChange={onChange}
 						onClick={show}
 						onBlur={onBlur}
-						onKeyDown={locked ? () => {} : onKeyDown}
+						onKeyDown={onKeyDown}
 						placeholder={placeholder}
 						className={InputTextClass}
 						disabled={locked}
@@ -233,9 +269,9 @@ export function ComboBox({
 								<tr
 									className={clsx(
 										DropdownRowClass,
-										formData?.[name]?.value === undefined ? DropdownSelectedRow : '',
+										formData?.[id]?.value === undefined ? DropdownSelectedRow : '',
 									)}
-									onClick={locked ? () => {} : () => onSelect(undefined)}
+									onClick={() => onSelect(undefined)}
 								>
 									<td colSpan={columns.length} className={clsx(DropdownCellClass, GrayText)}>
 										{placeholder}
@@ -243,13 +279,13 @@ export function ComboBox({
 								</tr>
 
 								{options
-									.filter(value => !locked || isEqual(value, formData?.[name]?.value)) // Is disabled, show current only
+									.filter(value => !locked || isEqual(value, formData?.[id]?.value)) // Is disabled, show current only
 									.map((value, index) => (
 										<tr
 											key={`${labelParser(value)}-${index}`}
 											className={clsx(
 												DropdownRowClass,
-												isEqual(value, formData?.[name]?.value) ? DropdownSelectedRow : '',
+												isEqual(value, formData?.[id]?.value) ? DropdownSelectedRow : '',
 											)}
 											onClick={() => onSelect(value)}
 										>

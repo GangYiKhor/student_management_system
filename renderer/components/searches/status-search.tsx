@@ -1,18 +1,23 @@
-import { kebabCase } from 'lodash';
 import { SelectInput } from '../inputs/select-input';
 
 type PropType = {
+	id?: string;
 	label?: string;
-	name?: string;
+	defaultValue?: boolean;
 };
 
-export function StatusSearch({ label = 'Status', name = 'status' }: Readonly<PropType>) {
+export function StatusSearch({
+	id = 'status',
+	label = 'Status',
+	defaultValue = true,
+}: Readonly<PropType>) {
 	return (
 		<SelectInput
-			id={`${kebabCase(label)}-search`}
+			id={id}
 			label={label}
-			name={name}
+			name={label}
 			placeholder="All"
+			defaultValue={defaultValue}
 			options={[
 				{ label: 'Active', value: true },
 				{ label: 'Inactive', value: false },

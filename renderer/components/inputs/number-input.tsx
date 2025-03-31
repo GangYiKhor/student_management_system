@@ -1,24 +1,16 @@
 import clsx from 'clsx';
-import { kebabCase } from 'lodash';
-import { useEffect, useState } from 'react';
+import { debounce } from 'lodash';
+import { useCallback, useEffect, useState } from 'react';
 import { tryParseFloat } from '../../utils/numberParsers';
-import { ContainerFlexColGrow, ContainerFlexRowGrow } from '../../utils/tailwindClass/containers';
-import {
-	DisabledTextBoxBottomClass,
-	DisabledTextBoxRightClass,
-	InvalidTextBoxClass,
-	LabelLeftClass,
-	LabelTopClass,
-	TextBoxBottomClass,
-	TextBoxRightClass,
-} from '../../utils/tailwindClass/inputs';
 import { RequiredIcon } from '../required';
 import { useFormHandlerContext } from './form';
+import { getContainerClass, getInputClass, getInvalid, getLabelClass } from './input-css';
 
 type PropType = {
-	id?: string;
+	id: string;
 	label: string;
-	name: string;
+	name?: string;
+	defaultValue?: number;
 	placeholder?: string;
 	prefix?: string;
 	suffix?: string;
@@ -34,45 +26,80 @@ export function NumberInput({
 	id,
 	label,
 	name,
+	defaultValue,
 	placeholder,
 	prefix,
 	suffix,
 	min,
 	max,
 	step,
-	required,
-	locked,
+	required = false,
+	locked = false,
 	leftLabel,
 }: Readonly<PropType>) {
-	id = id ?? kebabCase(name);
-	let containerClass: string;
-	let labelClass: string;
-	let inputClass: string;
+	const {
+		formData,
+		initialiseForm,
+		updateFieldProperties,
+		updateFieldValue,
+		formInitialised,
+		formLocked,
+		keepData,
+		keepDefault,
+		debounceLatency,
+	} = useFormHandlerContext();
+	const [input, setInput] = useState<string>(defaultValue?.toString() ?? '');
+	const debounceUpdate = useCallback(debounce(updateFieldValue, debounceLatency), [
+		updateFieldValue,
+	]);
+	locked ||= formLocked;
+	name ??= label;
 
-	if (leftLabel) {
-		containerClass = ContainerFlexRowGrow;
-		labelClass = LabelLeftClass;
-		inputClass = locked ? DisabledTextBoxRightClass : TextBoxRightClass;
-	} else {
-		containerClass = ContainerFlexColGrow;
-		labelClass = LabelTopClass;
-		inputClass = locked ? DisabledTextBoxBottomClass : TextBoxBottomClass;
-	}
-
-	const { formData, setFormData } = useFormHandlerContext();
-	const [input, setInput] = useState<string>('');
+	const containerClass = getContainerClass(leftLabel);
+	const labelClass = getLabelClass(leftLabel);
+	const inputClass = clsx('flex flex-1 gap-1', getInputClass(leftLabel, locked));
 
 	const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		setFormData({ path: name, value: tryParseFloat(e.target.value, undefined, null), valid: true });
+		if (locked) return;
+		debounceUpdate([{ field: id, value: tryParseFloat(e.target.value, undefined, null) }]);
 		setInput(e.target.value);
 	};
 
 	useEffect(() => {
-		const newData = formData?.[name]?.value?.toString() ?? '';
+		const newData = formData?.[id]?.value?.toString() ?? '';
 		if (newData !== input) {
 			setInput(newData);
 		}
-	}, [formData?.[name]?.value]);
+	}, [formData?.[id]?.value]);
+
+	// Field Settings
+	const validator = useCallback(
+		(value: number) => {
+			if (isFinite(min) && value < min) return false;
+			if (isFinite(max) && value > max) return false;
+			return true;
+		},
+		[min, max],
+	);
+
+	useEffect(() => {
+		if (formInitialised) {
+			updateFieldProperties([{ field: id, required, validator }]);
+		}
+	}, [required, validator]);
+
+	useEffect(() => {
+		if (formInitialised) {
+			if (!keepData || !formData?.[id]) {
+				initialiseForm([{ field: id, value: defaultValue, name, required, validator }]);
+			} else {
+				setInput(formData?.[id]?.value?.toString() ?? '');
+				if (!keepDefault) {
+					updateFieldProperties([{ field: id, initialValue: defaultValue, required, validator }]);
+				}
+			}
+		}
+	}, [formInitialised]);
 
 	return (
 		<div className={containerClass}>
@@ -80,21 +107,15 @@ export function NumberInput({
 				{label}:<RequiredIcon required={required} />
 			</label>
 
-			<div
-				className={clsx(
-					'flex flex-1',
-					inputClass,
-					(formData?.[name]?.valid ?? true) || InvalidTextBoxClass,
-				)}
-			>
-				{prefix ? <span className="pr-1">{prefix}</span> : null}
+			<div className={clsx(inputClass, getInvalid(formData?.[id]?.valid))}>
+				{prefix ? <span>{prefix}</span> : null}
 
 				<input
 					type="number"
 					id={id}
 					name={name}
 					value={input}
-					onChange={locked ? () => {} : onChange}
+					onChange={onChange}
 					placeholder={placeholder}
 					min={min}
 					max={max}
@@ -104,7 +125,7 @@ export function NumberInput({
 					className={clsx('flex-1', 'px-1', 'bg-transparent', 'focus:outline-none')}
 				/>
 
-				{suffix ? <span className="pl-1">{suffix}</span> : null}
+				{suffix ? <span>{suffix}</span> : null}
 			</div>
 		</div>
 	);

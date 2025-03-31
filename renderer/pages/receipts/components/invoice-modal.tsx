@@ -1,8 +1,8 @@
 import Modal, { ModalButtons } from '../../../components/modal';
+import { RECEIPT_PRINT_PREVIEW_SIZE } from '../../../utils/constants/constants';
 import { GreenButtonClass } from '../../../utils/tailwindClass/button';
 import { ReceiptCreateResponse } from '../../../utils/types/responses/receipts/create';
 import { ReceiptGenerateResponse } from '../../../utils/types/responses/receipts/generate';
-import { PrintPreviewSize } from '../constants';
 import ReceiptPreview from './receipt-preview';
 
 type PropType = {
@@ -25,9 +25,9 @@ export function InvoiceModal({
 			action: async () => {
 				const receipt = await confirmReceipt();
 				window.open(
-					`/receipts/${receipt?.id}`,
+					`/receipts/print/${receipt?.id}`,
 					'_blank',
-					`${PrintPreviewSize},contextIsolation=no,nodeIntegration=yes`,
+					`${RECEIPT_PRINT_PREVIEW_SIZE},contextIsolation=no,nodeIntegration=yes`,
 				);
 				closeModal();
 				closeParentModal();

@@ -4,11 +4,13 @@ import { devLog } from '../../../../utils/devLog';
 import { ExistedError } from '../../../../utils/errors/ExistedError';
 import { ExtendedNextApiRequest } from '../../../../utils/extended-next-api-request';
 import { ClassCreateDto } from '../../../../utils/types/dtos/classes/create';
+import { ClassesCreateResponse } from '../../../../utils/types/responses/classes/create';
+import { ErrorResponse } from '../../../../utils/types/responses/error';
 import { classesCreateServices } from './classes-create-services';
 
 export async function classesCreateController(
 	req: ExtendedNextApiRequest<ClassCreateDto>,
-	res: NextApiResponse,
+	res: NextApiResponse<ClassesCreateResponse | ErrorResponse>,
 ) {
 	devLog('Create Class Handler', req.body);
 
